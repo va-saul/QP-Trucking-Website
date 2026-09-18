@@ -33,7 +33,9 @@ export function buildMetadata({
   const ogImage = image.startsWith("http") ? image : `${SITE_URL}${image}`;
 
   return {
-    title,
+    // `absolute` keeps the root layout's "| QP Trucking Solutions" template
+    // from doubling the brand on pages whose title already includes it.
+    title: { absolute: title },
     description,
     keywords,
     alternates: { canonical: url },
@@ -51,7 +53,7 @@ export function buildMetadata({
       title,
       description,
       locale: "en_US",
-      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+      images: [{ url: ogImage, width: 1376, height: 860, alt: title }],
       ...(publishedTime ? { publishedTime } : {}),
       ...(modifiedTime ? { modifiedTime } : {}),
     },

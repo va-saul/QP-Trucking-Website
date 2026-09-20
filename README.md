@@ -13,7 +13,11 @@ npm install
 npm run dev      # http://localhost:3000
 npm run build    # production build (38 routes, all statically prerendered)
 npm start        # serve the production build
+npm run lint     # typecheck (tsc --noEmit)
 ```
+
+> Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
+> the dev server will start 404-ing. Stop the dev server (or `rm -rf .next` and restart it) instead.
 
 Node 20+ required. No environment variables are needed to run the site.
 
@@ -27,10 +31,30 @@ Node 20+ required. No environment variables are needed to run the site.
 | Styling | Tailwind CSS v4 with a custom `@theme` design system (`src/app/globals.css`) |
 | Type | Bitter Variable (display), Inter Variable (body), IBM Plex Mono (labels) — self-hosted via Fontsource, no third-party font requests |
 | Motion | GSAP 3.15 (`ScrollTrigger`, `SplitText`) — `src/components/motion.tsx` |
-| Imagery | 16 page-specific hero banners in `public/images/hero/` — full-bleed behind every hero (whole picture visible on phones) and served through `next/image` (AVIF/WebP) |
-| Brand | One logo file, `public/images/brand/qp-logo.png`, used everywhere: header, footer, 404, trust marquee, schema/OG image, web manifest **and the browser tab icon** (`favicon.ico` + `icon.png` are generated from that same PNG). No redrawn or SVG stand-in mark |
+| Imagery | 16 page-specific hero banners in `public/images/hero/`, rendered **full-bleed** by `HeroBackdrop` at every breakpoint (`fill` + `object-cover`, `sizes="100vw"`), served through `next/image` (AVIF/WebP) |
+| Brand | **One logo file** — `public/images/brand/qp-logo.png` — used by the header, mobile drawer, footer, marquee, 404, the browser tab, the iOS home screen and the PWA manifest. Nothing is redrawn or re-typeset |
 | Forms | `LeadForm` client component → `POST /api/lead` → optional webhook (`LEAD_WEBHOOK_URL`) |
 | SEO | Per-page metadata, canonicals, OpenGraph/Twitter, `sitemap.xml`, `robots.txt`, 40+ JSON-LD graphs |
+
+### Brand assets (single source)
+
+Every logo surface renders `public/images/brand/qp-logo.png` as-is (`LOGO_SRC` in
+`src/components/brand.tsx`). The tab icon and iOS icon are derived from that one file — re-run these
+three commands after replacing it:
+
+```bash
+# browser tab: byte-for-byte copy of the supplied file
+cp public/images/brand/qp-logo.png src/app/icon.png
+
+# iOS home screen: the mark on the artwork's own navy, 180×180
+convert public/images/brand/qp-logo.png -resize 148x148 \
+  -background "#061a38" -alpha remove -alpha off -gravity center -extent 180x180 \
+  src/app/apple-icon.png
+
+# legacy /favicon.ico: 48 / 32 / 16 px
+convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alpha off \
+  -resize 256x256 -define icon:auto-resize=48,32,16 src/app/favicon.ico
+```
 
 ### Routes
 
@@ -51,7 +75,7 @@ Node 20+ required. No environment variables are needed to run the site.
 /insights                            Editorial hub
 /insights/[slug]                     7 articles (incl. the 80-term glossary)
 /privacy-policy                      Privacy notice
-/sitemap.xml · /robots.txt · /manifest.webmanifest · /favicon.ico · /icon.png
+/sitemap.xml · /robots.txt · /manifest.webmanifest · /icon.svg
 /api/lead                            Lead intake endpoint
 ```
 

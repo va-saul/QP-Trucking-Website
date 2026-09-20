@@ -80,7 +80,6 @@ export default function GetStartedPage() {
           { label: "Home", href: "/" },
           { label: "Get started", href: "/get-started" },
         ]}
-        chips={["Same-day callback", "No obligation", "No application fee"]}
         stats={[
           { label: "Callback", value: "Under 1 hr" },
           { label: "Setup", value: "24 hrs" },

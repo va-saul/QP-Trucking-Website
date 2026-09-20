@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="New trucking authority setup — first load under a new MC number" chips={["$100 client rate", "1,000s launched", "24-hour setup"]} />;
+  return <ServicePageTemplate service={service} imageAlt="New trucking authority setup — first load under a new MC number" />;
 }

@@ -1,22 +1,22 @@
 import type { ReactNode } from "react";
-import { Container, Btn, Breadcrumbs, Chip } from "@/components/ui";
-import { HeroBanner } from "@/components/hero/HeroBanner";
+import { Container, Btn, Breadcrumbs } from "@/components/ui";
+import { HeroBackdrop } from "@/components/hero/HeroBackdrop";
+import { HeroSpecCard } from "@/components/hero/HeroArt";
 import { SplitHeading } from "@/components/motion";
+import { TruckLane } from "@/components/hero/TruckLane";
 import { org } from "@/content/site";
 import type { AccentKey, HeroVariant } from "@/lib/types";
 
 /**
  * The hero band used by every interior page.
  *
- * The page's banner photograph is a full-bleed background layer behind the
- * copy — the whole picture fills the band on mobile and desktop alike, instead
- * of being boxed into a plate on the right-hand side of the screen.
+ * Layout brief: **the photograph is the banner.** It fills the whole hero at
+ * every breakpoint — including phones, where the copy sits on the darker lower
+ * half of the frame. Everything else is pared back to what a visitor needs:
+ * what this page is, one line of proof, two actions, and a slim fact rail.
  *
- * Mobile contract (\"must show full on mobile screens\"):
- *  · min-height in `svh` units so phone browser chrome never clips it
- *  · copy clamps down to small-screen sizes and stays inside the viewport
- *  · the banner is background-positioned `cover`, so it always fills the frame
- *    edge to edge with no letterboxing and no sideways overflow
+ * Mobile contract: min-height in `svh` (browser chrome can never crop it),
+ * clamped type, full-width taps, and no element may exceed the viewport width.
  */
 export function PageHero({
   eyebrow,
@@ -27,25 +27,21 @@ export function PageHero({
   variant,
   accent = "blue",
   trail,
-  chips = [],
   stats = [],
   primaryHref,
   primaryLabel = "Apply now",
   secondaryHref,
   secondaryLabel,
   priority = false,
-  children,
 }: {
   eyebrow: string;
   title: string;
   tagline: string;
   image: string;
   imageAlt: string;
-  /** Retained for call-site compatibility (artwork is now the full-bleed banner). */
   variant: HeroVariant;
   accent?: AccentKey;
   trail: { label: string; href?: string }[];
-  chips?: string[];
   stats?: { label: string; value: string }[];
   primaryHref: string;
   primaryLabel?: string;
@@ -54,8 +50,6 @@ export function PageHero({
   priority?: boolean;
   children?: ReactNode;
 }) {
-  void variant;
-
   const accentDot: Record<AccentKey, string> = {
     blue: "bg-brand-300",
     gold: "bg-gold-400",
@@ -63,85 +57,73 @@ export function PageHero({
   };
 
   return (
-    <header className="hero-shell relative isolate flex min-h-[100svh] flex-col justify-between overflow-hidden pt-[calc(62.5vw+1.5rem)] lg:min-h-[90svh] lg:pt-[124px]">
-      <HeroBanner image={image} alt={imageAlt} priority={priority} />
+    <header className="hero-shell relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-[84px] pb-0 sm:pt-[100px] lg:min-h-[90svh] lg:pt-[152px]">
+      <HeroBackdrop image={image} alt={imageAlt} priority={priority} overlay="left" />
 
-      <Container className="relative flex flex-1 items-center">
-        <div className="w-full min-w-0 max-w-[46rem] pb-1 sm:pb-2 lg:pb-4">
-          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+      <Container className="relative flex flex-1 items-end pb-8 sm:items-center sm:pb-4">
+        <div className="grid w-full items-center gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-12">
+          <div className="min-w-0">
             <Breadcrumbs trail={trail} />
+
+            <p className="eyebrow mt-5 flex items-center gap-2.5 text-gold-400">
+              <span className={`h-1.5 w-1.5 rounded-full ${accentDot[accent]}`} />
+              {eyebrow}
+            </p>
+
+            <SplitHeading
+              as="h1"
+              text={title}
+              immediate
+              delay={0.2}
+              className="mt-3 font-display text-display-lg font-extrabold text-white max-w-[20ch]"
+            />
+
+            <p className="mt-4 max-w-[52ch] text-hero-body text-white/80">{tagline}</p>
+
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Btn href={primaryHref} variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
+                {primaryLabel}
+              </Btn>
+              <Btn
+                href={secondaryHref ?? `tel:${org.salesPhone}`}
+                variant="outline"
+                size="lg"
+                className="w-full py-3.5 sm:w-auto sm:py-4"
+              >
+                {secondaryLabel ?? `Call ${org.salesPhoneDisplay}`}
+              </Btn>
+            </div>
           </div>
 
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <Chip tone="gold">{eyebrow}</Chip>
-            {chips.slice(0, 3).map((c) => (
-              <Chip key={c} tone="dark">
-                {c}
-              </Chip>
-            ))}
+          {/* the page's own spec card — desktop only, so the phone view stays a photograph */}
+          <div className="hidden lg:block">
+            <HeroSpecCard variant={variant} />
           </div>
-
-          <SplitHeading
-            as="h1"
-            text={title}
-            immediate
-            delay={0.15}
-            className="font-display text-display-lg font-extrabold text-white max-w-[19ch] sm:max-w-[22ch]"
-          />
-
-          <p className="mt-4 max-w-[54ch] text-hero-body text-steel-200/90 sm:mt-5">{tagline}</p>
-
-          <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:items-center">
-            <Btn href={primaryHref} variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
-              {primaryLabel}
-            </Btn>
-            <Btn
-              href={secondaryHref ?? `tel:${org.salesPhone}`}
-              variant="outline"
-              size="lg"
-              className="w-full py-3.5 sm:w-auto sm:py-4"
-            >
-              {secondaryLabel ?? `Call ${org.salesPhoneDisplay}`}
-            </Btn>
-          </div>
-
-          <ul className="mt-6 hidden flex-wrap items-center gap-x-5 gap-y-2 text-[0.8rem] text-white/70 sm:mt-7 sm:flex">
-            {[
-              { icon: "shield", text: "No long-term contract" },
-              { icon: "bolt", text: "Setup in under 24 hours" },
-              { icon: "pin", text: `Louisville, KY · serving 48 states` },
-            ].map((t) => (
-              <li key={t.text} className="flex items-center gap-2">
-                <span className={`h-1.5 w-1.5 rounded-full ${accentDot[accent]}`} />
-                {t.text}
-              </li>
-            ))}
-          </ul>
         </div>
       </Container>
 
-      {/* stat rail */}
-      {stats.length ? (
-        <div className="relative border-t border-white/12 bg-navy-950/45 backdrop-blur-sm">
-          <Container>
-            <dl className="grid grid-cols-2 gap-y-4 py-4 sm:grid-cols-4 sm:gap-y-0">
-              {stats.slice(0, 4).map((s, i) => (
-                <div
-                  key={s.label}
-                  className={`min-w-0 ${i > 1 ? "hidden sm:block" : ""} ${i > 0 ? "sm:pl-5" : ""} ${
-                    i === 0 ? "" : "sm:border-l sm:border-white/10"
-                  }`}
-                >
-                  <dt className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-white/55">{s.label}</dt>
-                  <dd className="mt-1 truncate font-display text-[1rem] font-bold text-white sm:text-[1.08rem]">{s.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Container>
-        </div>
-      ) : null}
+      {/* slim fact rail — the page's headline numbers, always visible */}
+      <div className="relative border-t border-white/12 bg-navy-950/55 backdrop-blur-sm">
+        <Container>
+          <dl className="grid grid-cols-2 gap-y-4 py-4 sm:grid-cols-4">
+            {stats.slice(0, 4).map((s, i) => (
+              <div
+                key={s.label}
+                className={`min-w-0 ${i > 1 ? "hidden sm:block" : ""} ${
+                  i > 0 ? "sm:border-l sm:border-white/10 sm:pl-5" : ""
+                }`}
+              >
+                <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-white/50">{s.label}</dt>
+                <dd className="mt-1 truncate font-display text-[1rem] font-bold text-white sm:text-[1.05rem]">
+                  {s.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Container>
+      </div>
 
-      {children}
+      <TruckLane />
     </header>
   );
 }

@@ -2,11 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Logo } from "@/components/brand";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Logo, QPMark } from "@/components/brand";
 import { navigation, org } from "@/content/site";
-import { servicePath } from "@/content/services";
-import { servicesBySlug } from "@/content/services";
+import { servicePath, servicesBySlug } from "@/content/services";
+import { prefersReducedMotion } from "@/components/motion";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 const FEATURED = ["pure-non-recourse", "insurance", "new-authority"].map((s) => servicesBySlug[s]);
 
@@ -17,6 +21,14 @@ export function Header() {
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
 
+  const barRef = useRef<HTMLDivElement | null>(null);
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const navRef = useRef<HTMLDivElement | null>(null);
+  const pillRef = useRef<HTMLSpanElement | null>(null);
+  const pillX = useRef<((v: number) => void) | null>(null);
+  const pillW = useRef<((v: number) => void) | null>(null);
+
+  /* ---------------- scroll state ---------------- */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -37,25 +49,84 @@ export function Header() {
     };
   }, [mobileOpen]);
 
+  /* ---------------- GSAP: nav underline + entrance ---------------- */
+  useEffect(() => {
+    const nav = navRef.current;
+    const pill = pillRef.current;
+    if (!nav || !pill || prefersReducedMotion()) return;
+
+    pillX.current = gsap.quickTo(pill, "x", { duration: 0.45, ease: "power3.out" });
+    pillW.current = gsap.quickTo(pill, "width", { duration: 0.45, ease: "power3.out" });
+
+    const links = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-link]"));
+    const ctx = gsap.context(() => {
+      // entrance: the header assembles itself on first paint
+      gsap.fromTo(
+        "[data-header-item]",
+        { y: -14, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.055, ease: "power3.out", delay: 0.1 },
+      );
+      gsap.fromTo(pill, { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.5 });
+    }, nav);
+
+    const move = (el: HTMLElement) => {
+      const navRect = nav.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      pillX.current?.(r.left - navRect.left);
+      pillW.current?.(r.width);
+    };
+
+    const onEnter = (e: Event) => move(e.currentTarget as HTMLElement);
+    links.forEach((l) => l.addEventListener("pointerenter", onEnter));
+
+    return () => {
+      links.forEach((l) => l.removeEventListener("pointerenter", onEnter));
+      ctx.revert();
+    };
+  }, []);
+
+  /* ---------------- GSAP: smooth scroll shrink ---------------- */
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell || prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      const trigger = {
+        start: 60,
+        end: 140,
+        toggleActions: "play none none reverse",
+        trigger: document.body,
+      };
+      // the bar tightens and the brand mark eases down a notch — one gesture
+      gsap.to(shell, { paddingTop: 6, paddingBottom: 6, duration: 0.35, ease: "power2.out", scrollTrigger: trigger });
+      gsap.to("[data-brand-logo]", {
+        scale: 0.9,
+        duration: 0.35,
+        ease: "power2.out",
+        scrollTrigger: trigger,
+      });
+    }, shell);
+    return () => ctx.revert();
+  }, []);
+
   const solid = scrolled || mobileOpen;
 
   return (
     <>
-      {/* utility strip */}
-      <div className="fixed inset-x-0 top-0 z-[55] hidden h-9 items-center border-b border-white/10 bg-navy-950/85 text-white backdrop-blur-sm lg:flex">
-        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-7 text-[0.76rem]">
-          <p className="flex items-center gap-2 text-white/75">
-            <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
+      {/* utility strip — desktop only */}
+      <div className="fixed inset-x-0 top-0 z-[55] hidden h-9 items-center bg-navy-950/90 text-white backdrop-blur-sm lg:flex">
+        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-8 text-[0.75rem]">
+          <p className="flex items-center gap-2 text-white/70">
+            <span className="h-1 w-1 rounded-full bg-gold-400" />
             Family-owned in Louisville, KY · {org.hoursDisplay}
           </p>
-          <div className="flex items-center gap-5">
-            <a href={`tel:${org.officePhone}`} className="text-white/80 hover:text-white">
-              Office / accounting: <span className="font-semibold text-white">{org.officePhoneDisplay}</span>
+          <div className="flex items-center gap-6">
+            <a href={`tel:${org.officePhone}`} className="text-white/70 transition-colors hover:text-white">
+              Office / accounting <span className="font-semibold text-white">{org.officePhoneDisplay}</span>
             </a>
-            <Link href="/faq" className="text-white/80 hover:text-white">
+            <Link href="/faq" className="text-white/70 transition-colors hover:text-white">
               FAQ
             </Link>
-            <Link href="/contact" className="text-white/80 hover:text-white">
+            <Link href="/contact" className="text-white/70 transition-colors hover:text-white">
               Contact
             </Link>
           </div>
@@ -63,93 +134,88 @@ export function Header() {
       </div>
 
       <header
-        className={`fixed inset-x-0 z-50 transition-all duration-300 lg:top-9 ${
+        className={`fixed inset-x-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 lg:top-9 ${
           solid
-            ? "top-0 border-b border-navy-900/10 bg-white/95 shadow-[0_10px_30px_-24px_rgba(4,18,42,.6)] backdrop-blur-md"
-            : "top-0 border-b border-transparent bg-transparent"
+            ? "border-b border-navy-900/8 bg-white/92 backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent"
         }`}
       >
-        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-4 px-5 py-3 sm:px-7 sm:py-3.5 lg:px-8">
-          <Logo tone={solid ? "navy" : "white"} />
+        <div
+          ref={shellRef}
+          className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-3.5 sm:px-7 lg:px-8"
+        >
+          <div data-header-item>
+            <Logo tone={solid ? "navy" : "white"} priority />
+          </div>
 
-          {/* desktop nav */}
-          <nav aria-label="Primary" className="hidden items-center gap-0.5 lg:flex">
-            {navigation.map((item) => {
-              const active = hovered === item.label;
-              return (
-                <div
-                  key={item.label}
-                  className="relative"
-                  onMouseEnter={() => setHovered(item.label)}
-                  onMouseLeave={() => setHovered(null)}
+          {/* desktop nav with GSAP-driven hover indicator */}
+          <nav ref={navRef} aria-label="Primary" className="relative hidden items-center lg:flex">
+            <span
+              ref={pillRef}
+              aria-hidden="true"
+              className={`pointer-events-none absolute left-0 top-1/2 h-8 -translate-y-1/2 rounded-full ${
+                solid ? "bg-navy-900/6" : "bg-white/12"
+              }`}
+              style={{ width: 0, opacity: 0 }}
+            />
+            {navigation.map((item) => (
+              <div
+                key={item.label}
+                className="relative"
+                onMouseEnter={() => setHovered(item.label)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                <Link
+                  data-header-item
+                  data-nav-link
+                  href={item.href}
+                  className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9rem] font-semibold transition-colors ${
+                    solid ? "text-navy-800 hover:text-brand-500" : "text-white/90 hover:text-white"
+                  }`}
+                  aria-expanded={item.children ? hovered === item.label : undefined}
                 >
-                  <Link
-                    href={item.href}
-                    className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9rem] font-semibold transition-colors ${
-                      solid ? "text-navy-800 hover:text-brand-500" : "text-white/90 hover:text-white"
-                    }`}
-                    aria-expanded={item.children ? active : undefined}
-                  >
-                    {item.label}
-                    {item.children ? (
-                      <svg viewBox="0 0 12 12" className={`h-2.5 w-2.5 transition-transform ${active ? "rotate-180" : ""}`} aria-hidden="true">
-                        <path d="M2 4.5 6 8.5l4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                      </svg>
-                    ) : null}
-                  </Link>
-
-                  {item.children && active ? (
-                    <div className="absolute left-1/2 top-full z-50 w-[min(680px,88vw)] -translate-x-1/2 pt-3">
-                      <div className="overflow-hidden rounded-[1.1rem] border border-steel-200 bg-white p-3 shadow-[0_40px_80px_-40px_rgba(4,18,42,.55)]">
-                        <div className="grid gap-3 sm:grid-cols-[1.6fr_1fr]">
-                          <ul className="grid gap-0.5">
-                            {item.children.map((child) => (
-                              <li key={child.href}>
-                                <Link
-                                  href={child.href}
-                                  className="group flex flex-col rounded-[0.8rem] px-3.5 py-2.5 transition-colors hover:bg-steel-50"
-                                >
-                                  <span className="font-display text-[0.95rem] font-bold text-navy-900 group-hover:text-brand-500">
-                                    {child.label}
-                                  </span>
-                                  {child.blurb ? (
-                                    <span className="mt-0.5 text-[0.8rem] leading-snug text-steel-600">{child.blurb}</span>
-                                  ) : null}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                          <div className="relative overflow-hidden rounded-[0.9rem] bg-navy-900 p-4 text-white">
-                            <p className="relative font-mono text-[0.6rem] uppercase tracking-[0.18em] text-gold-400">
-                              Client favourite
-                            </p>
-                            <p className="relative mt-2 font-display text-[1.05rem] font-bold leading-snug">
-                              Pure Non-Recourse™ — never buy back a load again.
-                            </p>
-                            <Link
-                              href="/factoring/pure-non-recourse"
-                              className="relative mt-3 inline-flex items-center gap-1.5 text-[0.82rem] font-bold text-gold-400 hover:underline"
-                            >
-                              See how it works
-                              <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" aria-hidden="true">
-                                <path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  {item.label}
+                  {item.children ? (
+                    <svg viewBox="0 0 12 12" className={`h-2.5 w-2.5 transition-transform ${hovered === item.label ? "rotate-180" : ""}`} aria-hidden="true">
+                      <path d="M2 4.5 6 8.5l4-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
                   ) : null}
-                </div>
-              );
-            })}
+                </Link>
+
+                {item.children && hovered === item.label ? (
+                  <div className="absolute left-1/2 top-full z-50 w-[min(640px,86vw)] -translate-x-1/2 pt-3">
+                    <div className="overflow-hidden rounded-[1rem] border border-steel-200 bg-white p-2 shadow-[0_30px_70px_-40px_rgba(4,18,42,.5)]">
+                      <ul className="grid">
+                        {item.children.map((child) => (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              className="group flex flex-col rounded-[0.7rem] px-3.5 py-2.5 transition-colors hover:bg-steel-50"
+                            >
+                              <span className="font-display text-[0.94rem] font-bold text-navy-900 group-hover:text-brand-500">
+                                {child.label}
+                              </span>
+                              {child.blurb ? (
+                                <span className="mt-0.5 text-[0.79rem] leading-snug text-steel-600">{child.blurb}</span>
+                              ) : null}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ))}
           </nav>
 
-          {/* desktop CTAs */}
-          <div className="hidden items-center gap-2.5 lg:flex">
+          <div className="hidden items-center gap-3 lg:flex">
             <a
+              data-header-item
               href={`tel:${org.salesPhone}`}
-              className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-[0.88rem] font-bold transition-colors ${
+              // the mark-only logo is wider than the old typeset one, so the phone
+              // number yields to the nav until there is real room (xl)
+              className={`hidden items-center gap-2 text-[0.88rem] font-bold transition-colors xl:flex ${
                 solid ? "text-navy-900 hover:text-brand-500" : "text-white hover:text-gold-400"
               }`}
             >
@@ -161,7 +227,7 @@ export function Header() {
               </svg>
               {org.salesPhoneDisplay}
             </a>
-            <Link href="/get-started" className="btn btn-primary px-5 py-3 text-[0.9rem]">
+            <Link data-header-item href="/get-started" className="btn btn-primary px-5 py-3 text-[0.88rem]">
               Get started
             </Link>
           </div>
@@ -172,7 +238,7 @@ export function Header() {
               href={`tel:${org.salesPhone}`}
               aria-label={`Call ${org.salesPhoneDisplay}`}
               className={`flex h-10 w-10 items-center justify-center rounded-full border ${
-                solid ? "border-navy-900/15 text-navy-900" : "border-white/30 text-white"
+                solid ? "border-navy-900/12 text-navy-900" : "border-white/30 text-white"
               }`}
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
@@ -188,7 +254,7 @@ export function Header() {
               aria-expanded={mobileOpen}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               className={`flex h-10 w-10 items-center justify-center rounded-full border ${
-                solid ? "border-navy-900/15 text-navy-900" : "border-white/30 text-white"
+                solid ? "border-navy-900/12 text-navy-900" : "border-white/30 text-white"
               }`}
             >
               <span className="relative block h-3 w-4">
@@ -213,6 +279,7 @@ export function Header() {
           mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
+        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
         <nav aria-label="Mobile" className="relative px-5">
           <ul className="divide-y divide-white/10">
             {navigation.map((item) => {
@@ -222,7 +289,7 @@ export function Header() {
                   <div className="flex items-center justify-between">
                     <Link
                       href={item.href}
-                      className="flex-1 py-3.5 font-display text-[1.15rem] font-bold text-white"
+                      className="flex-1 py-3.5 font-display text-[1.12rem] font-bold text-white"
                       onClick={() => setMobileOpen(false)}
                     >
                       {item.label}
@@ -240,17 +307,17 @@ export function Header() {
                     ) : null}
                   </div>
                   {item.children && open ? (
-                    <ul className="mb-3 grid gap-1 rounded-[1rem] bg-white/[0.06] p-2">
+                    <ul className="mb-3 grid gap-1 rounded-[0.9rem] bg-white/[0.05] p-2">
                       {item.children.map((child) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
                             onClick={() => setMobileOpen(false)}
-                            className="block rounded-[0.75rem] px-3.5 py-2.5"
+                            className="block rounded-[0.7rem] px-3.5 py-2.5"
                           >
-                            <span className="block text-[0.95rem] font-bold text-white">{child.label}</span>
+                            <span className="block text-[0.94rem] font-bold text-white">{child.label}</span>
                             {child.blurb ? (
-                              <span className="mt-0.5 block text-[0.78rem] leading-snug text-white/60">{child.blurb}</span>
+                              <span className="mt-0.5 block text-[0.77rem] leading-snug text-white/55">{child.blurb}</span>
                             ) : null}
                           </Link>
                         </li>
@@ -262,23 +329,25 @@ export function Header() {
             })}
           </ul>
 
-          {/* featured services on mobile */}
           <div className="mt-6 grid gap-3">
             {FEATURED.map((s) => (
               <Link
                 key={s.slug}
                 href={servicePath(s)}
                 onClick={() => setMobileOpen(false)}
-                className="glass flex items-center justify-between rounded-[1rem] p-4"
+                className="glass flex items-center justify-between rounded-[0.9rem] p-4"
               >
-                <span>
-                  <span className="block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-gold-400">
-                    {s.category}
+                <span className="flex items-center gap-3">
+                  <QPMark tone="white" className="h-5 w-auto opacity-80" />
+                  <span>
+                    <span className="block font-mono text-[0.58rem] uppercase tracking-[0.16em] text-gold-400">
+                      {s.category}
+                    </span>
+                    <span className="mt-0.5 block font-display text-[0.98rem] font-bold text-white">{s.short}</span>
                   </span>
-                  <span className="mt-1 block font-display text-[1rem] font-bold text-white">{s.short}</span>
                 </span>
-                <svg viewBox="0 0 20 20" className="h-4 w-4 text-white/70" aria-hidden="true">
-                  <path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg viewBox="0 0 20 20" className="h-4 w-4 text-white/60" aria-hidden="true">
+                  <path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
             ))}
@@ -296,7 +365,7 @@ export function Header() {
             </a>
           </div>
 
-          <p className="mt-6 text-center text-[0.8rem] text-white/60">
+          <p className="mt-6 text-center text-[0.78rem] text-white/50">
             {org.street} · {org.city}, {org.region} {org.postalCode}
             <br />
             {org.hoursDisplay}

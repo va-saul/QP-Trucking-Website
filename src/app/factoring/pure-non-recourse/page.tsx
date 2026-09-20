@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="Pure Non-Recourse factoring protection for trucking companies" chips={["Zero chargebacks", "No aging window", "Month to month"]} />;
+  return <ServicePageTemplate service={service} imageAlt="Pure Non-Recourse factoring protection for trucking companies" />;
 }

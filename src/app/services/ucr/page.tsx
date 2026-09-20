@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="Unified Carrier Registration filing and annual renewal" chips={["Annual renewal", "Fleet-size fee", "$40 client rate"]} />;
+  return <ServicePageTemplate service={service} imageAlt="Unified Carrier Registration filing and annual renewal" />;
 }

@@ -94,7 +94,6 @@ export default function StorePage() {
           { label: "Home", href: "/" },
           { label: "Services & pricing", href: "/store" },
         ]}
-        chips={["Published prices", "$40 client rates", "Same-day filing"]}
         stats={[
           { label: "Services", value: `${services.length}` },
           { label: "Client discount", value: "Up to $35" },
@@ -113,7 +112,7 @@ export default function StorePage() {
             answer="New Authority Set-Up is $200 ($100 for factoring clients), BOC-3, Form 2290, UCR, MCS-150 and SCAC are $60 each ($40 for clients), IRP registration is $195, IFTA is $150 for registration, $60 per quarterly filing and $100 annually ($100/$40/$70 for clients), the DOT binder is $99 as a PDF or $139 printed, and drug and alcohol consortium enrollment is $135 ($100 for clients)."
           />
 
-          <div className="mt-10 overflow-hidden rounded-[1.2rem] border border-steel-200">
+          <Reveal className="mt-10 overflow-hidden rounded-[1.2rem] border border-steel-200">
             <div className="overflow-x-auto scroller">
               <table className="w-full min-w-[760px] border-collapse text-left">
                 <caption className="sr-only">QP Trucking Solutions services with standard and factoring client pricing</caption>
@@ -183,7 +182,7 @@ export default function StorePage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </Reveal>
 
           <Reveal className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">

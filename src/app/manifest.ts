@@ -1,11 +1,7 @@
 import type { MetadataRoute } from "next";
 import { org } from "@/content/site";
+import { LOGO_SRC } from "@/components/brand";
 
-/**
- * PWA / app manifest. Every icon is the single brand PNG
- * (`/images/brand/qp-logo.png`) or a size variant exported from it, so the
- * installed-app icon matches the browser tab icon exactly.
- */
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${org.name} — Factoring, Insurance & Compliance`,
@@ -18,10 +14,9 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#061a38",
     categories: ["business", "finance", "productivity"],
     icons: [
-      { src: "/images/brand/qp-logo-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/images/brand/qp-logo.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/images/brand/qp-logo.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: "/favicon.ico", sizes: "any", type: "image/x-icon" },
+      // the supplied logo file — the same PNG the header, footer and tab icon use
+      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

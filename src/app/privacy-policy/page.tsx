@@ -131,7 +131,6 @@ export default function PrivacyPolicyPage() {
           { label: "Home", href: "/" },
           { label: "Privacy policy", href: "/privacy-policy" },
         ]}
-        chips={["Last updated September 2026", "US-based data handling"]}
         stats={[
           { label: "Entity", value: org.legalName },
           { label: "Contact", value: org.privacyEmail },

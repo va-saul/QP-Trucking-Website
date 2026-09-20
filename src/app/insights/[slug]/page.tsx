@@ -70,7 +70,6 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
           { label: "Insights", href: "/insights" },
           { label: post.title, href: `/insights/${post.slug}` },
         ]}
-        chips={[`${post.readingMinutes} min read`, "QP Trucking Solutions", "Updated regularly"]}
         stats={[
           { label: "Category", value: post.category },
           { label: "Published", value: new Date(post.date).toLocaleDateString("en-US", { month: "short", year: "numeric" }) },
@@ -171,6 +170,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
               </div>
 
               <div className="relative overflow-hidden rounded-[1.15rem] bg-navy-900 p-6 text-white">
+                <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-35" />
                 <p className="relative eyebrow text-gold-400">Free broker credit checks</p>
                 <p className="relative mt-3 text-[0.95rem] leading-relaxed text-white/85">
                   QP clients can verify any broker's credit before booking a load — no cost, no limit.

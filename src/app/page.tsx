@@ -185,12 +185,10 @@ export default function HomePage() {
           />
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {cashCycle.map((step, i) => (
-              <Reveal key={step.n} delay={i * 0.08}>
-                <div className="relative h-full overflow-hidden rounded-[1.15rem] border border-steel-200 bg-paper p-6">
-                  <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-brand-500">{step.n}</span>
-                  <h3 className="relative mt-3 font-display text-[1.1rem] font-bold text-navy-900">{step.title}</h3>
-                  <p className="relative mt-2.5 text-[0.92rem] leading-relaxed text-steel-600">{step.body}</p>
-                </div>
+              <Reveal key={step.n} delay={i * 0.08} className="border-t border-steel-200 pt-5">
+                <span className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-brand-500">{step.n}</span>
+                <h3 className="mt-3 font-display text-[1.1rem] font-bold text-navy-900">{step.title}</h3>
+                <p className="mt-2.5 text-[0.92rem] leading-relaxed text-steel-600">{step.body}</p>
               </Reveal>
             ))}
           </div>
@@ -245,8 +243,8 @@ export default function HomePage() {
             {programs.map((p, i) => (
               <Reveal key={p.name} delay={i * 0.08}>
                 <article
-                  className={`relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border p-6 ${
-                    p.tone === "gold" ? "border-gold-400/60 bg-gold-400/[0.07]" : "border-white/12 bg-white/[0.045]"
+                  className={`relative flex h-full flex-col overflow-hidden rounded-[1.1rem] border p-6 ${
+                    p.tone === "gold" ? "border-gold-400/50 bg-gold-400/[0.05]" : "border-white/10 bg-white/[0.03]"
                   }`}
                 >
                   {p.tone === "gold" ? (
@@ -302,7 +300,7 @@ export default function HomePage() {
             <ProcessSteps steps={processSteps} tone="dark" />
           </div>
 
-          <div className="mt-14 rounded-[1.35rem] border border-steel-200 bg-bone p-6 sm:p-9">
+          <div className="mt-16 border-t border-steel-200 pt-10">
             <StatStrip
               stats={[
                 { value: 1000, suffix: "+", label: "Carriers funded & set up", sub: "owner-operators to 200-truck fleets" },
@@ -323,6 +321,7 @@ export default function HomePage() {
       {/*  TESTIMONIALS                                                      */}
       {/* ------------------------------------------------------------------ */}
       <Section tone="navy">
+        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
         <Container className="relative">
           <SectionHead
             tone="light"

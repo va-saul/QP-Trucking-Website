@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="ELD and dashcam savings program for trucking fleets" chips={["Member pricing", "FMCSA registered", "Insurance credits"]} />;
+  return <ServicePageTemplate service={service} imageAlt="ELD and dashcam savings program for trucking fleets" />;
 }

@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Faq } from "@/lib/types";
+import { prefersReducedMotion } from "@/components/motion";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 /**
  * Accordion FAQ. Answers stay in the DOM and in the JSON-LD (FAQPage) so search
@@ -20,14 +25,37 @@ export function FaqAccordion({
 }) {
   const [open, setOpen] = useState<number | null>(defaultOpen);
   const isDark = tone === "dark";
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  // answers slide in as the list scrolls into view
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el || prefersReducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el.querySelectorAll("[data-faq-item]"),
+        { opacity: 0, y: 18 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.06,
+          ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        },
+      );
+    }, el);
+    return () => ctx.revert();
+  }, [faqs]);
 
   return (
-    <div className={`grid gap-3 ${columns === 2 ? "md:grid-cols-2" : ""}`}>
+    <div ref={listRef} className={`grid gap-3 ${columns === 2 ? "md:grid-cols-2" : ""}`}>
       {faqs.map((f, i) => {
         const isOpen = open === i;
         return (
           <div
             key={f.q}
+            data-faq-item
             className={`overflow-hidden rounded-[1rem] border transition-colors duration-300 ${
               isDark
                 ? isOpen

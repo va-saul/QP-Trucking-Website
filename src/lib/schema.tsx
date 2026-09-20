@@ -72,7 +72,7 @@ export function organizationSchema() {
         itemOffered: { "@type": "Service", name: b },
       })),
     },
-    sameAs: [org.youtube],
+    sameAs: [org.facebook, org.instagram, org.twitter, org.linkedin, org.youtube, org.tiktok],
   };
 }
 

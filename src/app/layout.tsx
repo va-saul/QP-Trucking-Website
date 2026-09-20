@@ -8,8 +8,9 @@ import "./globals.css";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { RouteProgress } from "@/components/motion";
+import { TruckAnimation } from "@/components/TruckAnimation";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
 import { SITE_URL, org } from "@/content/site";
 
@@ -85,12 +86,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <RouteProgress />
+        <TruckAnimation />
         <Header />
         <main id="main">{children}</main>
         <Footer />
-        <StickyMobileCta />
-        {/* spacer so the sticky mobile bar never covers the end of the page */}
-        <div aria-hidden="true" className="h-[68px] lg:hidden" />
+        <MobileBottomNav />
+        {/* spacer so the bottom nav never covers the end of the page */}
+        <div aria-hidden="true" className="h-[96px] lg:hidden" />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
       </body>
     </html>

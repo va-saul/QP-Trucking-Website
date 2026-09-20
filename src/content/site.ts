@@ -28,7 +28,12 @@ export const org = {
   hoursDisplay: "Mon – Fri, 8:00 AM – 8:00 PM EST",
   applicationUrl:
     "https://deciphercredit.net/products/4huIAwYJXIiFJuKRi6cGXuUEMKpesAOGQISizCZG3hK7AlJ6rnnEfic7vGrY/application",
-  youtube: "https://www.youtube.com/channel/UC25zvw7n1n_99br-fS7SgHQ",
+  youtube: "https://www.youtube.com/channel/UCUlfep3o3iPMDILCi3HFwOw",
+  facebook: "https://www.facebook.com/qpfactoring/",
+  instagram: "https://www.instagram.com/qpcapital/",
+  twitter: "https://x.com/QpCapital",
+  linkedin: "https://www.linkedin.com/in/qp-capital-785b7a260/",
+  tiktok: "https://www.tiktok.com/@qp_capital",
   mapUrl: "https://maps.google.com/?q=4612+Outer+Loop+Rd+Louisville+KY+40219",
 };
 

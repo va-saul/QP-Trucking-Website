@@ -87,7 +87,8 @@ export function PageHero({
           fill
           priority={priority}
           sizes="100vw"
-          className="object-cover object-center"
+          className="h-full w-full object-cover"
+          style={{ objectPosition: "55% 40%" }}
         />
         {/* Clean gradient overlay (no stripe/blueprint noise) */}
         <span
@@ -118,15 +119,15 @@ export function PageHero({
         className="pointer-events-none absolute -bottom-32 left-[-10%] z-[1] h-[380px] w-[380px] rounded-full bg-gold-500/15 blur-[120px]"
       />
 
-      <Container className="relative z-10 flex flex-1 items-center py-8">
-        <div className="mx-auto grid w-full max-w-5xl items-center gap-8 text-center lg:grid-cols-[1.1fr_0.9fr] lg:gap-14 lg:text-left">
+      <Container className="relative z-10 flex flex-1 items-center justify-center py-8">
+        <div className="mx-auto grid w-full max-w-4xl items-center gap-6 text-center">
           {/* Copy */}
           <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 lg:justify-start">
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <Breadcrumbs trail={trail} />
             </div>
 
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
               <Chip tone="gold">{eyebrow}</Chip>
               {chips.slice(0, 3).map((c) => (
                 <Chip key={c} tone="dark">
@@ -140,12 +141,12 @@ export function PageHero({
               text={title}
               immediate
               delay={0.15}
-              className="mx-auto font-display text-display-lg font-extrabold text-white max-w-[19ch] sm:max-w-[22ch] lg:mx-0"
+              className="mx-auto font-display text-display-lg font-extrabold text-white max-w-[20ch] sm:max-w-[24ch]"
             />
 
-            <p className="mx-auto mt-4 max-w-[56ch] text-hero-body text-steel-100/90 sm:mt-5 lg:mx-0">{tagline}</p>
+            <p className="mx-auto mt-4 max-w-[58ch] text-hero-body text-steel-100/90 sm:mt-5">{tagline}</p>
 
-            <div className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+            <div className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center">
               <Btn href={primaryHref} variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 {primaryLabel}
               </Btn>
@@ -159,7 +160,7 @@ export function PageHero({
               </Btn>
             </div>
 
-            <ul className="mt-6 hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[0.8rem] text-white/75 sm:mt-7 sm:flex lg:justify-start">
+            <ul className="mt-6 hidden flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[0.8rem] text-white/75 sm:mt-7 sm:flex">
               {[
                 { icon: "shield", text: "No long-term contract" },
                 { icon: "bolt", text: "Setup in under 24 hours" },
@@ -173,19 +174,16 @@ export function PageHero({
             </ul>
           </div>
 
-          {/* Stats card (desktop) */}
+          {/* Stats strip */}
           {stats.length > 0 && (
-            <div className="hidden min-w-0 lg:block">
-              <div className="glass rounded-[1.4rem] p-6">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-gold-400">At a glance</p>
-                <div className="mt-5 grid grid-cols-2 gap-4">
-                  {stats.slice(0, 4).map((s) => (
-                    <div key={s.label} className="border-t border-white/10 pt-3 first:border-0 first:pt-0">
-                      <p className="font-display text-[1.3rem] font-extrabold text-white">{s.value}</p>
-                      <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-[0.1em] text-white/60">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
+            <div className="mx-auto hidden w-full max-w-2xl lg:block">
+              <div className="glass grid grid-cols-4 gap-2 rounded-[1.4rem] p-5">
+                {stats.slice(0, 4).map((s) => (
+                  <div key={s.label} className="text-center">
+                    <p className="font-display text-[1.2rem] font-extrabold text-gold-400">{s.value}</p>
+                    <p className="mt-1 font-mono text-[0.58rem] uppercase tracking-[0.1em] text-white/65">{s.label}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

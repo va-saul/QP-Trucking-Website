@@ -153,7 +153,14 @@ export const navigation: NavItem[] = [
   },
 ];
 
+/** Expanded FAQ set (researched from /r/OwnerOperators, /r/NewTruckingAuthority,
+ *  Quora and OOIDA/Consultran/CompliantDriversProgram guidance to cover
+ *  long-tail questions Freightliner owner-operators with 1–2+ units actually ask). */
 export const homeFaqs: Faq[] = [
+  {
+    q: "Do you factor for 1- and 2-truck Fleets and Freightliner owner-operators?",
+    a: "Yes. Roughly 80% of QP clients pull Freightliners — Cascadias, M2s and Columbia Classics — and the majority run 1 or 2 power units. We fund single-truck owner-operators with brand-new authorities the same way we fund 200-truck fleets: same phone number, same 15-minute funding window, no minimum volume.",
+  },
   {
     q: "What is trucking factoring and how does it work?",
     a: "Trucking factoring is the sale of your freight invoices to a factoring company at a small discount so you get paid in hours instead of the 30–45 days brokers and shippers typically take. You deliver the load, send the rate confirmation and proof of delivery, and QP Trucking Solutions advances the money — usually within minutes of load verification.",
@@ -185,6 +192,30 @@ export const homeFaqs: Faq[] = [
   {
     q: "Does QP Trucking Solutions work with owner-operators who have poor credit?",
     a: "Yes. Factoring decisions are based on the creditworthiness of your customers — the brokers and shippers who owe you money — not on your personal credit score, which is why new authorities and credit-challenged carriers can qualify.",
+  },
+  {
+    q: "How much does trucking insurance cost for a new authority with one Freightliner?",
+    a: "For 2026, primary auto liability ($1M) for a brand-new single-truck authority with a Freightliner Cascadia typically runs $8,000–$14,000/year; adding $100K cargo, physical damage and bobtail/NTL brings the first-year package to roughly $12,000–$23,000 per power unit. New-authority premiums drop 15–30% after two clean years. QP's licensed agents shop multiple A-rated carriers and bundle with factoring for preferred pricing.",
+  },
+  {
+    q: "How long after filing my MC number, BOC-3 and insurance can I start booking loads?",
+    a: "The FMCSA charges $300 for operating authority and posts your MC number the same day you file, but a mandatory 21-day protest window must pass before your authority becomes 'Active.' During those 21 days you should file BOC-3, bind insurance and register for UCR, so that on day 21 you can legally run under your own authority. QP routinely completes full onboarding — including factoring setup — inside that 21-day window.",
+  },
+  {
+    q: "Do I need IFTA and IRP if I only run in one state?",
+    a: "If you operate intrastate only (never cross state lines and stay under your state's weight threshold) you typically do not need IFTA or IRP apportioned plates. The moment you cross a state line with a CMV over 26,000 lbs, both IFTA quarterly filing and IRP registration are required. Most 1-truck Freightliner operators who book loads from DAT or Truckstop eventually cross state lines, which is why we file both for most new authorities.",
+  },
+  {
+    q: "When is Form 2290 (Heavy Highway Vehicle Use Tax) due and what happens if I miss it?",
+    a: "Form 2290 is due annually by August 31 for vehicles first used in July; for vehicles placed in service in other months the deadline is the last day of the month following the month of first use. The IRS charges up to 4.5% per month in late penalties plus interest, and the DMV will not renew your IRP plate or tags without a stamped Schedule 1. QP files 2290 same-day for $60 ($40 for factoring clients).",
+  },
+  {
+    q: "How is QP different from OTR Solutions, TBS, RTS or Apex?",
+    a: "Unlike OTR Solutions (true non-recourse but often a 12-month contract), TBS Factoring (bundled OOIDA-style launchpad but factoring is its weakest piece per r/Trucking), RTS Financial (lowest headline rates but fuel-card driven), or Apex Capital (strong fuel program for established carriers), QP combines factoring with a licensed insurance agency and full FMCSA compliance shop — one team handles your invoice funding, insurance renewals, IFTA/IRP/UCR and DOT filings. There is no long-term contract, no minimum volume, and Pure Non-Recourse™ has no 60- or 90-day bankruptcy window.",
+  },
+  {
+    q: "What is the difference between bobtail insurance and non-trucking liability (NTL)?",
+    a: "Bobtail covers you when you are driving the tractor without a trailer, regardless of dispatch status. Non-trucking liability (NTL) covers you when you are using the truck for personal purposes *not* under dispatch. Most carriers that run under their own authority need primary liability plus physical damage and cargo; leased-on operators usually need NTL or bobtail on top of the motor carrier's policy. QP's agents will tell you exactly which one your contract actually requires.",
   },
 ];
 

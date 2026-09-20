@@ -21,21 +21,20 @@ import { buildMetadata } from "@/lib/seo";
 import { homeFaqs, org, processSteps, testimonials, trust } from "@/content/site";
 import { complianceServices, factoringServices, insuranceServices, servicePath } from "@/content/services";
 import { insights } from "@/content/insights";
+import { industryLinks, seoKeywords } from "@/content/resources";
 
 export const metadata = buildMetadata({
-  title: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance",
+  title: "QP Trucking Solutions | Freight Factoring, Insurance & FMCSA Compliance for Owner-Operators",
   description:
-    "Trucking factoring, insurance, authority setup and FMCSA compliance for owner-operators and fleets. Get paid in minutes after load verification — no long-term contract, no hidden fees. Call 833-762-3464.",
+    "Freight factoring, trucking insurance, new MC authority setup and FMCSA compliance for Freightliner owner-operators and 1–2+ truck fleets. Get paid in ~15 minutes after load verification — no long-term contract, no hidden fees. Call 833-762-3464.",
   path: "/",
   image: "/images/hero/home.jpg",
   keywords: [
-    "trucking factoring company",
-    "freight bill factoring",
-    "trucking insurance agency",
-    "new authority setup",
-    "non-recourse factoring",
-    "owner operator cash flow",
-    "FMCSA compliance services Louisville KY",
+    ...seoKeywords.primary,
+    ...seoKeywords.longTail,
+    ...seoKeywords.competitor,
+    "Freightliner Cascadia factoring",
+    "freight factoring for 2-truck fleet",
   ],
 });
 
@@ -462,6 +461,44 @@ export default function HomePage() {
                     <span className="text-brand-500 group-hover:underline">Read</span>
                   </span>
                 </Link>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/*  INDUSTRY RESOURCES (external links for topical authority)         */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="bone">
+        <Container>
+          <SectionHead
+            eyebrow="Free industry resources"
+            title="Tools &amp; links every carrier should bookmark"
+            intro="We believe in pointing owner-operators to the source. Here are the FMCSA, IRS, IFTA/IRP and market-data pages our own team uses every day — plus load boards and associations worth joining."
+          />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {industryLinks.map((r, i) => (
+              <Reveal key={r.href} delay={i * 0.04}>
+                <a
+                  href={r.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card-hover group flex h-full flex-col rounded-[1.1rem] border border-steel-200 bg-paper p-5"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="chip border border-brand-300/40 bg-brand-100 text-[0.62rem] text-brand-600">
+                      {r.group}
+                    </span>
+                    <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-steel-400 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500" aria-hidden="true">
+                      <path d="M6 14 14 6M8 6h6v6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <h3 className="mt-3 font-display text-[1rem] font-bold leading-snug text-navy-900 group-hover:text-brand-500">
+                    {r.label}
+                  </h3>
+                  <p className="mt-2 text-[0.86rem] leading-relaxed text-steel-600">{r.blurb}</p>
+                </a>
               </Reveal>
             ))}
           </div>

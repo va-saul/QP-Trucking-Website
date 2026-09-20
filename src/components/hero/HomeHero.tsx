@@ -47,7 +47,8 @@ export function HomeHero() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="h-full w-full object-cover"
+          style={{ objectPosition: "60% 40%" }}
         />
         {/* Clean gradient overlay (no stripe / blueprint texture) */}
         <span
@@ -79,10 +80,10 @@ export function HomeHero() {
         className="pointer-events-none absolute -right-20 bottom-0 z-[1] h-[360px] w-[360px] rounded-full bg-gold-500/15 blur-[120px]"
       />
 
-      <Container className="relative z-10 flex flex-1 items-center py-8">
-        <div className="mx-auto grid w-full max-w-5xl items-center gap-6 text-center lg:grid-cols-[1.15fr_0.85fr] lg:gap-14 lg:text-left">
+      <Container className="relative z-10 flex flex-1 items-center justify-center py-8">
+        <div className="mx-auto grid w-full max-w-4xl items-center gap-6 text-center">
           <div className="min-w-0">
-            <div className="mb-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
               <Chip tone="gold">Pure Non-Recourse™ factoring</Chip>
               <Chip tone="dark">Insurance</Chip>
               <Chip tone="dark">Authority &amp; compliance</Chip>
@@ -93,17 +94,17 @@ export function HomeHero() {
               immediate
               delay={0.12}
               text="Get started, grow quickly, and operate profitably — without incurring debt!"
-              className="mx-auto font-display text-display-lg font-extrabold text-white max-w-[17ch] sm:max-w-[20ch] lg:mx-0"
+              className="mx-auto font-display text-display-lg font-extrabold text-white max-w-[18ch] sm:max-w-[22ch]"
             />
 
             <Reveal delay={0.35}>
-              <p className="mx-auto mt-4 max-w-[56ch] text-hero-body text-steel-100/90 sm:mt-5 lg:mx-0">
+              <p className="mx-auto mt-4 max-w-[58ch] text-hero-body text-steel-100/90 sm:mt-5">
                 QP Trucking Solutions turns your freight invoices into same-day cash, keeps your authority compliant,
                 and places the insurance brokers demand — all from one family-owned team in Louisville, Kentucky.
               </p>
             </Reveal>
 
-            <Reveal delay={0.5} className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+            <Reveal delay={0.5} className="mt-6 flex flex-col items-center gap-3 sm:mt-7 sm:flex-row sm:flex-wrap sm:justify-center">
               <Btn href="/get-started" variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 Become a QP client
               </Btn>
@@ -112,11 +113,11 @@ export function HomeHero() {
               </Btn>
             </Reveal>
 
-            {/* Single primary phone touchpoint (removing duplicate CTA noise) */}
-            <Reveal delay={0.6} className="mt-6 flex justify-center lg:justify-start">
+            {/* Single primary phone touchpoint */}
+            <Reveal delay={0.6} className="mt-6 flex justify-center">
               <a
                 href={`tel:${org.salesPhone}`}
-                className="glass flex w-full max-w-md items-center justify-between gap-3 rounded-[1rem] px-4 py-3.5 transition-transform duration-300 hover:-translate-y-0.5"
+                className="glass mx-auto flex w-full max-w-md items-center justify-between gap-3 rounded-[1rem] px-4 py-3.5 transition-transform duration-300 hover:-translate-y-0.5"
               >
                 <span className="min-w-0">
                   <span className="block font-mono text-[0.58rem] uppercase tracking-[0.16em] text-gold-400">
@@ -141,7 +142,7 @@ export function HomeHero() {
             </Reveal>
 
             <Reveal delay={0.75} className="mt-4 hidden sm:block">
-              <p className="text-center text-[0.82rem] text-white/70 lg:text-left">
+              <p className="text-center text-[0.82rem] text-white/70">
                 Not sure how to get started?{" "}
                 <Link
                   href="/get-started"
@@ -154,36 +155,19 @@ export function HomeHero() {
             </Reveal>
           </div>
 
-          {/* Side stats card (desktop) / compact plate (mobile) */}
-          <Reveal delay={0.45} className="relative min-w-0">
-            <div className="glass hidden rounded-[1.4rem] p-6 lg:block">
-              <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-gold-400">QP by the numbers</p>
-              <div className="mt-5 grid grid-cols-3 gap-4">
-                {[
-                  { value: "~15 min", label: "Funded in" },
-                  { value: "24 hrs", label: "Setup" },
-                  { value: "Zero", label: "Long-term contract" },
-                ].map((s) => (
-                  <div key={s.label} className="text-center">
-                    <p className="font-display text-[1.5rem] font-extrabold text-gold-400">{s.value}</p>
-                    <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-[0.1em] text-white/60">{s.label}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 border-t border-white/10 pt-5">
-                <p className="text-[0.88rem] leading-relaxed text-white/80">
-                  Factoring, insurance, permits & compliance — all from one phone call. Family-owned in Louisville, KY
-                  since day one.
-                </p>
-                <div className="mt-4 flex flex-col gap-2">
-                  <Btn href="/factoring" variant="gold" withArrow className="justify-center">
-                    Explore factoring
-                  </Btn>
-                  <Btn href="/services" variant="outline" className="justify-center">
-                    Authority & compliance
-                  </Btn>
+          {/* Inline at-a-glance stats (hidden on mobile, shown on desktop centered) */}
+          <Reveal delay={0.45} className="mx-auto hidden w-full max-w-xl lg:block">
+            <div className="glass grid grid-cols-3 gap-4 rounded-[1.4rem] p-5">
+              {[
+                { value: "~15 min", label: "Funded in" },
+                { value: "24 hrs", label: "Setup" },
+                { value: "Zero", label: "Long-term contract" },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <p className="font-display text-[1.4rem] font-extrabold text-gold-400">{s.value}</p>
+                  <p className="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.1em] text-white/60">{s.label}</p>
                 </div>
-              </div>
+              ))}
             </div>
           </Reveal>
         </div>

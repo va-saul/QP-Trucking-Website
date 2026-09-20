@@ -56,10 +56,10 @@ export function SectionHead({
   return (
     <div
       className={`flex flex-col gap-4 ${
-        align === "center" ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between"
+        align === "center" ? "items-center text-center" : "items-center text-center sm:flex-row sm:items-end sm:justify-between sm:text-left"
       }`}
     >
-      <div className={`max-w-3xl ${align === "center" ? "mx-auto" : ""}`}>
+      <div className={`max-w-3xl ${align === "center" ? "mx-auto" : "sm:text-left"}`}>
         {eyebrow ? (
           <p className={`eyebrow mb-3 ${isDark ? "text-brand-500" : "text-gold-400"}`}>
             <span className="inline-flex items-center gap-2">

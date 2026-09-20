@@ -199,7 +199,6 @@ export function ServicePageTemplate({
               {/* mid-page conversion card */}
               <Reveal delay={0.06}>
                 <div className="relative overflow-hidden rounded-[1.15rem] bg-navy-900 p-6 text-white">
-                  <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-35" />
                   <p className="relative eyebrow text-gold-400">Talk to a real person</p>
                   <p className="relative mt-3 font-display text-[1.15rem] font-bold leading-snug">
                     Questions about {service.short.toLowerCase()}? Our Louisville team answers in minutes, not days.

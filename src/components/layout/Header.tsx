@@ -120,7 +120,6 @@ export function Header() {
                             ))}
                           </ul>
                           <div className="relative overflow-hidden rounded-[0.9rem] bg-navy-900 p-4 text-white">
-                            <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-40" />
                             <p className="relative font-mono text-[0.6rem] uppercase tracking-[0.18em] text-gold-400">
                               Client favourite
                             </p>
@@ -214,7 +213,6 @@ export function Header() {
           mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       >
-        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-30" />
         <nav aria-label="Mobile" className="relative px-5">
           <ul className="divide-y divide-white/10">
             {navigation.map((item) => {

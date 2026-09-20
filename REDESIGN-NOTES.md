@@ -12,9 +12,9 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 | Redesign the site | 38 routes rebuilt from the original WordPress site — same company voice, same services, same pricing, new architecture and UI |
 | Keep the documents on record | `CONTENT-RECORD.md` (page-by-page ledger) + every original URL 308-redirected in `next.config.ts` + original copy carried into `src/content/*` |
 | Keep the vibe | Brand navy + royal blue from the QP monogram, slab-serif display type matching the wordmark, the diagonal "freight stripe" motif, red/gold accents, and the original headline promise: *"get started, grow quickly, AND operate profitably — without incurring debt!"* |
-| Hero banners per page | 14 distinct hero variants → `src/components/hero/HeroArt.tsx` (`HERO_ART` map) + a dedicated banner image per page (`public/images/hero/*`) |
-| Full on mobile | Mobile-fold contract in §4 — `svh` heights, clamped type, compact artwork, no horizontal overflow, hero content visible without cropping |
-| GSAP animations where they help | §3 — hero art timeline, split-text headings, scroll reveals, counters, parallax, route-progress bar, magnetic CTAs |
+| Hero banners per page | A dedicated full-bleed banner image per page (`public/images/hero/*`) rendered by `src/components/hero/HeroBanner.tsx`; the whole picture shows on phones, and it fills the band edge-to-edge behind the copy on desktop |
+| Full on mobile | Mobile-fold contract in §4 — `svh` heights, clamped type, full-width uncropped banner, no horizontal overflow, hero content visible without cropping |
+| GSAP animations where they help | §3 — split-text headings, scroll reveals, counters, parallax, route-progress bar, magnetic CTAs |
 | Unique, attractive UI | §2 — ticket-stub pricing, glass data cards, blueprint/grain texture, truck-lane strip, marquee ticker, dieline tables |
 | Strong SEO / AEO / GEO | §5 — entity graph, per-page metadata, FAQPage/HowTo/Service/Article schema, AI-crawler policy, citable answer blocks |
 | CTAs on every service page | Every service page carries 6 conversion points: hero CTAs, sticky pricing ticket, mid-page call card, FAQ-side call card, related-services grid, closing CTA band + the always-visible mobile bar |
@@ -38,21 +38,20 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 
 - `.ticket` — price cards with punched side notches and a perforated divider
 - `.glass` — frosted data cards over hero imagery
-- `.stripe-band` / `.blueprint` / `.grain` — the diagonal-stripe and blueprint-grid textures that echo the original artwork, plus film grain so flat navy areas don't band on phones
-- `.route-rule` / `.lane-line` — dashed highway-lane rules used as section dividers
-- `TruckLane` — a CSS-animated QP truck rolling along the bottom of every hero
+- `.route-rule` — dashed highway-lane rule used as a section divider
+- `HeroBanner` — the full-bleed banner image layer behind every hero band (§4)
+- **No overlay textures.** The blueprint grid, diagonal stripe bands, film grain and the animated truck lane have been removed site-wide by request — hero photography and flat navy fields are left clean
 - Ticket-stub tables, mono spec rows, and numbered "01/02/03" process blocks
 
 ---
 
 ## 3. GSAP animation inventory
 
-All motion lives in `src/components/motion.tsx` (client) and `src/components/hero/HeroArt.tsx`.
+All motion lives in `src/components/motion.tsx` (client).
 
 | Animation | Where | Notes |
 | --- | --- | --- |
 | `SplitHeading` | every H1 + key H2s | `SplitText` word-by-word mask reveal; waits for `document.fonts.ready` so line breaks measure correctly; `aria: "auto"` keeps headings readable to screen readers |
-| Hero art timeline | every page hero | plate → glass card → rows → rubber stamp → progress meter, sequenced on mount |
 | `Reveal` | section blocks, cards, grids | `ScrollTrigger` fade + rise, optional child stagger |
 | `CountUp` | stat strips | numbers count up when scrolled into view |
 | `Parallax` | decorative hero glows | scrubbed, subtle |
@@ -68,11 +67,11 @@ All motion lives in `src/components/motion.tsx` (client) and `src/components/her
 
 1. Heroes use `min-h-[100svh]` (small-viewport units) so iOS/Android browser chrome never crops them; content is laid out with `flex-1` and never absolutely positioned.
 2. Type scales with `clamp()` — the H1 tops out at ~34 px on a 390 px screen.
-3. The hero artwork is a 168 px plate on phones (`sm:` restores the 16:9 → 4:3 ratios), and the glass data card keeps two rows on phones, all three from `sm` up.
-4. Secondary hero furniture (trust bullets, third/fourth stats) is `sm:` and up only, so the essential stack — eyebrow → H1 → promise → CTAs → artwork — fits the first screen.
+3. The banner photograph is a **full-width band at the top of the hero on phones**, rendered at the image's own 1376×860 aspect ratio, so the *entire* picture shows with no cropping and no sideways overflow (it scales down to ~244 px tall at 390 px wide). Its bottom edge fades into the hero navy, and the copy begins directly beneath it.
+4. Secondary hero furniture (trust bullets, third/fourth stats) is `sm:` and up only, so the essential stack — banner → eyebrow → H1 → promise → CTAs — fits the first screen.
 5. `html, body { overflow-x: clip }` plus `.hero-shell > * { min-width: 0 }` guarantees no horizontal scroll at 320 px.
 6. Primary CTAs are full-width on phones; the sticky mobile bar (`Call now` + `Start application`) appears after 520 px of scroll and respects `env(safe-area-inset-bottom)`.
-7. Verified at 360/390/414 px widths in markup terms; type, spacing and art all scale from the same clamps (no fixed pixel heights other than the intentional 168 px mobile plate).
+7. Verified at 360/390/414 px widths by rendering the pages in a headless browser at 390 × 950; type, spacing and banner all scale from the same clamps (the only intrinsic pixel size left is the banner's own aspect ratio).
 
 ---
 

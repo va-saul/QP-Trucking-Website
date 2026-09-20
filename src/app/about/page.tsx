@@ -169,7 +169,6 @@ export default function AboutPage() {
               </Reveal>
               <Reveal delay={0.08}>
                 <div className="relative overflow-hidden rounded-[1.2rem] bg-navy-900 p-6 text-white">
-                  <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-35" />
                   <p className="relative eyebrow text-gold-400">Talk to a human</p>
                   <p className="relative mt-3 font-display text-[1.1rem] font-bold leading-snug">
                     {org.street}, {org.city}, {org.region} {org.postalCode}
@@ -227,7 +226,6 @@ export default function AboutPage() {
       </Section>
 
       <Section tone="navy">
-        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
         <Container className="relative">
           <SectionHead
             tone="light"

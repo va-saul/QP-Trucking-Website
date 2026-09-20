@@ -187,7 +187,6 @@ export default function HomePage() {
             {cashCycle.map((step, i) => (
               <Reveal key={step.n} delay={i * 0.08}>
                 <div className="relative h-full overflow-hidden rounded-[1.15rem] border border-steel-200 bg-paper p-6">
-                  <span aria-hidden="true" className="stripe-band-solid absolute -right-8 top-0 h-28 w-24 rotate-12 opacity-60" />
                   <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-brand-500">{step.n}</span>
                   <h3 className="relative mt-3 font-display text-[1.1rem] font-bold text-navy-900">{step.title}</h3>
                   <p className="relative mt-2.5 text-[0.92rem] leading-relaxed text-steel-600">{step.body}</p>
@@ -324,7 +323,6 @@ export default function HomePage() {
       {/*  TESTIMONIALS                                                      */}
       {/* ------------------------------------------------------------------ */}
       <Section tone="navy">
-        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
         <Container className="relative">
           <SectionHead
             tone="light"

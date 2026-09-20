@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { QPMark } from "@/components/brand";
+import { LogoLockup } from "@/components/brand";
 import { Container } from "@/components/ui";
 import { org, trust } from "@/content/site";
 import { complianceServices, factoringServices, servicePath } from "@/content/services";
@@ -33,7 +33,6 @@ export function Footer() {
 
   return (
     <footer className="relative overflow-hidden bg-navy-950 text-white">
-      <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
       <span
         aria-hidden="true"
         className="pointer-events-none absolute -left-20 top-0 h-[320px] w-[320px] rounded-full bg-brand-500/15 blur-[120px]"
@@ -44,11 +43,12 @@ export function Footer() {
           {/* identity + NAP (critical for local SEO & AEO entity matching) */}
           <div>
             <div className="flex items-center gap-3">
-              <QPMark tone="white" className="h-11 w-11" />
-              <span className="flex flex-col leading-none">
-                <span className="font-display text-[1.15rem] font-extrabold text-white">QP Trucking</span>
-                <span className="font-display text-[0.85rem] font-semibold text-brand-300">Solutions</span>
-              </span>
+              <LogoLockup
+                tone="white"
+                markClassName="h-11 w-11"
+                nameClassName="text-[1.15rem]"
+                subClassName="text-[0.85rem]"
+              />
             </div>
             <p className="mt-5 max-w-sm text-[0.95rem] leading-relaxed text-white/70">
               Factoring, trucking insurance, authority setup and FMCSA compliance for owner-operators and fleets —

@@ -141,7 +141,6 @@ export default function ContactPage() {
 
               <Reveal delay={0.2}>
                 <div className="relative overflow-hidden rounded-[1.15rem] border border-steel-200 bg-bone p-6">
-                  <span aria-hidden="true" className="stripe-band-solid absolute -right-8 top-0 h-28 w-24 rotate-12 opacity-70" />
                   <p className="eyebrow text-brand-500">Address & hours</p>
                   <address className="mt-3 not-italic">
                     <p className="font-display text-[1.05rem] font-bold text-navy-900">

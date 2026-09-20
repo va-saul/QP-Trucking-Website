@@ -5,9 +5,7 @@ import { org } from "@/content/site";
 
 export default function NotFound() {
   return (
-    <div className="hero-shell grain relative flex min-h-[100svh] items-center overflow-hidden pt-[110px] pb-16">
-      <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-45" />
-      <span aria-hidden="true" className="blueprint pointer-events-none absolute inset-0 opacity-70" />
+    <div className="hero-shell relative flex min-h-[100svh] items-center overflow-hidden pt-[110px] pb-16">
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
           <QPMark tone="white" className="mx-auto h-14 w-14" />

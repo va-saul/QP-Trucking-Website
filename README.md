@@ -27,7 +27,8 @@ Node 20+ required. No environment variables are needed to run the site.
 | Styling | Tailwind CSS v4 with a custom `@theme` design system (`src/app/globals.css`) |
 | Type | Bitter Variable (display), Inter Variable (body), IBM Plex Mono (labels) — self-hosted via Fontsource, no third-party font requests |
 | Motion | GSAP 3.15 (`ScrollTrigger`, `SplitText`) — `src/components/motion.tsx` |
-| Imagery | 16 page-specific hero banners in `public/images/hero/`, served through `next/image` (AVIF/WebP) |
+| Imagery | 16 page-specific hero banners in `public/images/hero/` — full-bleed behind every hero (whole picture visible on phones) and served through `next/image` (AVIF/WebP) |
+| Brand | One logo file, `public/images/brand/qp-logo.png`, used everywhere: header, footer, 404, trust marquee, schema/OG image, web manifest **and the browser tab icon** (`favicon.ico` + `icon.png` are generated from that same PNG). No redrawn or SVG stand-in mark |
 | Forms | `LeadForm` client component → `POST /api/lead` → optional webhook (`LEAD_WEBHOOK_URL`) |
 | SEO | Per-page metadata, canonicals, OpenGraph/Twitter, `sitemap.xml`, `robots.txt`, 40+ JSON-LD graphs |
 
@@ -50,7 +51,7 @@ Node 20+ required. No environment variables are needed to run the site.
 /insights                            Editorial hub
 /insights/[slug]                     7 articles (incl. the 80-term glossary)
 /privacy-policy                      Privacy notice
-/sitemap.xml · /robots.txt · /manifest.webmanifest · /icon.svg
+/sitemap.xml · /robots.txt · /manifest.webmanifest · /favicon.ico · /icon.png
 /api/lead                            Lead intake endpoint
 ```
 

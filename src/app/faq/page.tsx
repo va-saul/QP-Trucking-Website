@@ -162,7 +162,6 @@ export default function FaqPage() {
             </div>
             <div className="grid h-fit gap-4">
               <div className="relative overflow-hidden rounded-[1.15rem] bg-navy-900 p-6 text-white">
-                <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-35" />
                 <p className="relative eyebrow text-gold-400">Question not here?</p>
                 <p className="relative mt-3 font-display text-[1.1rem] font-bold leading-snug">
                   Ask a specialist directly — no forms required if you would rather just talk.

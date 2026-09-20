@@ -39,13 +39,29 @@ export const metadata: Metadata = {
   publisher: org.legalName,
   category: "trucking finance and compliance",
   alternates: { canonical: SITE_URL },
+  /**
+   * Browser tab / pinned-tab / home-screen icons. Every entry is the single
+   * brand PNG in `public/images/brand/qp-logo.png` (or a size variant rendered
+   * from it), so the tab logo is the same artwork as the site logo.
+   */
+  icons: {
+    // `src/app/favicon.ico` is picked up by Next's file convention and already
+    // emits <link rel="icon" href="/favicon.ico" sizes="64x64"> — both it and
+    // icon.png are rendered from the one brand PNG.
+    icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
   openGraph: {
     type: "website",
     siteName: org.name,
     locale: "en_US",
     url: SITE_URL,
+    images: [{ url: org.logo, width: 512, height: 512, alt: `${org.name} logo` }],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: {
+    card: "summary",
+    images: [{ url: org.logo, width: 512, height: 512, alt: `${org.name} logo` }],
+  },
   robots: {
     index: true,
     follow: true,
@@ -67,7 +83,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-US">
+    <html lang="en-US" suppressHydrationWarning>
       <head>
         {/* Progressive enhancement flag: reveal-on-scroll content is only
             hidden once we know JS is running, so crawlers and no-JS visitors

@@ -296,10 +296,6 @@ export function ServiceCard({ service, href, index }: { service: Service; href: 
         href={href}
         className="card-hover group relative flex h-full flex-col justify-between overflow-hidden rounded-[1.15rem] border border-steel-200 bg-paper p-5 sm:p-6"
       >
-        <span
-          aria-hidden="true"
-          className="stripe-band-solid pointer-events-none absolute -right-6 -top-10 h-32 w-32 rotate-12 opacity-70 transition-opacity duration-500 group-hover:opacity-100"
-        />
         <div className="relative">
           <p className="eyebrow text-steel-400">
             {typeof index === "number" ? String(index + 1).padStart(2, "0") : service.category}
@@ -385,7 +381,6 @@ export function CtaBand({
   const isGold = tone === "gold";
   return (
     <section className={`relative overflow-hidden ${isGold ? "bg-gold-100" : "hero-shell"}`}>
-      <span aria-hidden="true" className={`stripe-band absolute inset-0 ${isGold ? "opacity-40" : "opacity-30"}`} />
       <Container className="relative py-14 sm:py-16">
         <div className="grid items-center gap-8 lg:grid-cols-[1.35fr_auto]">
           <div>

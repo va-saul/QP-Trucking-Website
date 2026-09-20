@@ -3,21 +3,21 @@ import { org } from "@/content/site";
 
 /**
  * The official QP Trucking Solutions mark, rebuilt as crisp SVG from the
- * delivered brand file: the outer ring, the shared Q/P stem with its flared
- * foot, the crossbar, and the two bows that form the Q and P.
- * Single-colour, exactly like the source logo (96×96 box).
+ * delivered brand file: the outer ring, the shared Q/P dome, the full-width
+ * crossbar, and the stem with its flared foot joining the ring.
+ * Single-colour, exactly like the source logo (96-unit box).
  */
 export function QPMark({ className, tone = "navy" }: { className?: string; tone?: "navy" | "white" | "gold" }) {
-  const c = tone === "white" ? "#ffffff" : tone === "gold" ? "#f2b441" : "#1b4fa0";
+  const c = tone === "white" ? "#ffffff" : tone === "gold" ? "#f2b441" : "#17479b";
 
   return (
     <svg viewBox="0 0 96 96" className={className} role="img" aria-label="QP Trucking Solutions">
-      <g fill="none" stroke={c}>
-        <circle cx="48" cy="48" r="40" strokeWidth="6.8" />
-        <path d="M16 48a32 32 0 0 1 64 0" strokeWidth="7" />
-        <path d="M12 48h72" strokeWidth="7" />
+      <g fill="none" stroke={c} strokeWidth="4.6">
+        <circle cx="48" cy="48" r="44.5" />
+        <path d="M33 48a15 15 0 0 1 30 0" />
+        <path d="M4.5 48h87" />
       </g>
-      <path fill={c} d="M44.5 10.5h7v63.4l6.6 12.6H37.9l6.6-12.6z" />
+      <path fill={c} d="M45.7 3.4H50.3V76.5l2.9 13H42.8l2.9-13z" />
     </svg>
   );
 }

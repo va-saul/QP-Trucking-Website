@@ -14,6 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "finance", "productivity"],
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/images/brand/qp-icon.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/images/brand/qp-icon.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
       { src: "/images/brand/qp-logo.png", sizes: "512x512", type: "image/png", purpose: "any" },
     ],
   };

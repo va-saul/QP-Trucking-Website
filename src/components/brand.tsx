@@ -1,31 +1,34 @@
 import Link from "next/link";
 import { org } from "@/content/site";
 
-/** QP monogram — the ring + cross mark rebuilt as crisp, brand-matched SVG. */
+/**
+ * The official QP Trucking Solutions mark, rebuilt as crisp SVG from the
+ * delivered brand file: the outer ring, the shared Q/P stem with its flared
+ * foot, the crossbar, and the two bows that form the Q and P.
+ * Single-colour, exactly like the source logo (96×96 box).
+ */
 export function QPMark({ className, tone = "navy" }: { className?: string; tone?: "navy" | "white" | "gold" }) {
-  const ring = tone === "white" ? "#ffffff" : tone === "gold" ? "#f2b441" : "#1b4fa0";
-  const inner = tone === "white" ? "rgba(255,255,255,.72)" : tone === "gold" ? "rgba(255,255,255,.65)" : "#2f6fe0";
+  const c = tone === "white" ? "#ffffff" : tone === "gold" ? "#f2b441" : "#1b4fa0";
 
   return (
-    <svg viewBox="0 0 48 48" className={className} role="img" aria-label="QP Trucking Solutions">
-      <circle cx="24" cy="24" r="21.5" fill="none" stroke={ring} strokeWidth="4.5" />
-      <path d="M24 3.5v41" stroke={ring} strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M24 24h-20.5" stroke={ring} strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M24 24h20.5" stroke={ring} strokeWidth="4.5" strokeLinecap="round" />
-      <path d="M10.5 24a13.5 13.5 0 0 1 13.5-13.5V24H10.5Z" fill={inner} opacity="0.55" />
-      <path d="M37.5 24A13.5 13.5 0 0 1 24 37.5V24h13.5Z" fill={inner} opacity="0.28" />
+    <svg viewBox="0 0 96 96" className={className} role="img" aria-label="QP Trucking Solutions">
+      <g fill="none" stroke={c}>
+        <circle cx="48" cy="48" r="40" strokeWidth="6.8" />
+        <path d="M16 48a32 32 0 0 1 64 0" strokeWidth="7" />
+        <path d="M12 48h72" strokeWidth="7" />
+      </g>
+      <path fill={c} d="M44.5 10.5h7v63.4l6.6 12.6H37.9l6.6-12.6z" />
     </svg>
   );
 }
 
+/** Horizontal lockup — the mark plus the two-line wordmark from the logo. */
 export function Logo({
   tone = "navy",
   className,
-  compact = false,
 }: {
   tone?: "navy" | "white";
   className?: string;
-  compact?: boolean;
 }) {
   return (
     <Link
@@ -47,9 +50,40 @@ export function Logo({
             tone === "white" ? "text-brand-300" : "text-brand-500"
           }`}
         >
-          {compact ? "Solutions" : "Solutions"}
+          Solutions
         </span>
       </span>
     </Link>
+  );
+}
+
+/** Vertical lockup — mark above the stacked wordmark (intro, not-found…). */
+export function LogoStacked({
+  tone = "white",
+  className,
+  markClassName,
+}: {
+  tone?: "navy" | "white";
+  className?: string;
+  markClassName?: string;
+}) {
+  return (
+    <span className={`flex flex-col items-center text-center ${className ?? ""}`}>
+      <QPMark tone={tone} className={markClassName ?? "h-16 w-16"} />
+      <span
+        className={`mt-3 font-display text-[1.6rem] font-extrabold tracking-tight sm:text-[1.9rem] ${
+          tone === "white" ? "text-white" : "text-navy-900"
+        }`}
+      >
+        QP Trucking
+      </span>
+      <span
+        className={`font-display text-[1.05rem] font-semibold tracking-[0.08em] sm:text-[1.2rem] ${
+          tone === "white" ? "text-brand-300" : "text-brand-500"
+        }`}
+      >
+        Solutions
+      </span>
+    </span>
   );
 }

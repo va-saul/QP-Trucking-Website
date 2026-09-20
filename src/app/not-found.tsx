@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Btn, Container } from "@/components/ui";
-import { QPMark } from "@/components/brand";
+import { LogoStacked } from "@/components/brand";
 import { org } from "@/content/site";
 
 export default function NotFound() {
@@ -10,7 +10,7 @@ export default function NotFound() {
       <span aria-hidden="true" className="blueprint pointer-events-none absolute inset-0 opacity-70" />
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
-          <QPMark tone="white" className="mx-auto h-14 w-14" />
+          <LogoStacked tone="white" markClassName="h-14 w-14" className="mx-auto" />
           <p className="eyebrow mt-6 text-gold-400">Error 404 · load not found</p>
           <h1 className="mt-4 font-display text-display-lg font-extrabold text-white">
             This route doesn&apos;t exist — but your next load can.

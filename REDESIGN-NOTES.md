@@ -43,6 +43,8 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 - `TruckLane` — a CSS-animated QP truck rolling along the bottom of every hero
 - Ticket-stub tables, mono spec rows, and numbered "01/02/03" process blocks
 
+**Official logo rollout (September 2026)** — the delivered navy QP logo was rebuilt as a single canonical SVG `QPMark` (`src/components/brand.tsx`): outer ring, shared Q/P stem with its flared foot, crossbar and the two bows. It now appears everywhere the brand shows up: header + footer lockups, favicon (`src/app/icon.svg`), PWA manifest icons, schema.org `logo`, the OpenGraph/Twitter card, the marquee separators, the 404 page — and as the door/grille decal and trailer artwork on the 3D intro truck. Raster derivatives (`public/images/brand/qp-logo.png` full lockup on white, `qp-icon.png` app icon, `qp-og.png` 1200×630 social card) are regenerated from the same geometry with `npm run brand` (`scripts/render-brand.mjs`, sharp).
+
 ---
 
 ## 3. GSAP animation inventory
@@ -51,7 +53,8 @@ All motion lives in `src/components/motion.tsx` (client) and `src/components/her
 
 | Animation | Where | Notes |
 | --- | --- | --- |
-| `SplitHeading` | every H1 + key H2s | `SplitText` word-by-word mask reveal; waits for `document.fonts.ready` so line breaks measure correctly; `aria: "auto"` keeps headings readable to screen readers |
+| `SiteIntro` — the 3D truck opener | first visit of each session | a CSS-3D semi (`src/components/intro/Truck3D.tsx` — real preserve-3d boxes: trailer, cab, chrome stacks, spinning alloy wheels) hauls across a perspective freeway (`SiteIntro.tsx`); wheels and lane dashes are perpetual GSAP tweens throttled by `timeScale` so the rig eases in, idles under the brand lockup, then launches off as the curtain lifts; tap/Escape skips; gated by `js-anim` + `intro-skip` html classes (inline script), removed for reduced-motion, and armed with a CSS + try/catch failsafe so it can never trap the page; fires `qp:reveal` so the homepage H1 starts exactly as the curtain lifts |
+| `SplitHeading` | every H1 + key H2s | `SplitText` word-by-word mask reveal; waits for `document.fonts.ready` so line breaks measure correctly; `aria: "auto"` keeps headings readable to screen readers; homepage H1 additionally waits for the intro's `qp:reveal` curtain event |
 | Hero art timeline | every page hero | plate → glass card → rows → rubber stamp → progress meter, sequenced on mount |
 | `Reveal` | section blocks, cards, grids | `ScrollTrigger` fade + rise, optional child stagger |
 | `CountUp` | stat strips | numbers count up when scrolled into view |

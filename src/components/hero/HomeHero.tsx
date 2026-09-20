@@ -40,6 +40,7 @@ export function HomeHero() {
             <SplitHeading
               as="h1"
               immediate
+              waitForReveal
               delay={0.12}
               text="Get started, grow quickly, and operate profitably — without incurring debt!"
               className="font-display text-display-lg font-extrabold text-white max-w-[17ch] sm:max-w-[19ch]"

@@ -10,6 +10,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
 import { RouteProgress } from "@/components/motion";
+import { SiteIntro } from "@/components/intro/SiteIntro";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
 import { SITE_URL, org } from "@/content/site";
 
@@ -44,8 +45,9 @@ export const metadata: Metadata = {
     siteName: org.name,
     locale: "en_US",
     url: SITE_URL,
+    images: [{ url: "/images/brand/qp-og.png", width: 1200, height: 630, alt: `${org.name} — factoring, insurance & compliance` }],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: ["/images/brand/qp-og.png"] },
   robots: {
     index: true,
     follow: true,
@@ -69,11 +71,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-US">
       <head>
-        {/* Progressive enhancement flag: reveal-on-scroll content is only
+        {/* Progressive enhancement flags: reveal-on-scroll content is only
             hidden once we know JS is running, so crawlers and no-JS visitors
-            always see every word. */}
+            always see every word. `intro-skip` suppresses the opening truck
+            cinematic before first paint for reduced-motion visitors and for
+            the rest of the session once it has played. */}
         <Script id="js-anim-flag" strategy="beforeInteractive">
-          {`document.documentElement.classList.add('js-anim');`}
+          {`(function(){var h=document.documentElement;h.classList.add('js-anim');try{if(sessionStorage.getItem('qp-intro-done')||window.matchMedia('(prefers-reduced-motion: reduce)').matches)h.classList.add('intro-skip')}catch(e){if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)h.classList.add('intro-skip')}})();`}
         </Script>
         <link rel="preconnect" href="https://deciphercredit.net" />
       </head>
@@ -85,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <RouteProgress />
+        <SiteIntro />
         <Header />
         <main id="main">{children}</main>
         <Footer />

@@ -11,6 +11,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import { REVEAL_EVENT, isRevealed } from "@/lib/reveal";
 
 let registered = false;
 if (typeof window !== "undefined" && !registered) {
@@ -87,6 +88,7 @@ export function SplitHeading({
   as: Tag = "h2",
   delay = 0,
   immediate = false,
+  waitForReveal = false,
 }: {
   text: string;
   className?: string;
@@ -94,6 +96,8 @@ export function SplitHeading({
   delay?: number;
   /** Play on mount instead of on scroll (used by the hero). */
   immediate?: boolean;
+  /** Hold the animation until the site intro lifts its curtain (homepage). */
+  waitForReveal?: boolean;
 }) {
   const ref = useRef<HTMLHeadingElement | null>(null);
 
@@ -104,8 +108,11 @@ export function SplitHeading({
 
     let split: SplitText | null = null;
     let ctx: gsap.Context | null = null;
+    let cancelled = false;
+    let fallback: number | undefined;
 
     const run = () => {
+      if (cancelled) return;
       ctx = gsap.context(() => {
         split = SplitText.create(el, {
           type: "lines,words",
@@ -131,14 +138,33 @@ export function SplitHeading({
     };
 
     // wait for webfonts so line breaks are measured correctly
-    if (document.fonts?.status === "loaded") run();
-    else document.fonts?.ready.then(run);
+    const boot = () => {
+      if (cancelled) return;
+      if (document.fonts?.status === "loaded") run();
+      else document.fonts?.ready.then(() => run());
+    };
+
+    /* When the intro cinematic is playing, start only as its curtain lifts
+       (or after a safety timeout if anything blocked it). */
+    const gated = waitForReveal && !isRevealed();
+    if (gated) {
+      const onReveal = () => {
+        window.removeEventListener(REVEAL_EVENT, onReveal);
+        window.clearTimeout(fallback);
+        boot();
+      };
+      window.addEventListener(REVEAL_EVENT, onReveal);
+      fallback = window.setTimeout(onReveal, 5200);
+    } else {
+      boot();
+    }
 
     return () => {
+      cancelled = true;
       ctx?.revert();
       split?.revert();
     };
-  }, [text, delay, immediate]);
+  }, [text, delay, immediate, waitForReveal]);
 
   return (
     <Tag ref={ref} className={className} data-reveal>

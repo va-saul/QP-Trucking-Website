@@ -534,3 +534,90 @@
 .hero-shell > * {
   min-width: 0;
 }
+
+/* ------------------------------------------------------------------ */
+/*  SITE INTRO — the GSAP 3D truck opener                              */
+/*  Hidden by default; only shown pre-paint when JS is running AND     */
+/*  this is the first load of the session with motion allowed.         */
+/* ------------------------------------------------------------------ */
+.qp-intro {
+  display: none;
+}
+
+html.js-anim:not(.intro-skip) .qp-intro {
+  display: block;
+  /* failsafe: if the GSAP sequence were ever interrupted, the curtain
+     still lifts itself ~10s in (GSAP normally removes it far sooner) */
+  animation: qp-intro-failsafe 0.5s linear 10s forwards;
+}
+
+@keyframes qp-intro-failsafe {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* Responsive scale for the fixed 640×230 3D stage */
+.qp3d-scale {
+  transform: scale(0.52);
+  transform-origin: 50% 100%;
+}
+
+@media (min-width: 480px) {
+  .qp3d-scale {
+    transform: scale(0.68);
+  }
+}
+
+@media (min-width: 768px) {
+  .qp3d-scale {
+    transform: scale(0.95);
+  }
+}
+
+@media (min-width: 1280px) {
+  .qp3d-scale {
+    transform: scale(1.1);
+  }
+}
+
+/* 3D truck — tyre carcass, alloy rim and spinning spokes */
+.qp3d-wheel {
+  background: radial-gradient(circle at 34% 30%, #2a3342 0%, #0d1420 58%, #05080e 100%);
+  box-shadow:
+    inset 0 0 0 3px rgba(2, 8, 20, 0.75),
+    inset 0 3px 6px rgba(255, 255, 255, 0.07),
+    0 8px 16px rgba(2, 8, 20, 0.5);
+}
+
+.qp3d-rim {
+  background: radial-gradient(circle at 40% 34%, #eef3fa 0%, #b9c6d8 52%, #6d7a90 100%);
+  box-shadow:
+    inset 0 2px 4px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(4, 18, 42, 0.45),
+    0 0 0 1px rgba(2, 8, 20, 0.5);
+}
+
+.qp3d-spokes {
+  background: repeating-conic-gradient(from 6deg, #39445a 0deg 22deg, #cfd9e8 22deg 60deg);
+}
+
+/* Short/landscape screens: tighten the intro stack so nothing collides */
+@media (max-height: 540px) {
+  html .qp-intro-tag {
+    display: none;
+  }
+
+  html .qp-intro-brand {
+    top: 4%;
+  }
+
+  html .qp-intro-brand .font-display {
+    font-size: 1.1rem;
+    line-height: 1.1;
+  }
+
+  html .qp3d-scale {
+    transform: scale(0.6);
+  }
+}

@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="MCS-150 motor carrier identification report and biennial USDOT update" chips={["Biennial update", "USDOT active", "$40 client rate"]} />;
+  return <ServicePageTemplate service={service} imageAlt="MCS-150 motor carrier identification report and biennial USDOT update" />;
 }

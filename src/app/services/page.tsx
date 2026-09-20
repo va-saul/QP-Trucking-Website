@@ -95,7 +95,6 @@ export default function ServicesHubPage() {
           { label: "Home", href: "/" },
           { label: "Services", href: "/services" },
         ]}
-        chips={["$40 client rates", "Same-day filings", "FMCSA-familiar team"]}
         stats={[
           { label: "Carriers served", value: "1,000+" },
           { label: "Typical filing", value: "1 business day" },

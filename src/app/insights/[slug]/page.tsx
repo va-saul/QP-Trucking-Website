@@ -70,7 +70,6 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
           { label: "Insights", href: "/insights" },
           { label: post.title, href: `/insights/${post.slug}` },
         ]}
-        chips={[`${post.readingMinutes} min read`, "QP Trucking Solutions", "Updated regularly"]}
         stats={[
           { label: "Category", value: post.category },
           { label: "Published", value: new Date(post.date).toLocaleDateString("en-US", { month: "short", year: "numeric" }) },

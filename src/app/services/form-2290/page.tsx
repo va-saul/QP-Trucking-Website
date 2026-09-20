@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="Form 2290 heavy highway vehicle use tax filing and stamped Schedule 1" chips={["55,000 lb threshold", "IRS e-file", "$40 client rate"]} />;
+  return <ServicePageTemplate service={service} imageAlt="Form 2290 heavy highway vehicle use tax filing and stamped Schedule 1" />;
 }

@@ -29,13 +29,11 @@ import type { Service } from "@/lib/types";
 export function ServicePageTemplate({
   service,
   imageAlt,
-  chips,
   trail,
   extraSections,
 }: {
   service: Service;
   imageAlt: string;
-  chips?: string[];
   trail?: { label: string; href: string }[];
   extraSections?: ReactNode;
 }) {
@@ -82,7 +80,6 @@ export function ServicePageTemplate({
         variant={service.heroVariant}
         accent={service.accent}
         trail={[{ label: "Home", href: "/" }, ...crumbs.slice(1).map((c) => ({ label: c.label, href: c.href }))]}
-        chips={chips ?? [service.category, service.price?.tiers?.[0]?.price ?? "Custom pricing"]}
         stats={service.heroStats}
         primaryHref={`/get-started?service=${service.slug}`}
         primaryLabel={primaryLabel}
@@ -163,14 +160,14 @@ export function ServicePageTemplate({
                       </p>
                     ))}
                     {sec.bullets?.length ? (
-                      <ul className="mt-5 grid gap-3">
+                      <Reveal stagger={0.055} className="mt-5 grid gap-3">
                         {sec.bullets.map((b) => (
-                          <li key={b} className="flex gap-3 text-[0.98rem] leading-relaxed text-steel-700">
+                          <div key={b} data-item className="flex gap-3 text-[0.98rem] leading-relaxed text-steel-700">
                             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
                             <span>{b}</span>
-                          </li>
+                          </div>
                         ))}
-                      </ul>
+                      </Reveal>
                     ) : null}
                   </article>
                 </Reveal>
@@ -181,7 +178,7 @@ export function ServicePageTemplate({
             {/* sticky rail: benefits + inline CTA */}
             <div className="grid h-fit gap-5 lg:sticky lg:top-28">
               <Reveal>
-                <div className="rounded-[1.15rem] border border-steel-200 bg-bone p-6">
+                <div className="border-t border-steel-200 pt-6">
                   <p className="eyebrow text-brand-500">What you get</p>
                   <ul className="mt-4 grid gap-3">
                     {service.benefits.map((b) => (
@@ -239,7 +236,7 @@ export function ServicePageTemplate({
       {/* ------------------------- trust ------------------------- */}
       <Section tone="paper" className="!py-12">
         <Container>
-          <div className="rounded-[1.25rem] border border-steel-200 bg-bone p-6 sm:p-8">
+          <div className="border-t border-steel-200 pt-8">
             <SectionHead
               eyebrow="Why carriers stay with QP"
               title={`More than ${service.category.toLowerCase()}: everything under one roof`}
@@ -272,7 +269,7 @@ export function ServicePageTemplate({
                 title={`${service.short} questions, answered`}
                 intro="The questions our Louisville team hears most from owner-operators and fleet owners."
               />
-              <div className="mt-6 hidden rounded-[1.15rem] border border-steel-200 bg-paper p-5 lg:block">
+              <div className="mt-6 hidden border-t border-steel-200 pt-5 lg:block">
                 <p className="eyebrow text-brand-500">Still unsure?</p>
                 <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-600">
                   Call {org.salesPhoneDisplay} and ask for a specialist in {service.short.toLowerCase()}. No obligation,

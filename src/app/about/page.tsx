@@ -95,7 +95,6 @@ export default function AboutPage() {
           { label: "Home", href: "/" },
           { label: "About", href: "/about" },
         ]}
-        chips={["Family-owned", "Louisville, KY", "1,000+ carriers"]}
         stats={[
           { label: "Headquarters", value: "Louisville, KY" },
           { label: "Carriers served", value: "1,000+" },

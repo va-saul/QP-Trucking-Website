@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="IFTA fuel tax registration, quarterly filings and annual renewals" chips={["Quarterly filing", "Annual renewal", "$150 setup"]} />;
+  return <ServicePageTemplate service={service} imageAlt="IFTA fuel tax registration, quarterly filings and annual renewals" />;
 }

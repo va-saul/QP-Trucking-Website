@@ -19,7 +19,7 @@ export const metadata = buildMetadata({
     "trucking terminology glossary",
     "freight market data",
   ],
-  image: "/images/hero/factoring.jpg",
+  image: "/images/hero/insights.jpg",
 });
 
 export default function InsightsPage() {
@@ -60,7 +60,6 @@ export default function InsightsPage() {
           { label: "Home", href: "/" },
           { label: "Insights", href: "/insights" },
         ]}
-        chips={[`${insights.length} articles`, `${glossaryTerms.length}+ glossary terms`, "Updated regularly"]}
         stats={[
           { label: "Articles", value: `${insights.length}` },
           { label: "Glossary terms", value: `${glossaryTerms.length}+` },

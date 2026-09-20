@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="IRP apportioned registration plates and cab cards for interstate fleets" chips={["Apportioned plates", "48 states", "$195 service"]} />;
+  return <ServicePageTemplate service={service} imageAlt="IRP apportioned registration plates and cab cards for interstate fleets" />;
 }

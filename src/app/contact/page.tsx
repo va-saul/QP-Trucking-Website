@@ -93,7 +93,6 @@ export default function ContactPage() {
           { label: "Home", href: "/" },
           { label: "Contact", href: "/contact" },
         ]}
-        chips={["Mon–Fri 8AM–8PM EST", "Louisville, KY", "Nationwide service"]}
         stats={[
           { label: "Sales", value: org.salesPhoneDisplay },
           { label: "Office", value: org.officePhoneDisplay },

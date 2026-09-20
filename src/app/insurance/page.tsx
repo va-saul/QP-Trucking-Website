@@ -110,7 +110,6 @@ export default function InsurancePage() {
           { label: "Home", href: "/" },
           { label: "Insurance", href: "/insurance" },
         ]}
-        chips={["Licensed agency", "Same-day certificates", "New authorities welcome"]}
         stats={[
           { label: "Coverage types", value: "6+" },
           { label: "States served", value: "48" },

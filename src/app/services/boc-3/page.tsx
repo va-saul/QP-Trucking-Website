@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="BOC-3 process agent filing for a new trucking authority" chips={["20-day deadline", "50 states", "$40 client rate"]} />;
+  return <ServicePageTemplate service={service} imageAlt="BOC-3 process agent filing for a new trucking authority" />;
 }

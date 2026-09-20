@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------ */
 /*  QP TRUCKING SOLUTIONS — DESIGN SYSTEM                             */
 /*  Navy + royal blue (brand, taken from the QP monogram), warm gold   */
-/*  accents, slab-serif display type, blueprint/route-line motifs.     */
+/*  accents, slab-serif display type, route-line motifs.               */
 /* ------------------------------------------------------------------ */
 
 @theme {
@@ -53,8 +53,8 @@
   --radius-card: 1.15rem;
   --radius-ticket: 1.35rem;
 
-  --shadow-lift: 0 30px 70px -34px rgba(4, 18, 42, 0.55);
-  --shadow-card: 0 18px 44px -28px rgba(4, 18, 42, 0.4);
+  --shadow-lift: 0 24px 60px -34px rgba(4, 18, 42, 0.45);
+  --shadow-card: 0 14px 40px -30px rgba(4, 18, 42, 0.32);
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -146,31 +146,8 @@
   );
 }
 
-/* Blueprint grid used behind dark hero panels */
-.blueprint {
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
-  background-size: 46px 46px, 46px 46px;
-}
-
-.blueprint-light {
-  background-image:
-    linear-gradient(to right, rgba(10, 36, 80, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(10, 36, 80, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px, 40px 40px;
-}
-
-/* Film grain keeps flat navy areas from banding on mobile screens */
-.grain::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.35;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-}
+/* Blueprint grid + film-grain overlays removed site-wide: flat, clean navy
+   surfaces only (no texture layers behind the copy or the photographs). */
 
 /* Dashed "route" rule with the lane-marker feel of a highway */
 .route-rule {
@@ -223,6 +200,11 @@
 
 .hairline-top {
   border-top: 1px dashed color-mix(in oklab, var(--color-steel-300) 90%, transparent);
+}
+
+/* Hero: the photograph is the banner — keep copy legible over any frame */
+.hero-photo {
+  filter: saturate(1.05) contrast(1.03);
 }
 
 /* Glass panel used inside dark heroes */
@@ -306,6 +288,16 @@
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.7);
   transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-navy-900);
+  padding-inline: 0.25rem;
+}
+
+.btn-ghost:hover {
+  color: var(--color-brand-500);
 }
 
 .btn-outline-dark {
@@ -486,6 +478,32 @@
   opacity: 0;
   transform: translateY(18px);
   will-change: opacity, transform;
+}
+
+/* Entrance states for the two above-the-fold movers (header bar, hero photo).
+   These are set in CSS rather than by GSAP so the SSR markup never paints in its
+   final position first and then snap back. Gated twice:
+     · `js-anim` — no-JS visitors and crawlers always see the finished bar/photo
+     · `no-preference` — reduced-motion visitors get the static version, since the
+       GSAP timeline bails out early for them
+   `anim-safety` is the seatbelt: if the animation library never takes over (slow
+   or failed chunk), both fade to full after 3s instead of staying dimmed. */
+@media (prefers-reduced-motion: no-preference) {
+  .js-anim [data-header-item] {
+    opacity: 0;
+  }
+  .js-anim [data-hero-media] {
+    opacity: 0.35;
+  }
+  .js-anim [data-header-item],
+  .js-anim [data-hero-media] {
+    animation: anim-safety 1ms linear 3s forwards;
+  }
+  @keyframes anim-safety {
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

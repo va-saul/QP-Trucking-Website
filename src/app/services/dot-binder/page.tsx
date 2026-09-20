@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="DOT compliance binder documents organized for inspection" chips={["PDF $99", "Printed $139", "Audit ready"]} />;
+  return <ServicePageTemplate service={service} imageAlt="DOT compliance binder documents organized for inspection" />;
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { QPMark } from "@/components/brand";
+import { QPMark, BrandLockup } from "@/components/brand";
 import { Container } from "@/components/ui";
 import { org, trust } from "@/content/site";
 import { complianceServices, factoringServices, servicePath } from "@/content/services";
@@ -43,13 +43,8 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.15fr_2.4fr]">
           {/* identity + NAP (critical for local SEO & AEO entity matching) */}
           <div>
-            <div className="flex items-center gap-3">
-              <QPMark tone="white" className="h-11 w-11" />
-              <span className="flex flex-col leading-none">
-                <span className="font-display text-[1.15rem] font-extrabold text-white">QP Trucking</span>
-                <span className="font-display text-[0.85rem] font-semibold text-brand-300">Solutions</span>
-              </span>
-            </div>
+            {/* the official stacked lockup, exactly as supplied */}
+            <BrandLockup tone="white" height={108} className="h-[108px] w-auto" />
             <p className="mt-5 max-w-sm text-[0.95rem] leading-relaxed text-white/70">
               Factoring, trucking insurance, authority setup and FMCSA compliance for owner-operators and fleets —
               everything a trucking company needs under one roof.

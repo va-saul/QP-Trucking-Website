@@ -124,7 +124,6 @@ export default function FaqPage() {
           { label: "Home", href: "/" },
           { label: "FAQ", href: "/faq" },
         ]}
-        chips={["40+ answers", "Updated regularly", "Straight talk"]}
         stats={[
           { label: "Answers", value: `${allFaqs.length}+` },
           { label: "Topics", value: `${clusters.length}` },

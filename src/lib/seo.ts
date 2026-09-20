@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import { SITE_URL, org } from "@/content/site";
 
+/** The supplied logo file and its intrinsic square size (see components/brand.tsx). */
+const LOGO_FILE = "/images/brand/qp-logo.png";
+const LOGO_PX = 512;
+
 type SeoInput = {
   title: string;
   description: string;
   path: string;
   keywords?: string[];
   image?: string;
+  /** Intrinsic size of `image` — defaults match the 1376×860 page banners. */
+  imageWidth?: number;
+  imageHeight?: number;
   type?: "website" | "article" | "profile";
   publishedTime?: string;
   modifiedTime?: string;
@@ -23,7 +30,12 @@ export function buildMetadata({
   description,
   path,
   keywords,
+  // Default share image = the page banner family (1376×860). Pages that do not
+  // pass an image of their own still share the brand's own photograph, never a
+  // stretched logo.
   image = "/images/hero/home.jpg",
+  imageWidth = image.endsWith(LOGO_FILE) ? LOGO_PX : 1376,
+  imageHeight = image.endsWith(LOGO_FILE) ? LOGO_PX : 860,
   type = "website",
   publishedTime,
   modifiedTime,
@@ -53,7 +65,7 @@ export function buildMetadata({
       title,
       description,
       locale: "en_US",
-      images: [{ url: ogImage, width: 1376, height: 860, alt: title }],
+      images: [{ url: ogImage, width: imageWidth, height: imageHeight, alt: title }],
       ...(publishedTime ? { publishedTime } : {}),
       ...(modifiedTime ? { modifiedTime } : {}),
     },

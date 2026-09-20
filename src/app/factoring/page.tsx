@@ -109,7 +109,6 @@ export default function FactoringHubPage() {
           { label: "Home", href: "/" },
           { label: "Factoring", href: "/factoring" },
         ]}
-        chips={["No minimums", "No long-term contract", "Free broker credit checks"]}
         stats={[
           { label: "Typical funding", value: "~15 min" },
           { label: "Setup time", value: "Under 24 hrs" },
@@ -228,7 +227,7 @@ export default function FactoringHubPage() {
             title="Which factoring program fits your risk tolerance?"
             intro="Chargebacks are rare but expensive. Most new carriers cannot absorb a $10,000–$15,000 shortfall early in business — that is exactly the risk Pure Non-Recourse™ removes."
           />
-          <div className="mt-10 overflow-x-auto scroller">
+          <Reveal className="mt-10 overflow-x-auto scroller">
             <table className="w-full min-w-[720px] border-collapse text-left">
               <caption className="sr-only">
                 Comparison of recourse factoring, non-recourse factoring and Pure Non-Recourse™ factoring
@@ -268,7 +267,7 @@ export default function FactoringHubPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </Reveal>
           <p className="mt-6 text-[0.9rem] text-white/60">
             Not sure which is right? Our specialists will quote both and show you the arithmetic — no pressure.
           </p>

@@ -13,5 +13,5 @@ export const metadata = buildMetadata({
 });
 
 export default function Page() {
-  return <ServicePageTemplate service={service} imageAlt="Drug and alcohol consortium enrollment for FMCSA compliance" chips={["Random pool", "Clearinghouse", "$100 client rate"]} />;
+  return <ServicePageTemplate service={service} imageAlt="Drug and alcohol consortium enrollment for FMCSA compliance" />;
 }

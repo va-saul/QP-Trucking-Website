@@ -40,11 +40,11 @@ export function Footer() {
       />
 
       <Container className="relative py-14 sm:py-16">
-        <div className="grid gap-10 lg:grid-cols-[1.15fr_2.4fr]">
+        <div className="grid justify-items-center gap-10 lg:grid-cols-[1.15fr_2.4fr]">
           {/* identity + NAP (critical for local SEO & AEO entity matching) */}
           <div>
             {/* the official stacked lockup, exactly as supplied */}
-            <BrandLockup tone="white" height={108} className="h-[108px] w-auto" />
+            <BrandLockup tone="white" height={108} className="mx-auto h-[108px] w-auto" />
             <p className="mt-5 max-w-sm text-[0.95rem] leading-relaxed text-white/70">
               Factoring, trucking insurance, authority setup and FMCSA compliance for owner-operators and fleets —
               everything a trucking company needs under one roof.
@@ -75,7 +75,7 @@ export function Footer() {
           </div>
 
           {/* link columns */}
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid w-full gap-8 sm:grid-cols-3">
             {columns.map((col) => (
               <nav key={col.title} aria-label={col.title}>
                 <h2 className="font-mono text-[0.62rem] uppercase tracking-[0.18em] text-gold-400">{col.title}</h2>
@@ -105,7 +105,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 text-[0.8rem] text-white/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col items-center gap-4 border-t border-white/10 pt-6 text-[0.8rem] text-white/60 sm:flex-row sm:items-center sm:justify-center sm:gap-8">
           <p>
             © {year} {org.legalName}. All rights reserved. Pure Non-Recourse™ is a trademark of {org.legalName}.
           </p>

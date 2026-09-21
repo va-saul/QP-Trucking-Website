@@ -289,7 +289,7 @@ export default function AboutPage() {
       <Section tone="paper">
         <Container>
           <Reveal>
-            <div className="flex flex-col items-start gap-5 rounded-[1.25rem] border border-steel-200 bg-bone p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div className="flex flex-col items-center gap-5 rounded-[1.25rem] border border-steel-200 bg-bone p-6 text-center sm:flex-row sm:items-center sm:justify-center sm:p-8">
               <div>
                 <p className="eyebrow text-brand-500">Keep reading</p>
                 <h2 className="mt-2 font-display text-display-sm text-navy-900">The rest of the QP story</h2>

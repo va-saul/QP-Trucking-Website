@@ -30,7 +30,7 @@ export default function NotFound() {
             </Btn>
           </div>
 
-          <div className="mt-10 grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
               { l: "Factoring", h: "/factoring" },
               { l: "Trucking insurance", h: "/insurance" },

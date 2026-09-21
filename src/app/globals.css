@@ -552,3 +552,106 @@
 .hero-shell > * {
   min-width: 0;
 }
+
+/* ------------------------------------------------------------------ */
+/*  SITE-WIDE CENTER ALIGNMENT                                        */
+/*  Every content surface (main + footer) reads centered: headings,   */
+/*  copy, cards, rails, lists and tables. Explicit Tailwind alignment */
+/*  utilities still win (utility layer beats base), and form controls */
+/*  keep left-aligned text because that is what typing expects.       */
+/* ------------------------------------------------------------------ */
+@layer base {
+  main,
+  footer {
+    text-align: center;
+  }
+
+  /* flex rows gather in the middle unless a utility says otherwise */
+  main .flex,
+  main .inline-flex,
+  footer .flex,
+  footer .inline-flex {
+    justify-content: center;
+  }
+
+  /* width-capped blocks sit in the middle of their column */
+  main [class*="max-w-"]:not([class*="mx-"]):not([class*="max-w-full"]),
+  footer [class*="max-w-"]:not([class*="mx-"]):not([class*="max-w-full"]) {
+    margin-inline: auto;
+  }
+
+  /* typing stays left-aligned inside form controls */
+  main input,
+  main textarea,
+  main select {
+    text-align: left;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  3D STARTUP INTRO (SiteIntro)                                      */
+/*  The overlay is invisible until the `js-anim` flag proves JS is    */
+/*  running, so crawlers and no-JS visitors never see a curtain.      */
+/* ------------------------------------------------------------------ */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(90% 70% at 50% 14%, rgba(47, 111, 224, 0.3), transparent 62%),
+    linear-gradient(180deg, #04122a 0%, #061a38 55%, #04122a 100%);
+  perspective: 1100px;
+}
+
+.js-anim .intro-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-anim .intro-overlay {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* perspective highway grid rushing toward the viewer */
+.intro-road {
+  position: absolute;
+  left: 50%;
+  bottom: -8%;
+  width: 260%;
+  height: 64%;
+  transform: translateX(-50%) rotateX(74deg);
+  transform-origin: 50% 100%;
+  background-image:
+    repeating-linear-gradient(to right, rgba(127, 167, 236, 0.32) 0 2px, transparent 2px 130px),
+    repeating-linear-gradient(to top, rgba(242, 180, 65, 0.45) 0 3px, transparent 3px 92px);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 88%);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 88%);
+  animation: intro-road 1.05s linear infinite;
+}
+
+@keyframes intro-road {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+  to {
+    background-position:
+      0 0,
+      0 92px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-road {
+    animation: none;
+  }
+}

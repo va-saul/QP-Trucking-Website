@@ -114,7 +114,7 @@ export default function StorePage() {
 
           <Reveal className="mt-10 overflow-hidden rounded-[1.2rem] border border-steel-200">
             <div className="overflow-x-auto scroller">
-              <table className="w-full min-w-[760px] border-collapse text-left">
+              <table className="w-full min-w-[760px] border-collapse">
                 <caption className="sr-only">QP Trucking Solutions services with standard and factoring client pricing</caption>
                 <thead className="bg-navy-900 text-white">
                   <tr>

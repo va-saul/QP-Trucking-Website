@@ -76,7 +76,7 @@ export function Marquee({
 }
 
 /** Hairline rule that draws itself as the section scrolls into view. */
-export function RuleDraw({ className }: { className?: string }) {
+export function RuleDraw({ className, origin = "left" }: { className?: string; origin?: "left" | "center" }) {
   const ref = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export function RuleDraw({ className }: { className?: string }) {
     <span
       ref={ref}
       aria-hidden="true"
-      className={`block h-px w-full origin-left bg-steel-200 ${className ?? ""}`}
+      className={`block h-px w-full ${origin === "center" ? "origin-center" : "origin-left"} bg-steel-200 ${className ?? ""}`}
       style={{ transform: "scaleX(0)" }}
     />
   );

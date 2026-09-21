@@ -20,13 +20,13 @@ export function HomeHero() {
         image="/images/hero/home.jpg"
         alt="QP Trucking Solutions client fleet running interstate at golden hour"
         priority
-        overlay="left"
+        overlay="bottom"
       />
 
-      <Container className="relative flex flex-1 items-end pb-8 sm:items-center sm:pb-4">
-        <div className="grid w-full items-center gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-12">
-          <div className="min-w-0">
-            <p className="eyebrow flex items-center gap-2.5 text-gold-400">
+      <Container className="relative flex flex-1 items-center justify-center pb-10 sm:pb-6">
+        <div className="grid w-full justify-items-center gap-8">
+          <div className="min-w-0 max-w-3xl">
+            <p className="eyebrow flex items-center justify-center gap-2.5 text-gold-400">
               <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
               Pure Non-Recourse™ factoring · Insurance · Compliance
             </p>
@@ -36,7 +36,7 @@ export function HomeHero() {
               immediate
               delay={0.2}
               text="Get started, grow quickly, and operate profitably — without incurring debt!"
-              className="mt-3 font-display text-display-lg font-extrabold text-white max-w-[17ch] sm:max-w-[19ch]"
+              className="mt-3 font-display text-display-lg font-extrabold text-white mx-auto max-w-[17ch] sm:max-w-[24ch]"
             />
 
             <p className="mt-4 max-w-[54ch] text-hero-body text-white/80">
@@ -44,7 +44,7 @@ export function HomeHero() {
               places the insurance brokers demand — one family-owned team in Louisville, Kentucky.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <Btn href="/get-started" variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 Become a QP client
               </Btn>
@@ -59,7 +59,7 @@ export function HomeHero() {
             </div>
 
             <Reveal delay={0.35} className="mt-6">
-              <p className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.82rem] text-white/65">
+              <p className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[0.82rem] text-white/65">
                 {[
                   "Funding in ~15 minutes",
                   "Setup under 24 hours",
@@ -75,7 +75,7 @@ export function HomeHero() {
             </Reveal>
           </div>
 
-          <div className="hidden lg:block">
+          <div className="hidden w-full max-w-md lg:block">
             <HeroSpecCard variant="highway" />
           </div>
         </div>
@@ -88,7 +88,7 @@ export function HomeHero() {
               <div
                 key={s.label}
                 className={`min-w-0 ${i > 1 ? "hidden sm:block" : ""} ${
-                  i > 0 ? "sm:border-l sm:border-white/10 sm:pl-5" : ""
+                  i > 0 ? "sm:px-3" : ""
                 }`}
               >
                 <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-white/50">{s.label}</dt>

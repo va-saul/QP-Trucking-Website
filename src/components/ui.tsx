@@ -42,7 +42,7 @@ export function SectionHead({
   eyebrow,
   title,
   intro,
-  align = "left",
+  align = "center",
   tone = "dark",
   cta,
   rule = true,
@@ -56,11 +56,17 @@ export function SectionHead({
   rule?: boolean;
 }) {
   const isDark = tone === "dark";
+  const centered = align === "center";
   return (
-    <div className={`flex flex-col gap-6 ${align === "center" ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between"}`}>
-      <div className={`max-w-2xl ${align === "center" ? "mx-auto" : ""}`}>
+    <div className={`flex flex-col gap-6 ${centered ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between"}`}>
+      <div className={`max-w-2xl ${centered ? "mx-auto" : ""}`}>
         {eyebrow ? <p className={`eyebrow mb-3 ${isDark ? "text-brand-500" : "text-gold-400"}`}>{eyebrow}</p> : null}
-        {rule ? <RuleDraw className={`mb-5 ${isDark ? "bg-steel-200" : "bg-white/20"}`} /> : null}
+        {rule ? (
+          <RuleDraw
+            origin={centered ? "center" : "left"}
+            className={`mb-5 ${centered ? "mx-auto max-w-[160px]" : ""} ${isDark ? "bg-steel-200" : "bg-white/20"}`}
+          />
+        ) : null}
         <h2 className={`font-display text-display-md ${isDark ? "text-navy-900" : "text-white"}`}>{title}</h2>
         {intro ? (
           <p className={`mt-4 text-[1.02rem] leading-relaxed ${isDark ? "text-steel-600" : "text-white/75"}`}>{intro}</p>
@@ -177,7 +183,7 @@ export function AnswerBox({
 }) {
   const isDark = tone === "dark";
   return (
-    <div className={`border-l-2 pl-5 sm:pl-6 ${isDark ? "border-gold-400" : "border-brand-500"}`}>
+    <div className={`border-t-2 pt-5 sm:pt-6 ${isDark ? "border-gold-400" : "border-brand-500"}`}>
       <p className={`eyebrow mb-2 ${isDark ? "text-gold-400" : "text-brand-500"}`}>{label}</p>
       <p className={`font-display text-[1.05rem] font-bold sm:text-[1.15rem] ${isDark ? "text-white" : "text-navy-900"}`}>
         {question}
@@ -282,7 +288,7 @@ export function PriceTicket({
   cta?: ReactNode;
 }) {
   return (
-    <div className="ticket grid grid-cols-1 sm:grid-cols-[1fr_auto]">
+    <div className="ticket grid grid-cols-1 text-center sm:grid-cols-[1fr_auto]">
       <div className="p-5 sm:p-6">
         <p className="eyebrow text-brand-500">{label}</p>
         <p className="mt-3 font-display text-[2.2rem] font-extrabold leading-none text-navy-900">{price}</p>
@@ -315,7 +321,7 @@ export function ServiceCard({ service, href, index }: { service: Service; href: 
           </h3>
           <p className="mt-2.5 text-[0.92rem] leading-relaxed text-steel-600">{service.tagline}</p>
         </div>
-        <div className="mt-5 flex items-center gap-3 text-[0.82rem]">
+        <div className="mt-5 flex items-center justify-center gap-3 text-[0.82rem]">
           <span className="font-mono font-medium text-brand-500">
             {service.price?.tiers?.[0]?.price ?? "Flat fee"}
             {service.price?.tiers?.[1] ? ` · ${service.price.tiers[1].price} clients` : ""}
@@ -385,13 +391,13 @@ export function CtaBand({
         className="pointer-events-none absolute -right-20 -top-24 h-[360px] w-[360px] rounded-full bg-brand-500/15 blur-[120px]"
       />
       <Container className="relative py-16 sm:py-20">
-        <div className="grid items-end gap-8 lg:grid-cols-[1.4fr_auto]">
-          <div>
+        <div className="grid justify-items-center gap-8 text-center">
+          <div className="max-w-3xl">
             <p className="eyebrow text-gold-400">{eyebrow}</p>
             <h2 className="mt-4 font-display text-display-sm text-white">{title}</h2>
             <p className="mt-3 max-w-2xl text-[1rem] leading-relaxed text-white/70">{body}</p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Btn href={href} variant="gold" size="lg" withArrow>
               {primaryLabel}
             </Btn>
@@ -401,7 +407,7 @@ export function CtaBand({
           </div>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/10 pt-6 text-[0.88rem]">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-white/10 pt-6 text-[0.88rem]">
           {[
             { k: "Sales", v: org.salesPhoneDisplay, href: `tel:${org.salesPhone}` },
             { k: "Office / accounting", v: org.officePhoneDisplay, href: `tel:${org.officePhone}` },

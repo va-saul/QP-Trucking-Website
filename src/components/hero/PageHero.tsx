@@ -58,14 +58,14 @@ export function PageHero({
 
   return (
     <header className="hero-shell relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-[84px] pb-0 sm:pt-[100px] lg:min-h-[90svh] lg:pt-[152px]">
-      <HeroBackdrop image={image} alt={imageAlt} priority={priority} overlay="left" />
+      <HeroBackdrop image={image} alt={imageAlt} priority={priority} overlay="bottom" />
 
-      <Container className="relative flex flex-1 items-end pb-8 sm:items-center sm:pb-4">
-        <div className="grid w-full items-center gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-12">
-          <div className="min-w-0">
+      <Container className="relative flex flex-1 items-center justify-center pb-10 sm:pb-6">
+        <div className="grid w-full justify-items-center gap-8">
+          <div className="min-w-0 max-w-3xl">
             <Breadcrumbs trail={trail} />
 
-            <p className="eyebrow mt-5 flex items-center gap-2.5 text-gold-400">
+            <p className="eyebrow mt-5 flex items-center justify-center gap-2.5 text-gold-400">
               <span className={`h-1.5 w-1.5 rounded-full ${accentDot[accent]}`} />
               {eyebrow}
             </p>
@@ -75,12 +75,12 @@ export function PageHero({
               text={title}
               immediate
               delay={0.2}
-              className="mt-3 font-display text-display-lg font-extrabold text-white max-w-[20ch]"
+              className="mt-3 font-display text-display-lg font-extrabold text-white mx-auto max-w-[24ch]"
             />
 
             <p className="mt-4 max-w-[52ch] text-hero-body text-white/80">{tagline}</p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <Btn href={primaryHref} variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 {primaryLabel}
               </Btn>
@@ -96,7 +96,7 @@ export function PageHero({
           </div>
 
           {/* the page's own spec card — desktop only, so the phone view stays a photograph */}
-          <div className="hidden lg:block">
+          <div className="hidden w-full max-w-md lg:block">
             <HeroSpecCard variant={variant} />
           </div>
         </div>
@@ -110,7 +110,7 @@ export function PageHero({
               <div
                 key={s.label}
                 className={`min-w-0 ${i > 1 ? "hidden sm:block" : ""} ${
-                  i > 0 ? "sm:border-l sm:border-white/10 sm:pl-5" : ""
+                  i > 0 ? "sm:px-3" : ""
                 }`}
               >
                 <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-white/50">{s.label}</dt>

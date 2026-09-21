@@ -241,7 +241,6 @@ export function ServicePageTemplate({
               eyebrow="Why carriers stay with QP"
               title={`More than ${service.category.toLowerCase()}: everything under one roof`}
               intro="Insurance, factoring, permits, dispatch support and equipment finance live in the same building — so one phone call moves three problems forward at once."
-              align="left"
             />
             <div className="mt-6">
               <TrustBadges

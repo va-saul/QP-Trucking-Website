@@ -176,7 +176,7 @@ export default function ServicesHubPage() {
             ))}
           </div>
           <div className="mt-8 rounded-[1.2rem] border border-steel-200 bg-paper p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:justify-center">
               <div>
                 <p className="eyebrow text-brand-500">Ordering several?</p>
                 <p className="mt-2 max-w-2xl text-[0.95rem] leading-relaxed text-steel-600">

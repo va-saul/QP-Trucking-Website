@@ -210,7 +210,7 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
 
   return (
     <div ref={ref} className={`glass rounded-[1.15rem] p-5 sm:p-6 ${className ?? ""}`}>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-center gap-3">
         <span className="flex items-center gap-2">
           <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} />
           <span className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-white/70">{cfg.plateLabel}</span>
@@ -220,7 +220,7 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
         </span>
       </div>
 
-      <div className="mt-4 flex items-baseline justify-between gap-3">
+      <div className="mt-4 flex items-baseline justify-center gap-3">
         <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-white/60">{cfg.meterLabel}</p>
         <p className="font-display text-[0.9rem] font-bold text-white">{Math.round(cfg.meter * 100)}%</p>
       </div>
@@ -230,9 +230,9 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
 
       <dl className="mt-4 grid gap-2.5 border-t border-white/10 pt-4">
         {cfg.rows.map((r) => (
-          <div data-spec-row key={r.k} className="flex items-center justify-between gap-3">
+          <div data-spec-row key={r.k} className="flex items-center justify-center gap-4">
             <dt className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-white/55">{r.k}</dt>
-            <dd className="text-right text-[0.85rem] font-semibold text-white">{r.v}</dd>
+            <dd className="text-[0.85rem] font-semibold text-white">{r.v}</dd>
           </div>
         ))}
       </dl>

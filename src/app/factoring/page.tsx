@@ -149,7 +149,7 @@ export default function FactoringHubPage() {
                     href={servicePath(s)}
                     className="card-hover group block overflow-hidden rounded-[1.2rem] border border-steel-200 bg-paper p-6"
                   >
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center justify-center gap-4">
                       <span className="chip bg-navy-900/5 text-navy-800 border border-navy-900/10">
                         {i === 1 ? "Flagship" : "Most popular"}
                       </span>
@@ -228,7 +228,7 @@ export default function FactoringHubPage() {
             intro="Chargebacks are rare but expensive. Most new carriers cannot absorb a $10,000–$15,000 shortfall early in business — that is exactly the risk Pure Non-Recourse™ removes."
           />
           <Reveal className="mt-10 overflow-x-auto scroller">
-            <table className="w-full min-w-[720px] border-collapse text-left">
+            <table className="w-full min-w-[720px] border-collapse">
               <caption className="sr-only">
                 Comparison of recourse factoring, non-recourse factoring and Pure Non-Recourse™ factoring
               </caption>

@@ -9,6 +9,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
+import { SiteIntro } from "@/components/SiteIntro";
 import { RouteProgress } from "@/components/motion";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
 import { SITE_URL, org } from "@/content/site";
@@ -85,6 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <RouteProgress />
+        <SiteIntro />
         <Header />
         <main id="main">{children}</main>
         <Footer />

@@ -71,7 +71,7 @@ export function FaqAccordion({
                 type="button"
                 onClick={() => setOpen(isOpen ? null : i)}
                 aria-expanded={isOpen}
-                className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
+                className="flex w-full items-center justify-center gap-3 px-5 py-4 text-center sm:px-6 sm:py-5"
               >
                 <span
                   className={`font-display text-[1rem] font-bold leading-snug sm:text-[1.06rem] ${

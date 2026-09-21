@@ -114,7 +114,7 @@ export default function ContactPage() {
                 <Reveal key={c.k} delay={i * 0.06}>
                   <a
                     href={c.href}
-                    className="card-hover flex items-center justify-between gap-4 rounded-[1.15rem] border border-steel-200 bg-paper p-5 sm:p-6"
+                    className="card-hover flex items-center justify-center gap-4 rounded-[1.15rem] border border-steel-200 bg-paper p-5 text-center sm:p-6"
                   >
                     <span className="min-w-0">
                       <span className="block font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-600">

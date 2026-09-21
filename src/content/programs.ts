@@ -438,10 +438,10 @@ export const equipmentFinanceProgram = {
     "New authorities and growing fleets both welcome to apply",
   ],
   prepare: [
-    "Seller's quote or invoice for the equipment",
-    "Equipment details: year, make, model and VIN",
-    "Your EIN and signed W-9",
-    "Business information: MC/DOT numbers and fleet size",
+    "Vendor invoice or specs for the equipment, with price and down payment",
+    "Business details: legal name, tax ID#, business type and officers/members with 10%+ ownership",
+    "Personal details for each guarantor with 10%+ ownership (co-guarantor too, if applicable)",
+    "A typed signature — the online form mirrors the paper credit application",
   ],
   faqs: [
     {
@@ -454,7 +454,7 @@ export const equipmentFinanceProgram = {
     },
     {
       q: "What do I need to apply?",
-      a: "The seller's quote or invoice, the equipment's year/make/model/VIN, your EIN and W-9, and your business details (MC/DOT and fleet size). The application below collects all of it in one pass.",
+      a: "The same details as the paper Heavy Equipment Purchase Finance Credit Application: the equipment price, financing amount and down payment; the vendor/seller and their address; your business information (legal name, tax ID#, business type, officers and members with 10%+ ownership); and personal information for each guarantor. The online form collects all of it in one pass.",
     },
     {
       q: "How fast is a decision?",

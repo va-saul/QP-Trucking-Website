@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/hero/PageHero";
 import {
@@ -18,13 +19,24 @@ import { buildMetadata } from "@/lib/seo";
 import { org, testimonials } from "@/content/site";
 import type { Faq } from "@/lib/types";
 
+const owner = {
+  name: "Brandon Bennett",
+  role: "Owner",
+  image: "/images/team/brandon-bennett.webp",
+  imageWidth: 1145,
+  imageHeight: 1374,
+  profileUrl: `${org.url}/about#brandon-bennett`,
+};
+
 export const metadata = buildMetadata({
   title: "About QP Trucking Solutions — Louisville, KY Factoring & Insurance",
   description:
-    "QP Capital LLC (QP Trucking Solutions) is a family-owned factoring company, licensed insurance agency and compliance partner for new authority trucking companies and fleets nationwide. Meet the team behind 1,000+ carriers.",
+    `Meet ${owner.name}, owner of QP Trucking Solutions, and the Louisville team helping carriers with factoring, trucking insurance and compliance.`,
   path: "/about",
   keywords: [
     "about QP Trucking Solutions",
+    owner.name,
+    "QP Trucking Solutions owner",
     "QP Capital LLC",
     "trucking factoring company Louisville KY",
     "trucking insurance agency Kentucky",
@@ -47,7 +59,7 @@ const videos = [
 const faqs: Faq[] = [
   {
     q: "Who owns QP Trucking Solutions?",
-    a: "QP Trucking Solutions is operated by QP Capital LLC, a family-owned company headquartered at 4612 Outer Loop Rd in Louisville, Kentucky, serving trucking companies in all 48 contiguous states.",
+    a: `${owner.name} is the owner of QP Trucking Solutions, operated by QP Capital LLC. The family-owned company is based in Louisville, Kentucky, and serves trucking companies nationwide.`,
   },
   {
     q: "How long has QP been helping trucking companies?",
@@ -77,8 +89,20 @@ export default function AboutPage() {
             "@context": "https://schema.org",
             "@type": "AboutPage",
             name: "About QP Trucking Solutions",
-            url: "https://qpfactoring.com/about",
-            about: { "@id": "https://qpfactoring.com/#organization" },
+            url: `${org.url}/about`,
+            about: { "@id": `${org.url}/#organization` },
+            mentions: { "@id": owner.profileUrl },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "@id": owner.profileUrl,
+            name: owner.name,
+            jobTitle: owner.role,
+            description: `${owner.role} of ${org.name}.`,
+            image: `${org.url}${owner.image}`,
+            url: owner.profileUrl,
+            worksFor: { "@id": `${org.url}/#organization` },
           },
         ]}
       />
@@ -103,8 +127,84 @@ export default function AboutPage() {
         ]}
         primaryHref="/get-started"
         primaryLabel="Talk to our team"
+        secondaryHref="#brandon-bennett"
+        secondaryLabel="Meet the owner"
         priority
       />
+
+      <section
+        id="brandon-bennett"
+        aria-labelledby="owner-heading"
+        className="scroll-mt-28 bg-bone py-16 text-navy-900 sm:py-20 lg:py-24"
+      >
+        <Container>
+          <div className="grid items-center gap-10 md:grid-cols-[0.9fr_1.1fr] lg:gap-20">
+            <Reveal className="mx-auto w-full max-w-md md:mx-0">
+              <figure className="overflow-hidden rounded-[1.25rem] border border-navy-900/10 bg-navy-900 shadow-lift">
+                <Image
+                  src={owner.image}
+                  alt={`${owner.name}, ${owner.role} of ${org.name}`}
+                  width={owner.imageWidth}
+                  height={owner.imageHeight}
+                  sizes="(max-width: 767px) 100vw, (max-width: 1179px) 42vw, 440px"
+                  className="block h-auto w-full"
+                />
+                <figcaption className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 sm:px-6">
+                  <span className="text-[0.78rem] font-semibold text-white">{org.name}</span>
+                  <span className="font-mono text-[0.65rem] uppercase tracking-[0.1em] text-gold-400">
+                    {org.city}, {org.region}
+                  </span>
+                </figcaption>
+              </figure>
+            </Reveal>
+
+            <Reveal delay={0.08}>
+              <p className="eyebrow flex items-center gap-3 text-brand-500">
+                <span aria-hidden="true" className="h-px w-8 bg-gold-600" />
+                Meet the owner
+              </p>
+              <h2 id="owner-heading" className="mt-4 font-display text-display-lg text-navy-900">
+                {owner.name}
+              </h2>
+              <p className="mt-3 text-[1.05rem] font-semibold text-brand-600">
+                {owner.role}, {org.name}
+              </p>
+
+              <div className="mt-6 space-y-4 text-[1.02rem] leading-relaxed text-steel-700">
+                <p>
+                  {owner.name} is the owner of {org.name}, a family-owned company based in Louisville, Kentucky.
+                </p>
+                <p>
+                  From your first authority to your next stage of growth, QP brings factoring, trucking insurance and
+                  compliance support together — so you can focus on the road ahead.
+                </p>
+              </div>
+
+              <div className="mt-7 border-t border-steel-200 pt-6">
+                <p className="font-display text-display-sm font-bold text-navy-900">
+                  Family-owned. Carrier-focused.
+                </p>
+                <p className="mt-2 text-[0.94rem] leading-relaxed text-steel-600">
+                  One team for your cash flow, coverage and compliance.
+                </p>
+              </div>
+
+              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4">
+                <Btn href="/contact" variant="primary" withArrow>
+                  Connect with our team
+                </Btn>
+                <a
+                  href={`tel:${org.salesPhone}`}
+                  aria-label={`Call QP Trucking Solutions at ${org.salesPhoneDisplay}`}
+                  className="text-[0.94rem] font-semibold text-navy-900 underline decoration-gold-500 underline-offset-4 transition-colors hover:text-brand-500"
+                >
+                  {org.salesPhoneDisplay}
+                </a>
+              </div>
+            </Reveal>
+          </div>
+        </Container>
+      </section>
 
       <Section tone="paper">
         <Container>

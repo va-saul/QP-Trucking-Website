@@ -46,6 +46,7 @@ const legacyRedirects: { source: string; destination: string }[] = [
   { source: "/store/qp-capital-business-funding", destination: "/factoring" },
 
   // Content / utility pages
+  { source: "/about-us", destination: "/about" },
   { source: "/a-bout-invoice-factoring", destination: "/factoring" },
   { source: "/get-started-2", destination: "/get-started" },
   { source: "/contact-privacy-policy", destination: "/contact" },

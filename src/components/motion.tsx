@@ -2,15 +2,16 @@
 
 /**
  * Motion primitives built on GSAP 3 (ScrollTrigger + SplitText).
- * Everything degrades gracefully: content is only hidden once JS confirms it
- * can animate (the `js-anim` class is set by an inline script in <head>), and
- * every animation is skipped for users who prefer reduced motion.
+ * Decorative effects only run on the entry page of a fresh tab session.
+ * Navigation, refreshes, reduced motion and no-JS visits render final content.
+ * User-driven interactions remain independent of the one-time entrance.
  */
 
 import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 let registered = false;
 if (typeof window !== "undefined" && !registered) {
@@ -41,14 +42,11 @@ export function Reveal({
   as?: "div" | "section" | "li" | "article" | "header";
 }) {
   const ref = useRef<HTMLElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (prefersReducedMotion()) {
-      gsap.set(el, { opacity: 1, y: 0 });
-      return;
-    }
+    if (!el || !animateEntrance) return;
 
     const ctx = gsap.context(() => {
       const items = stagger ? el.querySelectorAll("[data-item]") : null;
@@ -69,7 +67,7 @@ export function Reveal({
     }, el);
 
     return () => ctx.revert();
-  }, [delay, y, stagger]);
+  }, [animateEntrance, delay, y, stagger]);
 
   return (
     <Tag ref={ref as never} className={className} data-reveal>
@@ -96,16 +94,19 @@ export function SplitHeading({
   immediate?: boolean;
 }) {
   const ref = useRef<HTMLHeadingElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (prefersReducedMotion()) return;
+    if (!el || !animateEntrance) return;
 
+    let active = true;
     let split: SplitText | null = null;
     let ctx: gsap.Context | null = null;
 
     const run = () => {
+      // A font promise can settle after navigation or a StrictMode cleanup.
+      if (!active) return;
       ctx = gsap.context(() => {
         split = SplitText.create(el, {
           type: "lines,words",
@@ -131,14 +132,15 @@ export function SplitHeading({
     };
 
     // wait for webfonts so line breaks are measured correctly
-    if (document.fonts?.status === "loaded") run();
-    else document.fonts?.ready.then(run);
+    if (!document.fonts || document.fonts.status === "loaded") run();
+    else void document.fonts.ready.then(run);
 
     return () => {
+      active = false;
       ctx?.revert();
       split?.revert();
     };
-  }, [text, delay, immediate]);
+  }, [animateEntrance, text, delay, immediate]);
 
   return (
     <Tag ref={ref} className={className} data-reveal>
@@ -164,15 +166,14 @@ export function CountUp({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
+  const finalText = `${prefix}${value.toLocaleString("en-US")}${suffix}`;
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    if (prefersReducedMotion()) {
-      el.textContent = `${prefix}${value.toLocaleString()}${suffix}`;
-      return;
-    }
+    if (!el || !animateEntrance) return;
 
+    el.textContent = `${prefix}0${suffix}`;
     const obj = { n: 0 };
     const ctx = gsap.context(() => {
       gsap.to(obj, {
@@ -180,18 +181,21 @@ export function CountUp({
         duration,
         ease: "power2.out",
         onUpdate: () => {
-          el.textContent = `${prefix}${Math.round(obj.n).toLocaleString()}${suffix}`;
+          el.textContent = `${prefix}${Math.round(obj.n).toLocaleString("en-US")}${suffix}`;
         },
         scrollTrigger: { trigger: el, start: "top 92%", once: true },
       });
     }, el);
 
-    return () => ctx.revert();
-  }, [value, suffix, prefix, duration]);
+    return () => {
+      ctx.revert();
+      el.textContent = finalText;
+    };
+  }, [animateEntrance, value, suffix, prefix, duration, finalText]);
 
   return (
     <span ref={ref} className={className}>
-      {prefix}0{suffix}
+      {finalText}
     </span>
   );
 }
@@ -209,10 +213,11 @@ export function Parallax({
   strength?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || !animateEntrance) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el,
@@ -225,7 +230,7 @@ export function Parallax({
       );
     }, el);
     return () => ctx.revert();
-  }, [strength]);
+  }, [animateEntrance, strength]);
 
   return (
     <div ref={ref} className={className} aria-hidden="true">
@@ -322,7 +327,7 @@ export function Magnetic({ children, className }: { children: ReactNode; classNa
 }
 
 /* ------------------------------------------------------------------ */
-/*  Float — perpetual gentle drift for hero art accents               */
+/*  Float — one gentle out-and-back drift on the entry page            */
 /* ------------------------------------------------------------------ */
 export function Float({
   children,
@@ -336,21 +341,22 @@ export function Float({
   duration?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || !animateEntrance) return;
     const tween = gsap.to(el, {
       y: amount,
       duration,
       ease: "sine.inOut",
-      repeat: -1,
+      repeat: 1,
       yoyo: true,
     });
     return () => {
-      tween.kill();
+      tween.revert();
     };
-  }, [amount, duration]);
+  }, [animateEntrance, amount, duration]);
 
   return (
     <div ref={ref} className={className}>

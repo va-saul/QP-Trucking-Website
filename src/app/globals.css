@@ -380,7 +380,10 @@
 .marquee {
   display: flex;
   width: max-content;
-  animation: marquee 42s linear infinite;
+}
+
+.js-anim .marquee {
+  animation: marquee 42s linear 1;
 }
 
 .marquee-fast {
@@ -423,7 +426,10 @@
   background-size: 96px 3px;
   background-repeat: repeat-x;
   height: 3px;
-  animation: lane 1.6s linear infinite;
+}
+
+.js-anim .lane-line {
+  animation: lane 1.6s linear 1;
 }
 
 @keyframes lane {
@@ -435,8 +441,8 @@
   }
 }
 
-.truck-roll {
-  animation: truck-roll 7.5s linear infinite;
+.js-anim .truck-roll {
+  animation: truck-roll 7.5s linear 1 forwards;
 }
 
 @keyframes truck-roll {
@@ -454,7 +460,11 @@
   inset: -6px;
   border-radius: inherit;
   border: 1px solid rgba(242, 180, 65, 0.55);
-  animation: pulse-ring 2.6s ease-out infinite;
+  opacity: 0;
+}
+
+.js-anim .pulse-ring::before {
+  animation: pulse-ring 2.6s ease-out 1 forwards;
 }
 
 @keyframes pulse-ring {
@@ -471,19 +481,13 @@
   }
 }
 
-/* Reveal helper used before GSAP takes over (progressive enhancement).
-   Content is only hidden when `js-anim` is present on <html>, which an inline
-   script in <head> sets — so no-JS visitors and crawlers always see copy. */
-.js-anim [data-reveal] {
-  opacity: 0;
-  transform: translateY(18px);
-  will-change: opacity, transform;
-}
+/* Content is visible by default. GSAP applies reveal start states only after
+   it mounts, never leaving headings/cards hidden if a script fails to load. */
 
 /* Entrance states for the two above-the-fold movers (header bar, hero photo).
    These are set in CSS rather than by GSAP so the SSR markup never paints in its
    final position first and then snap back. Gated twice:
-     · `js-anim` — no-JS visitors and crawlers always see the finished bar/photo
+     · `js-anim` — entry page of a fresh session only; later pages are static
      · `no-preference` — reduced-motion visitors get the static version, since the
        GSAP timeline bails out early for them
    `anim-safety` is the seatbelt: if the animation library never takes over (slow

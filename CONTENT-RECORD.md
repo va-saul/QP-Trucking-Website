@@ -106,3 +106,14 @@ Video reviews retained as outbound links on `/about`: MBOYS Trucking, Customer r
 | `README.md` | Stack, routes, commands, launch configuration |
 | `src/content/*.ts` | Machine-readable source of truth for services, site facts, FAQs and editorial |
 | `next.config.ts` | The executable redirect map (30 legacy URLs) |
+
+
+---
+
+## 6. Owner profile — September 2026 update
+
+- **Name and role:** Brandon Bennett — Owner, QP Trucking Solutions, as explicitly supplied by the user.
+- **Placement:** `/about#brandon-bennett`, immediately after the About hero, with a "Meet the owner" jump link. Existing company content and reviews are retained. The legacy `/about-us` URL now permanently redirects to `/about`.
+- **Portrait source:** The user-selected `Brandon Bennett.png` from the GitHub repository (source blob `5ceffbf25a2b72b3a878ac17e672472657d52052`). This is not the earlier generated navy-polo concept in `design-previews/`.
+- **Web asset:** `public/images/team/brandon-bennett.webp`, converted at WebP quality 92 from the original 1145 × 1374 PNG, retaining its full composition without retouching or regeneration. Approximately 192 KB instead of 2.06 MB; responsive delivery uses `next/image`.
+- **Content consistency:** Ownership FAQ, About meta description and page-level Person structured data name Brandon Bennett as Owner. No founder claim, personal quote, biography, tenure or credentials have been invented.

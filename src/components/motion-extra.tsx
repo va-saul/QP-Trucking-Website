@@ -3,15 +3,13 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { prefersReducedMotion } from "@/components/motion";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 /**
- * Marquee that reacts to how fast the visitor is scrolling: it idles along at a
- * scroll-friendly pace, speeds up while the page is being flung, and reverses
- * direction when the visitor scrolls back up. Falls back to a static row when
- * motion is reduced.
+ * One marquee pass on the entry page, responsive to scroll speed/direction.
+ * Later pages and reduced-motion visits get a static row, not a repeating ticker.
  */
 export function Marquee({
   children,
@@ -26,18 +24,18 @@ export function Marquee({
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const track = trackRef.current;
-    if (!wrap || !track || prefersReducedMotion()) return;
+    if (!wrap || !track || !animateEntrance) return;
 
     const ctx = gsap.context(() => {
       const tween = gsap.to(track, {
         xPercent: -50,
         duration: speed,
         ease: "none",
-        repeat: -1,
       });
 
       const st = ScrollTrigger.create({
@@ -59,7 +57,7 @@ export function Marquee({
     }, wrap);
 
     return () => ctx.revert();
-  }, [speed]);
+  }, [animateEntrance, speed]);
 
   return (
     <div
@@ -78,13 +76,11 @@ export function Marquee({
 /** Hairline rule that draws itself as the section scrolls into view. */
 export function RuleDraw({ className }: { className?: string }) {
   const ref = useRef<HTMLSpanElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) {
-      if (el) el.style.transform = "scaleX(1)";
-      return;
-    }
+    if (!el || !animateEntrance) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el,
@@ -98,14 +94,14 @@ export function RuleDraw({ className }: { className?: string }) {
       );
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [animateEntrance]);
 
   return (
     <span
       ref={ref}
       aria-hidden="true"
       className={`block h-px w-full origin-left bg-steel-200 ${className ?? ""}`}
-      style={{ transform: "scaleX(0)" }}
+      style={{ transform: "scaleX(1)" }}
     />
   );
 }

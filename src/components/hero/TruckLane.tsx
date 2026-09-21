@@ -1,7 +1,8 @@
 /**
  * Decorative "freight lane" strip: dashed lane markers with a QP truck rolling
- * across the bottom of every hero. Pure CSS animation (no JS), aria-hidden, and
- * automatically disabled for reduced-motion users via globals.css.
+ * across the bottom of the entry hero once. The session's `js-anim` flag
+ * enables its CSS animation; subsequent pages and reduced-motion visits are static.
+ * The decorative SVG remains aria-hidden.
  */
 export function TruckLane({ className }: { className?: string }) {
   return (

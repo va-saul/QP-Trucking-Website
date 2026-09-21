@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { prefersReducedMotion } from "@/components/motion";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
@@ -30,11 +30,12 @@ export function HeroBackdrop({
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const img = imgRef.current;
-    if (!wrap || !img || prefersReducedMotion()) return;
+    if (!wrap || !img || !animateEntrance) return;
 
     const ctx = gsap.context(() => {
       // entrance: slow push-in from a slightly larger crop
@@ -52,7 +53,7 @@ export function HeroBackdrop({
     }, wrap);
 
     return () => ctx.revert();
-  }, []);
+  }, [animateEntrance]);
 
   return (
     <div ref={wrapRef} className="absolute inset-0 -z-10 overflow-hidden">

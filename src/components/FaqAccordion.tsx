@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { Faq } from "@/lib/types";
-import { prefersReducedMotion } from "@/components/motion";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
@@ -26,11 +26,12 @@ export function FaqAccordion({
   const [open, setOpen] = useState<number | null>(defaultOpen);
   const isDark = tone === "dark";
   const listRef = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   // answers slide in as the list scrolls into view
   useEffect(() => {
     const el = listRef.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || !animateEntrance) return;
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el.querySelectorAll("[data-faq-item]"),
@@ -46,7 +47,7 @@ export function FaqAccordion({
       );
     }, el);
     return () => ctx.revert();
-  }, [faqs]);
+  }, [animateEntrance, faqs]);
 
   return (
     <div ref={listRef} className={`grid gap-3 ${columns === 2 ? "md:grid-cols-2" : ""}`}>

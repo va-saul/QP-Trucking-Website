@@ -12,3 +12,7 @@ yarn-error.log*
 next-env.d.ts
 .vercel
 image-search/
+.cache/
+
+# Private, unapproved image concepts (not website assets)
+design-previews/

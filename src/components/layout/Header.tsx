@@ -9,6 +9,7 @@ import { Logo, QPMark } from "@/components/brand";
 import { navigation, org } from "@/content/site";
 import { servicePath, servicesBySlug } from "@/content/services";
 import { prefersReducedMotion } from "@/components/motion";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +17,7 @@ const FEATURED = ["pure-non-recourse", "insurance", "new-authority"].map((s) => 
 
 export function Header() {
   const pathname = usePathname();
+  const animateEntrance = useEntranceAnimation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -49,24 +51,32 @@ export function Header() {
     };
   }, [mobileOpen]);
 
-  /* ---------------- GSAP: nav underline + entrance ---------------- */
+  /* ---------------- GSAP: one entrance per tab session ---------------- */
   useEffect(() => {
-    const nav = navRef.current;
-    const pill = pillRef.current;
-    if (!nav || !pill || prefersReducedMotion()) return;
-
-    pillX.current = gsap.quickTo(pill, "x", { duration: 0.45, ease: "power3.out" });
-    pillW.current = gsap.quickTo(pill, "width", { duration: 0.45, ease: "power3.out" });
-
-    const links = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-link]"));
+    const shell = shellRef.current;
+    if (!shell || !animateEntrance) return;
     const ctx = gsap.context(() => {
-      // entrance: the header assembles itself on first paint
+      // Only navigation/actions animate. The supplied logo is always visible.
       gsap.fromTo(
         "[data-header-item]",
         { y: -14, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.7, stagger: 0.055, ease: "power3.out", delay: 0.1 },
       );
-      gsap.fromTo(pill, { opacity: 0 }, { opacity: 1, duration: 0.4, delay: 0.5 });
+    }, shell);
+    return () => ctx.revert();
+  }, [animateEntrance]);
+
+  /* ---------------- GSAP: interactive nav underline ---------------- */
+  useEffect(() => {
+    const nav = navRef.current;
+    const pill = pillRef.current;
+    if (!nav || !pill || prefersReducedMotion()) return;
+
+    const links = Array.from(nav.querySelectorAll<HTMLElement>("[data-nav-link]"));
+    const ctx = gsap.context(() => {
+      pillX.current = gsap.quickTo(pill, "x", { duration: 0.45, ease: "power3.out" });
+      pillW.current = gsap.quickTo(pill, "width", { duration: 0.45, ease: "power3.out" });
+      gsap.set(pill, { opacity: 1 });
     }, nav);
 
     const move = (el: HTMLElement) => {
@@ -77,11 +87,19 @@ export function Header() {
     };
 
     const onEnter = (e: Event) => move(e.currentTarget as HTMLElement);
-    links.forEach((l) => l.addEventListener("pointerenter", onEnter));
+    links.forEach((l) => {
+      l.addEventListener("pointerenter", onEnter);
+      l.addEventListener("focus", onEnter);
+    });
 
     return () => {
-      links.forEach((l) => l.removeEventListener("pointerenter", onEnter));
+      links.forEach((l) => {
+        l.removeEventListener("pointerenter", onEnter);
+        l.removeEventListener("focus", onEnter);
+      });
       ctx.revert();
+      pillX.current = null;
+      pillW.current = null;
     };
   }, []);
 
@@ -144,7 +162,7 @@ export function Header() {
           ref={shellRef}
           className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-3.5 sm:px-7 lg:px-8"
         >
-          <div data-header-item>
+          <div>
             <Logo tone={solid ? "navy" : "white"} priority />
           </div>
 

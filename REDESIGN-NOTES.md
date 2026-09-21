@@ -93,7 +93,15 @@ Motion lives in `src/components/motion.tsx`, `src/components/motion-extra.tsx`,
 `src/components/FaqAccordion.tsx`. All are client components; `gsap.registerPlugin(ScrollTrigger)`
 is called in every file that uses it.
 
-**Scrolling (page) animations**
+**Session policy (September 2026 update):** `src/lib/entrance-session.ts` and
+`src/components/EntranceSession.tsx` gate decorative GSAP effects to the first page of a
+fresh tab session. The early script marks `sessionStorage["qp:entrance-seen:v1"]`, while
+all effects share the same entry-page snapshot. SPA navigation permanently ends that
+snapshot; refreshes, later document loads, back/forward and restored pages remain static.
+Reduced motion or unavailable storage skips the entrance. Hover/focus, menu/FAQ controls,
+header scroll compaction and reading progress stay functional on every page.
+
+**Scrolling (page) animations — entry page only**
 
 | Animation | Where | Notes |
 | --- | --- | --- |
@@ -102,23 +110,28 @@ is called in every file that uses it.
 | `SplitHeading` | every H1 + key H2s | `SplitText` word-by-word mask reveal; waits for `document.fonts.ready` so line breaks measure correctly; `aria: "auto"` keeps headings readable to screen readers |
 | `Reveal` / `Reveal` stagger | section blocks, grids, spec rows, service bullets, both pricing tables | `ScrollTrigger` fade + rise with optional child stagger (`once: true`) |
 | `FaqAccordion` stagger | all 90+ Q&A lists | questions rise in with a 0.06 s stagger as the list enters view |
-| `Marquee` (`TrustMarquee`) | home + section rails | infinite ticker that reads `ScrollTrigger.getVelocity()` and speeds up / reverses with scroll direction |
+| `Marquee` (`TrustMarquee`) | home + section rails | one ticker pass that reads `ScrollTrigger.getVelocity()` and speeds up / reverses with scroll direction |
 | `CountUp` | stat strips | numbers count up when scrolled into view |
 | `Parallax` | decorative glows | scrubbed, subtle |
 | `RouteProgress` | global | top gradient bar tracking read progress — the "freight run" indicator |
 | `RuleDraw` | section heads | rule scales out from the left as the head enters |
-| `Float`, `Magnetic` | hero accents; desktop CTAs | slow yoyo drift; pointer-reactive lift (`hover: hover` + `pointer: fine` guard) |
+| `Float`, `Magnetic` | hero accents; desktop CTAs | one out-and-back drift on entry; pointer-reactive lift remains available (`hover: hover` + `pointer: fine` guard) |
 
 **Header animations (GSAP)**
 
 | Animation | Notes |
 | --- | --- |
-| Staggered entrance | every `[data-header-item]` (mark, nav links, utility links, CTA) fades down in sequence on first paint |
+| Staggered entrance | navigation/actions fade down only on the session entry page; the supplied logo is excluded and always visible |
 | Underline pill follow | one `gsap.quickTo`-driven underline glides to the hovered/focused nav item and eases back out on leave |
 | Shrink on scroll | `ScrollTrigger` toggles a compact bar (reduced padding, translucent backdrop, hairline rule) and eases the brand mark to `scale: 0.9` in the same gesture |
 | Mobile drawer | accordion groups animate open/closed; the drawer is a GSAP-timed panel with a CTA stack |
 
-**Guardrails:** every effect checks `prefers-reduced-motion`; `[data-reveal]` hidden states only apply when the `js-anim` class is present (set by an inline script), so no-JS visitors and crawlers always see the copy. GSAP contexts are reverted on unmount — no leaks, no hydration mismatches.
+**Guardrails:** decorative effects share a reduced-motion-aware session policy. Content is
+visible by default rather than globally hidden by CSS; counters and spec meters render their
+final values on the server. The entry-only header/photo start states have a 3-second CSS
+visibility fallback, and the logo is never an entrance target. GSAP contexts are reverted on
+navigation/unmount or a change to reduced motion. Delayed font callbacks are cancelled after
+cleanup. CSS truck/lane accents and decorative GSAP tickers do not loop indefinitely.
 
 ---
 

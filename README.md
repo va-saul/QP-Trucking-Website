@@ -14,6 +14,7 @@ npm run dev      # http://localhost:3000
 npm run build    # production build (38 routes, all statically prerendered)
 npm start        # serve the production build
 npm run lint     # typecheck (tsc --noEmit)
+npm test         # session-animation policy regression tests
 ```
 
 > Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
@@ -35,6 +36,14 @@ Node 20+ required. No environment variables are needed to run the site.
 | Brand | **One logo file** — `public/images/brand/qp-logo.png` — used by the header, mobile drawer, footer, marquee, 404, the browser tab, the iOS home screen and the PWA manifest. Nothing is redrawn or re-typeset |
 | Forms | `LeadForm` client component → `POST /api/lead` → optional webhook (`LEAD_WEBHOOK_URL`) |
 | SEO | Per-page metadata, canonicals, OpenGraph/Twitter, `sitemap.xml`, `robots.txt`, 40+ JSON-LD graphs |
+
+### Entrance animation behavior
+
+- GSAP entrances and decorative scroll effects run only on the **first page of a fresh tab session** — including direct visits to About, Services or any other route.
+- Navigating between pages, using Back/Forward, or refreshing does **not** replay the opening effects. A genuinely fresh tab session gets the entrance again.
+- `sessionStorage["qp:entrance-seen:v1"]` is set before hydration; `EntranceSession` shares one decision with all effects and cleans them up on navigation. This is per visitor, not a server-wide flag or a permanent `localStorage` setting.
+- Reduced-motion visitors and browsers that block storage get static, fully visible content. No-JS rendering includes the real statistics and meter values, not zeroes.
+- Navigation hover/focus, the mobile menu, FAQ toggles and reading progress remain usable. The logo is never hidden by the entrance animation, and the supplied logo assets are unchanged.
 
 ### Brand assets (single source)
 

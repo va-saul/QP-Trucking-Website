@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import type { AccentKey, HeroVariant } from "@/lib/types";
-import { prefersReducedMotion } from "@/components/motion";
+import { useEntranceAnimation } from "@/components/EntranceSession";
 
 /**
  * Per-page hero data. Each service page gets its own variant: its own label,
@@ -190,10 +190,11 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
   const cfg = HERO_ART[variant];
   const accent = ACCENTS[cfg.accent];
   const ref = useRef<HTMLDivElement | null>(null);
+  const animateEntrance = useEntranceAnimation();
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el || !animateEntrance) return;
 
     const ctx = gsap.context(() => {
       gsap.fromTo(el, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.45, ease: "power3.out" });
@@ -206,7 +207,7 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
     }, el);
 
     return () => ctx.revert();
-  }, [cfg.meter]);
+  }, [animateEntrance, cfg.meter]);
 
   return (
     <div ref={ref} className={`glass rounded-[1.15rem] p-5 sm:p-6 ${className ?? ""}`}>
@@ -225,7 +226,11 @@ export function HeroSpecCard({ variant, className }: { variant: HeroVariant; cla
         <p className="font-display text-[0.9rem] font-bold text-white">{Math.round(cfg.meter * 100)}%</p>
       </div>
       <div className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-white/12">
-        <span data-spec-meter className={`block h-full w-full origin-left rounded-full bg-gradient-to-r ${accent.bar}`} />
+        <span
+          data-spec-meter
+          className={`block h-full w-full origin-left rounded-full bg-gradient-to-r ${accent.bar}`}
+          style={{ transform: `scaleX(${cfg.meter})` }}
+        />
       </div>
 
       <dl className="mt-4 grid gap-2.5 border-t border-white/10 pt-4">

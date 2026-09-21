@@ -10,6 +10,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
 import { RouteProgress } from "@/components/motion";
+import { EntranceSession } from "@/components/EntranceSession";
+import { ENTRANCE_BOOTSTRAP } from "@/lib/entrance-session";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
 import { SITE_URL, org } from "@/content/site";
 
@@ -67,13 +69,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-US">
+    <html lang="en-US" suppressHydrationWarning>
       <head>
-        {/* Progressive enhancement flag: reveal-on-scroll content is only
-            hidden once we know JS is running, so crawlers and no-JS visitors
-            always see every word. */}
-        <Script id="js-anim-flag" strategy="beforeInteractive">
-          {`document.documentElement.classList.add('js-anim');`}
+        {/* One entrance per tab session; returning visits render the static state. */}
+        <Script id="qp-entrance-session" strategy="beforeInteractive">
+          {ENTRANCE_BOOTSTRAP}
         </Script>
         <link rel="preconnect" href="https://deciphercredit.net" />
       </head>
@@ -84,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <EntranceSession />
         <RouteProgress />
         <Header />
         <main id="main">{children}</main>

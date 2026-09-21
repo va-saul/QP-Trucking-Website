@@ -5,6 +5,11 @@ import { org } from "@/content/site";
 /**
  * THE LOGO — one file, used everywhere.
  *
+ * 🔒 BRAND LOCK — see /BRAND-LOCK.md. `Logo.png` and all its mirrors are locked
+ * to the original main-branch artwork (SHA-256 87dea8cc…) and the favicon
+ * (src/app/favicon.ico) is regenerated only from that exact file. Do not swap
+ * in recreated or regenerated marks.
+ *
  * `/Logo.png` is the original artwork from main branch (560×560: the navy field
  * with the QP ring/cross monogram — gold/blue segments). Restored per request;
  * header no longer uses the recreated simplified mark. Every logo surface now

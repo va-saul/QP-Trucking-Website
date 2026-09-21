@@ -165,6 +165,30 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     ],
     accent: "teal",
   },
+  fuelcard: {
+    plateLabel: "Fuel discount network",
+    stamp: "48¢/GAL",
+    meterLabel: "Pump savings applied",
+    meter: 0.9,
+    rows: [
+      { k: "Stations", v: "9,000+ nationwide" },
+      { k: "POS fees", v: "$0" },
+      { k: "Approval", v: "No traditional credit" },
+    ],
+    accent: "gold",
+  },
+  equipment: {
+    plateLabel: "Fleet growth financing",
+    stamp: "APPROVED",
+    meterLabel: "Equipment on the road",
+    meter: 0.88,
+    rows: [
+      { k: "Finances", v: "Tractors & trailers" },
+      { k: "Review", v: "QP specialists" },
+      { k: "Pairs with", v: "Factoring & insurance" },
+    ],
+    accent: "gold",
+  },
   ambassador: {
     plateLabel: "Referral payout schedule",
     stamp: "GET PAID",

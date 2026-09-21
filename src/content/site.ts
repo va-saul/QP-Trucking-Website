@@ -150,6 +150,16 @@ export const navigation: NavItem[] = [
         href: "/programs/circle-network",
         blurb: "Premium member tier — $2,000+ in annual value",
       },
+      {
+        label: "QP Fuel Card",
+        href: "/programs/fuel-card",
+        blurb: "48¢/gal average savings at 9,000+ stations",
+      },
+      {
+        label: "Equipment Finance",
+        href: "/programs/equipment-finance",
+        blurb: "Tractors, trailers & equipment — one application",
+      },
     ],
   },
   {

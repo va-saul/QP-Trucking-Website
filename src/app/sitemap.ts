@@ -15,6 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/get-started", priority: 0.9, freq: "monthly" },
     { path: "/programs/ambassador", priority: 0.85, freq: "monthly" },
     { path: "/programs/circle-network", priority: 0.85, freq: "monthly" },
+    { path: "/programs/fuel-card", priority: 0.85, freq: "monthly" },
+    { path: "/programs/equipment-finance", priority: 0.85, freq: "monthly" },
     { path: "/faq", priority: 0.85, freq: "monthly" },
     { path: "/about", priority: 0.7, freq: "yearly" },
     { path: "/contact", priority: 0.8, freq: "yearly" },

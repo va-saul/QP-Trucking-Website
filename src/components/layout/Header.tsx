@@ -169,7 +169,7 @@ export function Header() {
                   data-header-item
                   data-nav-link
                   href={item.href}
-                  className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9rem] font-semibold transition-colors ${
+                  className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-[0.85rem] font-semibold transition-colors xl:text-[0.88rem] ${
                     solid ? "text-navy-800 hover:text-brand-500" : "text-white/90 hover:text-white"
                   }`}
                   aria-expanded={item.children ? hovered === item.label : undefined}
@@ -215,7 +215,7 @@ export function Header() {
               href={`tel:${org.salesPhone}`}
               // the mark-only logo is wider than the old typeset one, so the phone
               // number yields to the nav until there is real room (xl)
-              className={`hidden items-center gap-2 text-[0.88rem] font-bold transition-colors xl:flex ${
+              className={`hidden items-center gap-2 whitespace-nowrap text-[0.88rem] font-bold transition-colors xl:flex ${
                 solid ? "text-navy-900 hover:text-brand-500" : "text-white hover:text-gold-400"
               }`}
             >

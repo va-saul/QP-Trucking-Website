@@ -184,7 +184,7 @@ export default function StorePage() {
             </div>
           </Reveal>
 
-          <Reveal className="mt-6 grid gap-4 sm:grid-cols-2">
+          <Reveal className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
               <p className="eyebrow text-brand-500">Factoring programs</p>
               <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
@@ -203,6 +203,46 @@ export default function StorePage() {
               </p>
               <Btn href="/insurance" variant="outlineDark" size="sm" className="mt-4">
                 Get an insurance quote
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">QP Fuel Card</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                48¢/gal average savings at partner stations, 9,000+ stations, zero POS fees — with approval paths that
+                do not require traditional credit.
+              </p>
+              <Btn href="/programs/fuel-card" variant="outlineDark" size="sm" className="mt-4">
+                Fuel card program
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Equipment finance</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                Tractors, trailers and rolling equipment financed through the same team that factors your invoices.
+                One application, reviewed by a specialist.
+              </p>
+              <Btn href="/programs/equipment-finance" variant="outlineDark" size="sm" className="mt-4">
+                Equipment finance
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Circle Network</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                The premium member tier: 0% factoring fees, free fuel card setup, complimentary IFTA &amp; IRP
+                processing and $2,000+ in annual value.
+              </p>
+              <Btn href="/programs/circle-network" variant="outlineDark" size="sm" className="mt-4">
+                Circle Network
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Ambassador Program</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                Refer carriers and earn $500–$700 per factoring referral, up to $250 insurance, $100 fuel &amp;
+                dispatch, $20 per authority service.
+              </p>
+              <Btn href="/programs/ambassador" variant="outlineDark" size="sm" className="mt-4">
+                Ambassador payouts
               </Btn>
             </div>
           </Reveal>

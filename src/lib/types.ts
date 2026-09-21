@@ -21,7 +21,9 @@ export type HeroVariant =
   | "team"
   | "counter"
   | "ambassador"
-  | "circle";
+  | "circle"
+  | "fuelcard"
+  | "equipment";
 
 export type AccentKey = "blue" | "gold" | "teal";
 

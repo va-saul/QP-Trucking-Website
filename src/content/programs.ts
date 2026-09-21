@@ -304,3 +304,171 @@ export const circleNetworkProgram = {
     "owner operator benefits",
   ],
 };
+
+/* ------------------------------------------------------------------ */
+/* QP FUEL CARD                                                        */
+/* ------------------------------------------------------------------ */
+
+export const fuelCardProgram = {
+  path: "/programs/fuel-card",
+  eyebrow: "QP Programs · Fuel Card",
+  name: "QP Fuel Card Program",
+  short: "QP Fuel Card",
+  tagline:
+    "Industry-leading fuel savings and financial flexibility — 48¢/gal average savings at partners, accepted at 9,000+ stations, with approval paths for every credit profile.",
+  heroImage: "/images/hero/fuel-card.jpg",
+  imageAlt: "Truck driver using a QP fuel card at a truck stop fuel island at dusk",
+  heroVariant: "fuelcard" as const,
+  accent: "gold" as const,
+  heroStats: [
+    { label: "Avg partner savings", value: "48¢/gal" },
+    { label: "Stations", value: "9,000+" },
+    { label: "Carrier savings", value: "$1,000+/mo·truck" },
+    { label: "POS fees", value: "$0" },
+  ],
+  answer:
+    "The QP Fuel Card is QP Trucking Solutions' fuel savings card: 48¢/gal average savings at partner stations, acceptance at 9,000+ stations with universal Mastercard backing, major TA/Petro discounts, maintenance discounts, no gallon minimums and zero POS fees — with flexible approvals that do not require traditional credit.",
+  intro: [
+    "Fuel is your second-largest expense after the truck note. The QP Card cuts it directly at the pump — and the approval paths are built for real carriers, not just perfect credit.",
+  ],
+  network: [
+    "48¢/gal average savings at partner stations",
+    "Accepted at 9,000+ stations nationwide",
+    "Major TA / Petro discounts",
+    "Maintenance discounts included",
+    "No gallon minimums",
+  ],
+  approvals: [
+    "Fuel advance: load-based funding",
+    "Security deposit program",
+    "No traditional credit needed",
+    "Dedicated account rep",
+  ],
+  savings: [
+    "Save $1,000+ per month per truck",
+    "Universal Mastercard acceptance",
+    "Sub-cards for drivers",
+    "Zero POS fees",
+  ],
+  fees: [
+    { item: "Registration draft", price: "$3.50" },
+    { item: "ATM withdrawal", price: "$2.50" },
+    { item: "QP Pay (quick funding)", price: "$5.00" },
+    { item: "Fuel advance — 50% of load, $1K max", price: "$15.00" },
+    { item: "POS purchases", price: "$0.00" },
+    { item: "Customer service", price: "$0.00" },
+  ],
+  escrow: [
+    { score: "700+", escrow: "$0", total: "$1,500" },
+    { score: "650–699", escrow: "$500", total: "$1,800" },
+    { score: "600–649", escrow: "$750", total: "$2,500" },
+    { score: "550–599", escrow: "$1,200", total: "$2,500" },
+    { score: "549 & below", escrow: "$1,500", total: "$2,500" },
+  ],
+  escrowNote:
+    "A 2% reserve account is required for all Line of Credit participants regardless of tier. Weekly repayment is mandatory for continued access.",
+  wexUrl: "https://wexinc.my.salesforce-sites.com/creditapplication/OTRBOCA?pgm=QPCapitalPreferred",
+  faqs: [
+    {
+      q: "How much can a carrier save with the QP Fuel Card?",
+      a: "Partners average 48¢/gal in discounts, with major TA/Petro savings and maintenance discounts included. In real-world use carriers save $1,000+ per month per truck, and there are no gallon minimums.",
+    },
+    {
+      q: "Where is the QP Fuel Card accepted?",
+      a: "At 9,000+ stations in the discount network, plus universal Mastercard acceptance everywhere else. Sub-cards are available for drivers, and POS purchases carry zero fees.",
+    },
+    {
+      q: "Can I get approved with credit challenges?",
+      a: "Yes. QP offers flexible approval paths that do not require traditional credit: load-based fuel advances and a security deposit program, each with a dedicated account rep.",
+    },
+    {
+      q: "What does the QP Fuel Card cost to use?",
+      a: "POS purchases and customer service are $0. Other transactions are priced plainly: registration draft $3.50, ATM withdrawal $2.50, QP Pay quick funding $5.00, and fuel advance (50% of load, $1K max) $15.00.",
+    },
+  ] as Faq[],
+  metaTitle: "QP Fuel Card | 48¢/gal Savings at 9,000+ Stations — QP Trucking Solutions",
+  metaDescription:
+    "QP fuel card program: 48¢/gal average partner savings, 9,000+ stations, TA/Petro discounts, zero POS fees and flexible approvals with no traditional credit needed.",
+  keywords: [
+    "trucking fuel card",
+    "fuel discount program",
+    "owner operator fuel savings",
+    "fuel card no credit",
+    "QP fuel card",
+  ],
+};
+
+/* ------------------------------------------------------------------ */
+/* EQUIPMENT FINANCE                                                   */
+/* ------------------------------------------------------------------ */
+
+export const equipmentFinanceProgram = {
+  path: "/programs/equipment-finance",
+  eyebrow: "QP Programs · Equipment Finance",
+  name: "Equipment Finance",
+  short: "Equipment Finance",
+  tagline:
+    "Put quality iron in your fleet without draining your working capital — tractors, trailers and equipment financed through the same team that factors your invoices.",
+  heroImage: "/images/hero/equipment-finance.jpg",
+  imageAlt: "New navy semi truck on a dealership lot at dusk with keys being handed over",
+  heroVariant: "equipment" as const,
+  accent: "gold" as const,
+  heroStats: [
+    { label: "Finances", value: "Tractors & trailers" },
+    { label: "Reviewed by", value: "QP specialists" },
+    { label: "Pairs with", value: "Factoring & insurance" },
+    { label: "Application", value: "One form" },
+  ],
+  answer:
+    "QP Trucking Solutions' equipment finance helps carriers add tractors, trailers and rolling equipment without draining working capital. You send the equipment details and seller information through one application, and a QP specialist structures the deal alongside your factoring, insurance and compliance — everything under one roof.",
+  intro: [
+    "A truck that sits waiting on financing is a truck that earns nothing. QP's equipment finance keeps your cash flow and your fleet growing together: the same team that advances on your invoices reviews your equipment deal, so the structure fits how your business actually earns.",
+    "Send the application below with the equipment you want to finance. A specialist reviews every submission personally and comes back with structure options — no obligation, no pressure.",
+  ],
+  finances: [
+    "Tractors — new and used semi trucks",
+    "Trailers — dry van, reefer, flatbed and more",
+    "Rolling equipment for your existing fleet",
+    "Add-on units as your freight grows",
+  ],
+  why: [
+    "One roof: financing reviewed beside your factoring, insurance and compliance file",
+    "Working capital stays in the business — the truck earns while it pays",
+    "Specialists who understand trucking cash flow, not a generic lending queue",
+    "New authorities and growing fleets both welcome to apply",
+  ],
+  prepare: [
+    "Seller's quote or invoice for the equipment",
+    "Equipment details: year, make, model and VIN",
+    "Your EIN and signed W-9",
+    "Business information: MC/DOT numbers and fleet size",
+  ],
+  faqs: [
+    {
+      q: "What equipment can I finance through QP?",
+      a: "Tractors, trailers and rolling equipment for trucking companies — new or used. Submit the equipment details through the application and a QP specialist reviews the deal with you.",
+    },
+    {
+      q: "Do I have to be a factoring client to use equipment finance?",
+      a: "No, but most carriers pair the two: when QP advances on your invoices, the equipment structure is built around your real cash flow, and everything sits with one team.",
+    },
+    {
+      q: "What do I need to apply?",
+      a: "The seller's quote or invoice, the equipment's year/make/model/VIN, your EIN and W-9, and your business details (MC/DOT and fleet size). The application below collects all of it in one pass.",
+    },
+    {
+      q: "How fast is a decision?",
+      a: "A specialist reviews every application personally — during business hours (Mon–Fri, 8AM–8PM EST) you will hear back quickly, and you can always call 833-762-3464 to move a deal forward.",
+    },
+  ] as Faq[],
+  metaTitle: "Equipment Finance for Trucking Companies | QP Trucking Solutions",
+  metaDescription:
+    "Finance tractors, trailers and equipment through QP Trucking Solutions — one application, reviewed by specialists who already know trucking cash flow. Pair with factoring & insurance.",
+  keywords: [
+    "semi truck financing",
+    "trucking equipment finance",
+    "tractor trailer financing",
+    "owner operator truck financing",
+    "equipment finance application",
+  ],
+};

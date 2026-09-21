@@ -28,6 +28,8 @@ const SERVICES = [
   "DOT compliance binder",
   "Drug & alcohol consortium",
   "ELD & dashcam program",
+  "QP Fuel Card",
+  "Equipment finance",
   "Not sure yet — need advice",
 ];
 

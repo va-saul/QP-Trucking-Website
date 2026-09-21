@@ -368,15 +368,17 @@ export function CtaBand({
   body,
   serviceId,
   primaryLabel = "Start my application",
+  primaryHref,
 }: {
   eyebrow?: string;
   title: string;
   body: string;
   serviceId?: string;
   primaryLabel?: string;
+  primaryHref?: string;
   tone?: "navy" | "gold";
 }) {
-  const href = serviceId ? `/get-started?service=${serviceId}` : "/get-started";
+  const href = primaryHref ?? (serviceId ? `/get-started?service=${serviceId}` : "/get-started");
   return (
     <section className="relative overflow-hidden bg-navy-950">
       <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-20" />

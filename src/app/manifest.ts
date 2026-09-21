@@ -15,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "finance", "productivity"],
     icons: [
       // the supplied logo file — the same PNG the header, footer and tab icon use
-      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: LOGO_SRC, sizes: "560x560", type: "image/png", purpose: "any" },
+      { src: LOGO_SRC, sizes: "560x560", type: "image/png", purpose: "maskable" },
     ],
   };
 }

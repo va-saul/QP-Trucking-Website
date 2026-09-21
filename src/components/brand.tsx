@@ -5,22 +5,27 @@ import { org } from "@/content/site";
 /**
  * THE LOGO — one file, used everywhere.
  *
- * `/images/brand/qp-logo.png` is the supplied artwork (512×512: the navy field
- * with the QP ring/cross monogram). Nothing here redraws, re-typesets or
- * recolours it — every logo surface in the product renders this exact file:
+ * `/images/brand/qp-logo.png` is the client-supplied artwork: a 560×560
+ * TRANSPARENT PNG of the navy QP monogram. Nothing here redraws, re-typesets
+ * or replaces it — every logo surface in the product renders this exact file:
  *
  *   · header bar + mobile drawer        (<Logo /> / <QPMark />)
+ *   · 3D startup intro                  (<SiteIntro />)
  *   · footer lockup                     (<BrandLockup />)
- *   · 404 page + trust marquee          (<QPMark />)
+ *   · 404 page                          (<QPMark />)
  *   · browser tab / favicon             src/app/icon.png  (+ favicon.ico)
  *   · iOS home screen                   src/app/apple-icon.png
  *   · web manifest (installed app)      src/app/manifest.ts
  *   · Organization schema (Rich Results) src/content/site.ts → org.logo
+ *
+ * On dark surfaces (unscrolled header, footer, 404) the SAME file is knocked
+ * out to white with the `.logo-knockout` CSS filter (tone="white") — a filter,
+ * not a second artwork.
  */
 export const LOGO_SRC = "/images/brand/qp-logo.png";
 
 /** Intrinsic size of the supplied PNG. */
-export const LOGO_INTRINSIC = { w: 512, h: 512 } as const;
+export const LOGO_INTRINSIC = { w: 560, h: 560 } as const;
 
 export const BRAND = { logo: LOGO_SRC } as const;
 export const BRAND_RATIO = { logo: LOGO_INTRINSIC } as const;
@@ -33,9 +38,10 @@ export function QPMark({
   className,
   priority = false,
   alt = "",
+  tone = "navy",
 }: {
   className?: string;
-  /** kept for API compatibility — the supplied PNG is a single, fixed artwork */
+  /** "white" knocks the one supplied PNG out to white for dark surfaces */
   tone?: "navy" | "white";
   priority?: boolean;
   alt?: string;
@@ -47,7 +53,7 @@ export function QPMark({
       width={LOGO_INTRINSIC.w}
       height={LOGO_INTRINSIC.h}
       priority={priority}
-      className={className}
+      className={`${tone === "white" ? "logo-knockout " : ""}${className ?? ""}`}
     />
   );
 }
@@ -75,7 +81,14 @@ export function Logo({
   return (
     <Link href="/" aria-label={`${org.name} — home`} className={`group inline-flex shrink-0 items-center gap-2.5 ${className ?? ""}`}>
       <span data-brand-logo className={`relative block shrink-0 origin-left ${box}`}>
-        <Image src={LOGO_SRC} alt="" priority={priority} fill sizes="58px" className="object-contain" />
+        <Image
+          src={LOGO_SRC}
+          alt=""
+          priority={priority}
+          fill
+          sizes="58px"
+          className={`object-contain ${isWhite ? "logo-knockout" : ""}`}
+        />
       </span>
       <span className="flex flex-col leading-none">
         <span
@@ -99,12 +112,12 @@ export function Logo({
 
 /** The same file as a standalone lockup — footer, hero cards, document headers. */
 export function BrandLockup({
-  tone,
+  tone = "navy",
   className,
   height = 96,
   priority = false,
 }: {
-  /** kept for API compatibility — the supplied PNG works on navy and on white */
+  /** "white" knocks the one supplied PNG out to white for dark surfaces */
   tone?: "navy" | "white";
   className?: string;
   height?: number;
@@ -117,7 +130,7 @@ export function BrandLockup({
       width={height}
       height={height}
       priority={priority}
-      className={className}
+      className={`${tone === "white" ? "logo-knockout " : ""}${className ?? ""}`}
     />
   );
 }

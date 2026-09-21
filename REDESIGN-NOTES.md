@@ -38,9 +38,11 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 
 ### 2.1 Brand mark — one file, everywhere
 
-The logo is **one supplied PNG**: `public/images/brand/qp-logo.png` (512×512 — the navy field with
-the QP ring/cross monogram). Nothing is redrawn, re-typeset, recoloured or re-derived: every
-surface renders that exact file through `src/components/brand.tsx` (`LOGO_SRC`).
+The logo is **one supplied PNG**: `public/images/brand/qp-logo.png` (560×560 — the client's
+transparent navy QP monogram). Nothing is redrawn, re-typeset, recoloured or re-derived: every
+surface renders that exact file through `src/components/brand.tsx` (`LOGO_SRC`). On dark surfaces
+the same file is knocked out to white with the `.logo-knockout` CSS filter (`tone="white"`) —
+a filter, not a second artwork.
 
 | Surface | How it renders the file |
 | --- | --- |
@@ -48,8 +50,9 @@ surface renders that exact file through `src/components/brand.tsx` (`LOGO_SRC`).
 | Mobile drawer, 404, badges (`<QPMark />`) | The PNG alone |
 | Footer identity block (`<BrandLockup />`) | The PNG at 108px |
 | Trust marquee | The PNG at 16px |
-| Browser tab / favicon | `src/app/icon.png` (the same file, byte-for-byte) + `src/app/favicon.ico` (48/32/16) |
-| iOS home screen | `src/app/apple-icon.png` (180×180, the mark on the artwork's own navy) |
+| 3D startup intro (`<SiteIntro />`) | The PNG in true colour on a light stage, 3D flip-in |
+| Browser tab / favicon | `src/app/icon.png` (512×512, transparency preserved) + `src/app/favicon.ico` (16→256) |
+| iOS home screen | `src/app/apple-icon.png` (180×180, transparency preserved) |
 | Installed app (PWA) | `src/app/manifest.ts` → the same PNG, `any` + `maskable` |
 | Google Rich Results | `org.logo` in `src/content/site.ts` → the same PNG |
 

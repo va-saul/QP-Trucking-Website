@@ -592,6 +592,8 @@
 /*  3D STARTUP INTRO (SiteIntro)                                      */
 /*  The overlay is invisible until the `js-anim` flag proves JS is    */
 /*  running, so crawlers and no-JS visitors never see a curtain.      */
+/*  Light stage: the supplied transparent logo plays in its true      */
+/*  navy colour, never recoloured.                                    */
 /* ------------------------------------------------------------------ */
 .intro-overlay {
   position: fixed;
@@ -603,8 +605,8 @@
   opacity: 0;
   pointer-events: none;
   background:
-    radial-gradient(90% 70% at 50% 14%, rgba(47, 111, 224, 0.3), transparent 62%),
-    linear-gradient(180deg, #04122a 0%, #061a38 55%, #04122a 100%);
+    radial-gradient(90% 70% at 50% 14%, rgba(27, 79, 160, 0.14), transparent 62%),
+    linear-gradient(180deg, #ffffff 0%, #f4f7fb 55%, #e9eef6 100%);
   perspective: 1100px;
 }
 
@@ -630,8 +632,8 @@
   transform: translateX(-50%) rotateX(74deg);
   transform-origin: 50% 100%;
   background-image:
-    repeating-linear-gradient(to right, rgba(127, 167, 236, 0.32) 0 2px, transparent 2px 130px),
-    repeating-linear-gradient(to top, rgba(242, 180, 65, 0.45) 0 3px, transparent 3px 92px);
+    repeating-linear-gradient(to right, rgba(27, 79, 160, 0.22) 0 2px, transparent 2px 130px),
+    repeating-linear-gradient(to top, rgba(201, 134, 42, 0.35) 0 3px, transparent 3px 92px);
   -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 88%);
   mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent 88%);
   animation: intro-road 1.05s linear infinite;
@@ -654,4 +656,10 @@
   .intro-road {
     animation: none;
   }
+}
+
+/* Reverse knockout for the ONE supplied logo file on dark surfaces:
+   same PNG, CSS-filtered to white — never a second artwork. */
+.logo-knockout {
+  filter: brightness(0) invert(1);
 }

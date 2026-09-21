@@ -129,14 +129,14 @@ export function SiteIntro() {
             className="relative block h-[104px] w-[104px] drop-shadow-[0_18px_44px_rgba(4,18,42,0.65)] sm:h-[132px] sm:w-[132px]"
           />
         </span>
-        <p className="flex flex-wrap justify-center gap-x-3 font-display text-[1.55rem] font-extrabold tracking-tight text-white sm:text-[2.1rem]">
+        <p className="flex flex-wrap justify-center gap-x-3 font-display text-[1.55rem] font-extrabold tracking-tight text-navy-900 sm:text-[2.1rem]">
           {org.name.split(" ").map((w) => (
             <span key={w} data-intro-word className="inline-block">
               {w}
             </span>
           ))}
         </p>
-        <p data-intro-tag className="eyebrow text-gold-400">
+        <p data-intro-tag className="eyebrow text-brand-500">
           Pure Non-Recourse™ factoring · Insurance · Compliance
         </p>
       </div>

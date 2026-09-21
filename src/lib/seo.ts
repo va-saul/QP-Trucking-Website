@@ -3,7 +3,7 @@ import { SITE_URL, org } from "@/content/site";
 
 /** The supplied logo file and its intrinsic square size (see components/brand.tsx). */
 const LOGO_FILE = "/images/brand/qp-logo.png";
-const LOGO_PX = 512;
+const LOGO_PX = 560;
 
 type SeoInput = {
   title: string;

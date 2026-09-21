@@ -43,18 +43,20 @@ Every logo surface renders `public/images/brand/qp-logo.png` as-is (`LOGO_SRC` i
 three commands after replacing it:
 
 ```bash
-# browser tab: byte-for-byte copy of the supplied file
-cp public/images/brand/qp-logo.png src/app/icon.png
+# browser tab: 512×512, transparency preserved
+convert public/images/brand/qp-logo.png -resize 512x512 src/app/icon.png
 
-# iOS home screen: the mark on the artwork's own navy, 180×180
-convert public/images/brand/qp-logo.png -resize 148x148 \
-  -background "#061a38" -alpha remove -alpha off -gravity center -extent 180x180 \
-  src/app/apple-icon.png
+# iOS home screen: 180×180, transparency preserved
+convert public/images/brand/qp-logo.png -resize 180x180 src/app/apple-icon.png
 
-# legacy /favicon.ico: 48 / 32 / 16 px
-convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alpha off \
-  -resize 256x256 -define icon:auto-resize=48,32,16 src/app/favicon.ico
+# legacy /favicon.ico: 16→256 px, transparency preserved
+convert public/images/brand/qp-logo.png -background none \
+  -define icon:auto-resize=16,24,32,48,64,128,256 src/app/favicon.ico
 ```
+
+The supplied PNG is transparent. On dark surfaces (unscrolled header, footer,
+404) the same file is knocked out to white with the `.logo-knockout` CSS filter
+(`tone="white"` in `src/components/brand.tsx`) — a filter, never a second artwork.
 
 ### Routes
 

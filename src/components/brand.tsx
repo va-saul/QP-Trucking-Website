@@ -24,6 +24,13 @@ import { org } from "@/content/site";
  */
 export const LOGO_SRC = "/images/brand/qp-logo.png";
 
+/**
+ * Render URL for on-page surfaces: `unoptimized` + a version query so the
+ * browser/CDN always fetches the raw file — the Image Optimizer's cached
+ * rendition of a replaced logo would otherwise keep serving the old artwork.
+ */
+export const LOGO_URL = `${LOGO_SRC}?v=2`;
+
 /** Intrinsic size of the supplied PNG. */
 export const LOGO_INTRINSIC = { w: 560, h: 560 } as const;
 
@@ -48,11 +55,12 @@ export function QPMark({
 }) {
   return (
     <Image
-      src={LOGO_SRC}
+      src={LOGO_URL}
       alt={alt}
       width={LOGO_INTRINSIC.w}
       height={LOGO_INTRINSIC.h}
       priority={priority}
+      unoptimized
       className={`${tone === "white" ? "logo-knockout " : ""}${className ?? ""}`}
     />
   );
@@ -82,11 +90,12 @@ export function Logo({
     <Link href="/" aria-label={`${org.name} — home`} className={`group inline-flex shrink-0 items-center gap-2.5 ${className ?? ""}`}>
       <span data-brand-logo className={`relative block shrink-0 origin-left ${box}`}>
         <Image
-          src={LOGO_SRC}
+          src={LOGO_URL}
           alt=""
           priority={priority}
           fill
           sizes="58px"
+          unoptimized
           className={`object-contain ${isWhite ? "logo-knockout" : ""}`}
         />
       </span>
@@ -125,11 +134,12 @@ export function BrandLockup({
 }) {
   return (
     <Image
-      src={LOGO_SRC}
+      src={LOGO_URL}
       alt={`${org.name} logo`}
       width={height}
       height={height}
       priority={priority}
+      unoptimized
       className={`${tone === "white" ? "logo-knockout " : ""}${className ?? ""}`}
     />
   );

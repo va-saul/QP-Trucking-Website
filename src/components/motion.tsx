@@ -16,6 +16,14 @@ let registered = false;
 if (typeof window !== "undefined" && !registered) {
   gsap.registerPlugin(ScrollTrigger, SplitText);
   registered = true;
+
+  /* The startup splash locks body scroll while it plays (and toggling
+     overflow shifts layout by a scrollbar width). Re-measure every trigger
+     once the splash lifts and once the window finishes loading, so no
+     reveal block can be left hidden by stale positions. */
+  const refresh = () => ScrollTrigger.refresh();
+  window.addEventListener("qp:intro-done", refresh, { once: true });
+  window.addEventListener("load", refresh, { once: true });
 }
 
 export const prefersReducedMotion = () =>
@@ -53,6 +61,10 @@ export function Reveal({
     const ctx = gsap.context(() => {
       const items = stagger ? el.querySelectorAll("[data-item]") : null;
       const targets = items && items.length ? items : el;
+      // If the block is already in view at mount (restored scroll position,
+      // short viewport, splash just lifted) play immediately instead of
+      // waiting for a scroll event that may never cross the trigger.
+      const inView = el.getBoundingClientRect().top < window.innerHeight * 0.88;
       gsap.fromTo(
         targets,
         { opacity: 0, y },
@@ -63,7 +75,7 @@ export function Reveal({
           delay,
           ease: "power3.out",
           stagger: stagger ?? 0,
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          ...(inView ? {} : { scrollTrigger: { trigger: el, start: "top 88%", once: true } }),
         },
       );
     }, el);

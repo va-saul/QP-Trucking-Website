@@ -2,26 +2,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { LOGO_SRC } from "@/components/brand";
+import { LOGO_URL } from "@/components/brand";
 import { org } from "@/content/site";
 import { prefersReducedMotion } from "@/components/motion";
 
 /**
- * THE 3D STARTUP ANIMATION.
+ * THE 3D TRUCK SPLASH — the startup animation.
  *
- * Plays once per page load, before the hero takes over: the QP mark flips in
- * on a true 3D axis (rotationY/rotationX with a transformPerspective) over a
- * perspective highway grid rushing toward the viewer, the wordmark rises
- * word-by-word out of the floor in rotateX, then the whole stage tilts back
- * and lifts away in Z to hand the page to the hero entrance.
+ * On every page load: night-sky curtains, a perspective highway grid rushing
+ * toward the viewer, and a CSS-3D truck (real cuboid planes + spinning wheels,
+ * the supplied logo on its trailer side) that GSAP drives in from the horizon
+ * on the Z axis with a rotationY swing. The QP mark flips in above it in true
+ * 3D, the wordmark rises word-by-word in rotateX, then the truck drives off
+ * and the two curtain halves split open to hand over to the hero.
  *
  * Guarantees:
- *  · the same single logo file (`LOGO_SRC`) is used — no second artwork;
- *  · crawlers / no-JS visitors never see the curtain (CSS gates it on
- *    `js-anim`, which only exists once JS runs);
+ *  · one logo file only (`LOGO_URL` = the supplied transparent PNG);
+ *  · crawlers / no-JS visitors never see the curtain (CSS gates on `js-anim`);
  *  · `prefers-reduced-motion` skips it entirely;
  *  · click / tap / any key skips straight to the page;
- *  · body scroll is locked only while the intro is on screen.
+ *  · body scroll is locked only while the splash is on screen, and
+ *    ScrollTrigger is refreshed when it lifts (so no reveal stays hidden).
  */
 export function SiteIntro() {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -33,6 +34,7 @@ export function SiteIntro() {
 
     const finish = () => {
       document.body.style.overflow = "";
+      window.dispatchEvent(new Event("qp:intro-done"));
       setDone(true);
     };
 
@@ -43,13 +45,14 @@ export function SiteIntro() {
 
     document.body.style.overflow = "hidden";
 
+    const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
     let tl: gsap.core.Timeline | null = null;
 
     const ctx = gsap.context(() => {
       tl = gsap.timeline({ onComplete: finish });
 
       tl
-        // curtain on
+        // curtains on
         .fromTo(root, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power1.out" })
         // highway grid rises into perspective
         .fromTo(
@@ -58,40 +61,70 @@ export function SiteIntro() {
           { yPercent: 0, autoAlpha: 1, duration: 0.9, ease: "power2.out" },
           0,
         )
-        // the mark: full 3D flip-in
+        // the 3D truck drives in from the horizon, swinging on Y
+        .fromTo(
+          "[data-intro-truck]",
+          { x: -vw * 0.72, z: -650, rotationY: 34, autoAlpha: 0, transformPerspective: 1200 },
+          { x: 0, z: 0, rotationY: 0, autoAlpha: 1, duration: 1.15, ease: "power3.out" },
+          0.12,
+        )
+        .fromTo(
+          "[data-intro-shadow]",
+          { scaleX: 0.4, autoAlpha: 0 },
+          { scaleX: 1, autoAlpha: 1, duration: 0.7, ease: "power2.out" },
+          0.5,
+        )
+        // the mark: full 3D flip-in above the truck
         .fromTo(
           "[data-intro-logo]",
           { rotationY: -128, rotationX: 24, scale: 0.55, autoAlpha: 0, transformPerspective: 1000 },
-          { rotationY: 0, rotationX: 0, scale: 1, autoAlpha: 1, duration: 1.05, ease: "power3.out" },
-          0.15,
+          { rotationY: 0, rotationX: 0, scale: 1, autoAlpha: 1, duration: 0.95, ease: "power3.out" },
+          0.7,
         )
         .fromTo(
           "[data-intro-glow]",
           { scale: 0.4, autoAlpha: 0 },
-          { scale: 1, autoAlpha: 0.9, duration: 0.8, ease: "power2.out" },
-          0.4,
+          { scale: 1, autoAlpha: 0.9, duration: 0.7, ease: "power2.out" },
+          0.9,
         )
         // wordmark rises out of the floor, word by word, in rotateX
         .fromTo(
           "[data-intro-word]",
           { rotationX: 88, yPercent: 45, autoAlpha: 0, transformPerspective: 700 },
-          { rotationX: 0, yPercent: 0, autoAlpha: 1, duration: 0.7, stagger: 0.09, ease: "power3.out" },
-          0.8,
+          { rotationX: 0, yPercent: 0, autoAlpha: 1, duration: 0.65, stagger: 0.08, ease: "power3.out" },
+          1.05,
         )
         .fromTo(
           "[data-intro-tag]",
           { y: 14, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 0.5, ease: "power2.out" },
-          1.2,
+          { y: 0, autoAlpha: 1, duration: 0.45, ease: "power2.out" },
+          1.4,
         )
-        // exit: the stage tilts back and flies past the camera…
+        // the truck drives off past the camera…
         .to(
-          "[data-intro-stage]",
-          { z: 300, rotationX: 16, autoAlpha: 0, duration: 0.65, ease: "power3.in" },
-          1.85,
+          "[data-intro-truck]",
+          { x: vw * 0.78, rotationY: -26, z: -120, duration: 0.75, ease: "power2.in" },
+          2.0,
         )
-        // …and the curtain lifts
-        .to(root, { autoAlpha: 0, duration: 0.45, ease: "power2.inOut" }, 2.1);
+        .to("[data-intro-shadow]", { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, 2.0)
+        // …the lockup tilts back and lifts away in Z…
+        .to(
+          "[data-intro-lockup]",
+          { z: 300, rotationX: 16, autoAlpha: 0, duration: 0.55, ease: "power3.in" },
+          2.15,
+        )
+        .to("[data-intro-road]", { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, 2.2)
+        // …and the two curtain halves split open
+        .to(
+          "[data-intro-top]",
+          { yPercent: -101, duration: 0.6, ease: "power4.inOut" },
+          2.45,
+        )
+        .to(
+          "[data-intro-bottom]",
+          { yPercent: 101, duration: 0.6, ease: "power4.inOut" },
+          2.45,
+        );
     }, root);
 
     const skip = () => tl?.progress(1);
@@ -110,35 +143,87 @@ export function SiteIntro() {
 
   return (
     <div ref={rootRef} className="intro-overlay" aria-hidden="true">
+      <span data-intro-top className="intro-half intro-half-top" />
+      <span data-intro-bottom className="intro-half intro-half-bottom" />
       <span data-intro-road className="intro-road" />
-      <div
-        data-intro-stage
-        className="relative flex flex-col items-center gap-6 px-6 text-center"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <span className="relative block">
-          <span data-intro-glow className="absolute -inset-9 rounded-full bg-brand-400/25 blur-3xl" />
-          {/* the one and only logo file — never a second artwork */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            data-intro-logo
-            src={LOGO_SRC}
-            alt=""
-            width={132}
-            height={132}
-            className="relative block h-[104px] w-[104px] drop-shadow-[0_18px_44px_rgba(4,18,42,0.65)] sm:h-[132px] sm:w-[132px]"
-          />
-        </span>
-        <p className="flex flex-wrap justify-center gap-x-3 font-display text-[1.55rem] font-extrabold tracking-tight text-navy-900 sm:text-[2.1rem]">
-          {org.name.split(" ").map((w) => (
-            <span key={w} data-intro-word className="inline-block">
-              {w}
+
+      <div className="relative z-10 grid h-full place-items-center">
+        <div className="flex flex-col items-center gap-6 px-6 text-center">
+          {/* logo + wordmark lockup */}
+          <div
+            data-intro-lockup
+            className="flex flex-col items-center gap-5"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <span className="relative block">
+              <span data-intro-glow className="absolute -inset-9 rounded-full bg-brand-400/25 blur-3xl" />
+              {/* the one and only logo file — knocked out white for the night sky */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                data-intro-logo
+                src={LOGO_URL}
+                alt=""
+                width={560}
+                height={560}
+                className="logo-knockout relative block h-[86px] w-[86px] drop-shadow-[0_18px_44px_rgba(4,18,42,0.65)] sm:h-[104px] sm:w-[104px]"
+              />
             </span>
-          ))}
-        </p>
-        <p data-intro-tag className="eyebrow text-brand-500">
-          Pure Non-Recourse™ factoring · Insurance · Compliance
-        </p>
+            <p className="flex flex-wrap justify-center gap-x-3 font-display text-[1.45rem] font-extrabold tracking-tight text-white sm:text-[1.9rem]">
+              {org.name.split(" ").map((w) => (
+                <span key={w} data-intro-word className="inline-block">
+                  {w}
+                </span>
+              ))}
+            </p>
+            <p data-intro-tag className="eyebrow -mt-2 text-gold-400">
+              Pure Non-Recourse™ factoring · Insurance · Compliance
+            </p>
+          </div>
+
+          {/* the CSS-3D truck */}
+          <div data-intro-truck className="truck3d-wrap mt-2" style={{ transformStyle: "preserve-3d" }}>
+            <span data-intro-shadow className="truck3d-shadow" />
+            <div className="truck3d">
+              {/* trailer */}
+              <div className="t-face t-trailer-side">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="truck3d-logo" src={LOGO_URL} alt="" />
+                <span className="truck3d-word">
+                  QP Trucking
+                  <small>Solutions</small>
+                </span>
+              </div>
+              <div className="t-face t-trailer-side-far" />
+              <div className="t-face t-trailer-top" />
+              <div className="t-face t-trailer-back" />
+              <div className="t-face t-trailer-front" />
+              {/* cab */}
+              <div className="t-face t-cab-side" />
+              <div className="t-face t-cab-side-far" />
+              <div className="t-face t-cab-top" />
+              <div className="t-face t-cab-front" />
+              {/* wheels */}
+              <span className="t-wheel t-wheel-near-1">
+                <i />
+              </span>
+              <span className="t-wheel t-wheel-near-2">
+                <i />
+              </span>
+              <span className="t-wheel t-wheel-near-3">
+                <i />
+              </span>
+              <span className="t-wheel t-wheel-far-1">
+                <i />
+              </span>
+              <span className="t-wheel t-wheel-far-2">
+                <i />
+              </span>
+              <span className="t-wheel t-wheel-far-3">
+                <i />
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

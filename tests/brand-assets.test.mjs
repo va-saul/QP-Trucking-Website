@@ -35,3 +35,10 @@ test("shared logo metadata preserves the original PNG dimensions", () => {
   assert.equal(original.readUInt32BE(20), LOGO_INTRINSIC.h);
   assert.equal(LOGO_INTRINSIC.w / LOGO_INTRINSIC.h, 1);
 });
+
+
+test("logo renderers preserve transparency instead of adding an opaque background", () => {
+  const components = readFileSync(new URL("../src/components/brand.tsx", import.meta.url), "utf8");
+  assert.equal(components.match(/bg-transparent/g)?.length, 2, "Both QPMark and BrandLockup must remain transparent.");
+  assert.doesNotMatch(components, /bg-white/);
+});

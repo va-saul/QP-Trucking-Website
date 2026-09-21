@@ -9,8 +9,8 @@ export const BRAND_RATIO = { logo: LOGO_INTRINSIC } as const;
 
 /**
  * Render the original Logo.png, unchanged. No replacement symbol, recoloring,
- * generated wordmark or image filter. A neutral white canvas behind its
- * transparency keeps the supplied blue artwork legible on dark site surfaces.
+ * generated wordmark, image filter or opaque canvas. Preserve the original
+ * transparency so the surrounding site background shows through.
  * `unoptimized` serves the actual PNG bytes rather than a re-encoded variant.
  */
 export function QPMark({
@@ -32,7 +32,7 @@ export function QPMark({
       height={LOGO_INTRINSIC.h}
       priority={priority}
       unoptimized
-      className={`bg-white object-contain ${className ?? ""}`}
+      className={`bg-transparent object-contain ${className ?? ""}`}
     />
   );
 }
@@ -84,7 +84,7 @@ export function BrandLockup({
       height={height}
       priority={priority}
       unoptimized
-      className={`bg-white object-contain ${className ?? ""}`}
+      className={`bg-transparent object-contain ${className ?? ""}`}
     />
   );
 }

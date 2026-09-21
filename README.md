@@ -54,8 +54,9 @@ retype a wordmark beside it, recolor it, or animate its size.
 `src/content/brand.ts` is the shared asset reference for components, metadata,
 schema and the manifest. `public/images/brand/qp-logo-original.png` and
 `src/app/icon.png` are byte-for-byte copies of `Logo.png`. Brand components serve
-the PNG directly (`unoptimized`) on a plain white CSS canvas so its transparency
-remains legible on dark backgrounds. The artwork itself is not flattened or edited.
+the PNG directly (`unoptimized`) with a transparent CSS background so the original
+alpha channel is preserved visually. No white box or other opaque canvas is added;
+the artwork itself is not flattened or edited.
 The distinct public filename prevents cached copies of the incorrect legacy logo
 from being served. `public/images/brand/qp-logo.png` is legacy artwork and is no
 longer used by the app.

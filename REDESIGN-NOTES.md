@@ -49,8 +49,8 @@ legacy icon plus live lettering reproduced the supplied logo were incorrect.
   organization schema, logo metadata and the manifest use this same reference.
 - Header, footer, drawer and 404 use the **complete original image** with no
   retyped wordmark, recoloring, cropping, filters or GSAP logo transforms.
-- A plain white CSS canvas behind the original transparency provides contrast;
-  the source PNG itself is never flattened or edited.
+- Logo components have transparent CSS backgrounds: no white box or other opaque
+  canvas is placed behind the artwork. The source PNG is never flattened or edited.
 - `src/app/icon.png` is also a byte-for-byte copy. ICO and iOS files are only
   resized derivatives; the iOS icon uses a neutral white backing.
 - `tests/brand-assets.test.mjs` pins the original SHA-256 and verifies the served

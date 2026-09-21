@@ -117,3 +117,16 @@ Video reviews retained as outbound links on `/about`: MBOYS Trucking, Customer r
 - **Portrait source:** The user-selected `Brandon Bennett.png` from the GitHub repository (source blob `5ceffbf25a2b72b3a878ac17e672472657d52052`). This is not the earlier generated navy-polo concept in `design-previews/`.
 - **Web asset:** `public/images/team/brandon-bennett.webp`, converted at WebP quality 92 from the original 1145 × 1374 PNG, retaining its full composition without retouching or regeneration. Approximately 192 KB instead of 2.06 MB; responsive delivery uses `next/image`.
 - **Content consistency:** Ownership FAQ, About meta description and page-level Person structured data name Brandon Bennett as Owner. No founder claim, personal quote, biography, tenure or credentials have been invented.
+
+
+---
+
+## 7. Original logo restoration — September 2026 correction
+
+The authoritative artwork is the existing repository-root `Logo.png`, not the
+substituted white/gold `public/images/brand/qp-logo.png`. The original file is
+unchanged (SHA-256 `87dea8cc6e19e2967cf909b88a800ebe8952a307a6ca3d5c349150eae7aa58c6`).
+It is served byte-for-byte at `/images/brand/qp-logo-original.png` and used for
+the browser icon. Logo references and dimensions are centralized, the separately
+typed header wordmark has been removed, and GSAP no longer scales the logo.
+Owner content and the once-per-session entrance behavior are unchanged.

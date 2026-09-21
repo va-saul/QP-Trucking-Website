@@ -14,7 +14,7 @@ npm run dev      # http://localhost:3000
 npm run build    # production build (38 routes, all statically prerendered)
 npm start        # serve the production build
 npm run lint     # typecheck (tsc --noEmit)
-npm test         # session-animation policy regression tests
+npm test         # original-logo integrity + session-animation regression tests
 ```
 
 > Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
@@ -33,7 +33,7 @@ Node 20+ required. No environment variables are needed to run the site.
 | Type | Bitter Variable (display), Inter Variable (body), IBM Plex Mono (labels) — self-hosted via Fontsource, no third-party font requests |
 | Motion | GSAP 3.15 (`ScrollTrigger`, `SplitText`) — `src/components/motion.tsx` |
 | Imagery | 16 page-specific hero banners in `public/images/hero/`, rendered **full-bleed** by `HeroBackdrop` at every breakpoint (`fill` + `object-cover`, `sizes="100vw"`), served through `next/image` (AVIF/WebP) |
-| Brand | **One logo file** — `public/images/brand/qp-logo.png` — used by the header, mobile drawer, footer, marquee, 404, the browser tab, the iOS home screen and the PWA manifest. Nothing is redrawn or re-typeset |
+| Brand | **Original artwork only** — `Logo.png`, served unchanged as `public/images/brand/qp-logo-original.png` — used by the header, mobile drawer, footer, marquee, 404, the browser tab, the iOS home screen and the PWA manifest. Nothing is redrawn or re-typeset |
 | Forms | `LeadForm` client component → `POST /api/lead` → optional webhook (`LEAD_WEBHOOK_URL`) |
 | SEO | Per-page metadata, canonicals, OpenGraph/Twitter, `sitemap.xml`, `robots.txt`, 40+ JSON-LD graphs |
 
@@ -43,26 +43,33 @@ Node 20+ required. No environment variables are needed to run the site.
 - Navigating between pages, using Back/Forward, or refreshing does **not** replay the opening effects. A genuinely fresh tab session gets the entrance again.
 - `sessionStorage["qp:entrance-seen:v1"]` is set before hydration; `EntranceSession` shares one decision with all effects and cleans them up on navigation. This is per visitor, not a server-wide flag or a permanent `localStorage` setting.
 - Reduced-motion visitors and browsers that block storage get static, fully visible content. No-JS rendering includes the real statistics and meter values, not zeroes.
-- Navigation hover/focus, the mobile menu, FAQ toggles and reading progress remain usable. The logo is never hidden by the entrance animation, and the supplied logo assets are unchanged.
+- Navigation hover/focus, the mobile menu, FAQ toggles and reading progress remain usable. The original logo is never hidden, recolored or scaled by GSAP.
 
-### Brand assets (single source)
+### Brand assets (original artwork is authoritative)
 
-Every logo surface renders `public/images/brand/qp-logo.png` as-is (`LOGO_SRC` in
-`src/components/brand.tsx`). The tab icon and iOS icon are derived from that one file — re-run these
-three commands after replacing it:
+**`Logo.png` at the repository root is the original supplied artwork.** It is a
+560×560 transparent blue mark. Do not substitute the legacy white/gold icon,
+retype a wordmark beside it, recolor it, or animate its size.
+
+`src/content/brand.ts` is the shared asset reference for components, metadata,
+schema and the manifest. `public/images/brand/qp-logo-original.png` and
+`src/app/icon.png` are byte-for-byte copies of `Logo.png`. Brand components serve
+the PNG directly (`unoptimized`) on a plain white CSS canvas so its transparency
+remains legible on dark backgrounds. The artwork itself is not flattened or edited.
+The distinct public filename prevents cached copies of the incorrect legacy logo
+from being served. `public/images/brand/qp-logo.png` is legacy artwork and is no
+longer used by the app.
+
+Only favicon/iOS sizes are mechanically resized from the original, without
+reconstructing the mark. To synchronize after an **explicitly approved** source
+replacement, update the pinned source hash/dimensions in the brand tests too:
 
 ```bash
-# browser tab: byte-for-byte copy of the supplied file
-cp public/images/brand/qp-logo.png src/app/icon.png
-
-# iOS home screen: the mark on the artwork's own navy, 180×180
-convert public/images/brand/qp-logo.png -resize 148x148 \
-  -background "#061a38" -alpha remove -alpha off -gravity center -extent 180x180 \
-  src/app/apple-icon.png
-
-# legacy /favicon.ico: 48 / 32 / 16 px
-convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alpha off \
-  -resize 256x256 -define icon:auto-resize=48,32,16 src/app/favicon.ico
+cp Logo.png public/images/brand/qp-logo-original.png
+cp Logo.png src/app/icon.png
+convert Logo.png -resize 180x180 -background white -alpha remove -alpha off src/app/apple-icon.png
+convert Logo.png -resize 256x256 -define icon:auto-resize=48,32,16 src/app/favicon.ico
+npm test
 ```
 
 ### Routes

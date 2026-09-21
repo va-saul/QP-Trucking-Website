@@ -1,4 +1,5 @@
 import { SITE_URL, org, trust } from "@/content/site";
+import { LOGO_INTRINSIC } from "@/content/brand";
 import type { Faq, Service } from "@/lib/types";
 import { servicePath } from "@/content/services";
 
@@ -12,7 +13,7 @@ export function organizationSchema() {
     legalName: org.legalName,
     alternateName: org.alternateName,
     url: SITE_URL,
-    logo: { "@type": "ImageObject", url: org.logo, width: 512, height: 512 },
+    logo: { "@type": "ImageObject", url: org.logo, width: LOGO_INTRINSIC.w, height: LOGO_INTRINSIC.h },
     image: `${SITE_URL}/images/hero/home.jpg`,
     description:
       "QP Trucking Solutions (QP Capital LLC) provides transportation factoring, trucking insurance, authority setup and FMCSA compliance services for owner-operators and fleets across the United States.",

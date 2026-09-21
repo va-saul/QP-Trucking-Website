@@ -1,4 +1,5 @@
 import type { Faq } from "@/lib/types";
+import { LOGO_SRC } from "@/content/brand";
 
 export const SITE_URL = "https://qpfactoring.com";
 
@@ -8,7 +9,7 @@ export const org = {
   alternateName: ["QP Capital", "QP Trucking Solutions", "QP Factoring"],
   tagline: "Get started, grow quickly, and operate profitably — without incurring debt.",
   url: SITE_URL,
-  logo: `${SITE_URL}/images/brand/qp-logo.png`,
+  logo: `${SITE_URL}${LOGO_SRC}`,
   foundingYear: 2016,
   areaServed: "United States",
   street: "4612 Outer Loop Rd",

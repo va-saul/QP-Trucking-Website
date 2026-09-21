@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { org } from "@/content/site";
-import { LOGO_SRC } from "@/components/brand";
+import { LOGO_SRC, LOGO_INTRINSIC } from "@/content/brand";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -14,9 +14,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#061a38",
     categories: ["business", "finance", "productivity"],
     icons: [
-      // the supplied logo file — the same PNG the header, footer and tab icon use
-      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: LOGO_SRC, sizes: "512x512", type: "image/png", purpose: "maskable" },
+      // Use the complete, unmodified artwork; do not promise platform-specific masking.
+      { src: LOGO_SRC, sizes: `${LOGO_INTRINSIC.w}x${LOGO_INTRINSIC.h}`, type: "image/png", purpose: "any" },
     ],
   };
 }

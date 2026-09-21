@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { SITE_URL, org } from "@/content/site";
 
-/** The supplied logo file and its intrinsic square size (see components/brand.tsx). */
-const LOGO_FILE = "/images/brand/qp-logo.png";
-const LOGO_PX = 512;
+import { LOGO_SRC, LOGO_INTRINSIC } from "@/content/brand";
 
 type SeoInput = {
   title: string;
@@ -34,8 +32,8 @@ export function buildMetadata({
   // pass an image of their own still share the brand's own photograph, never a
   // stretched logo.
   image = "/images/hero/home.jpg",
-  imageWidth = image.endsWith(LOGO_FILE) ? LOGO_PX : 1376,
-  imageHeight = image.endsWith(LOGO_FILE) ? LOGO_PX : 860,
+  imageWidth = image.endsWith(LOGO_SRC) ? LOGO_INTRINSIC.w : 1376,
+  imageHeight = image.endsWith(LOGO_SRC) ? LOGO_INTRINSIC.h : 860,
   type = "website",
   publishedTime,
   modifiedTime,

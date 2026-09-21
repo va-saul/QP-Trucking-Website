@@ -43,7 +43,7 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.15fr_2.4fr]">
           {/* identity + NAP (critical for local SEO & AEO entity matching) */}
           <div>
-            {/* the official stacked lockup, exactly as supplied */}
+            {/* The original Logo.png, without substituted artwork or lettering. */}
             <BrandLockup tone="white" height={108} className="h-[108px] w-auto" />
             <p className="mt-5 max-w-sm text-[0.95rem] leading-relaxed text-white/70">
               Factoring, trucking insurance, authority setup and FMCSA compliance for owner-operators and fleets —

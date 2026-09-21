@@ -114,14 +114,8 @@ export function Header() {
         toggleActions: "play none none reverse",
         trigger: document.body,
       };
-      // the bar tightens and the brand mark eases down a notch — one gesture
+      // Compact the bar only. The original logo never scales, fades or animates.
       gsap.to(shell, { paddingTop: 6, paddingBottom: 6, duration: 0.35, ease: "power2.out", scrollTrigger: trigger });
-      gsap.to("[data-brand-logo]", {
-        scale: 0.9,
-        duration: 0.35,
-        ease: "power2.out",
-        scrollTrigger: trigger,
-      });
     }, shell);
     return () => ctx.revert();
   }, []);
@@ -231,8 +225,7 @@ export function Header() {
             <a
               data-header-item
               href={`tel:${org.salesPhone}`}
-              // the mark-only logo is wider than the old typeset one, so the phone
-              // number yields to the nav until there is real room (xl)
+              // Keep the phone number on wide screens to leave room for navigation.
               className={`hidden items-center gap-2 text-[0.88rem] font-bold transition-colors xl:flex ${
                 solid ? "text-navy-900 hover:text-brand-500" : "text-white hover:text-gold-400"
               }`}
@@ -356,7 +349,7 @@ export function Header() {
                 className="glass flex items-center justify-between rounded-[0.9rem] p-4"
               >
                 <span className="flex items-center gap-3">
-                  <QPMark tone="white" className="h-5 w-auto opacity-80" />
+                  <QPMark className="h-5 w-auto" />
                   <span>
                     <span className="block font-mono text-[0.58rem] uppercase tracking-[0.16em] text-gold-400">
                       {s.category}

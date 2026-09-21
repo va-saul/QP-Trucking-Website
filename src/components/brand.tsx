@@ -1,33 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { org } from "@/content/site";
+import { LOGO_SRC, LOGO_INTRINSIC } from "@/content/brand";
 
-/**
- * THE LOGO — one file, used everywhere.
- *
- * `/images/brand/qp-logo.png` is the supplied artwork (512×512: the navy field
- * with the QP ring/cross monogram). Nothing here redraws, re-typesets or
- * recolours it — every logo surface in the product renders this exact file:
- *
- *   · header bar + mobile drawer        (<Logo /> / <QPMark />)
- *   · footer lockup                     (<BrandLockup />)
- *   · 404 page + trust marquee          (<QPMark />)
- *   · browser tab / favicon             src/app/icon.png  (+ favicon.ico)
- *   · iOS home screen                   src/app/apple-icon.png
- *   · web manifest (installed app)      src/app/manifest.ts
- *   · Organization schema (Rich Results) src/content/site.ts → org.logo
- */
-export const LOGO_SRC = "/images/brand/qp-logo.png";
-
-/** Intrinsic size of the supplied PNG. */
-export const LOGO_INTRINSIC = { w: 512, h: 512 } as const;
-
+export { LOGO_SRC, LOGO_INTRINSIC } from "@/content/brand";
 export const BRAND = { logo: LOGO_SRC } as const;
 export const BRAND_RATIO = { logo: LOGO_INTRINSIC } as const;
 
 /**
- * The mark alone. Decorative by default — every place it sits next to a real
- * heading or link already names the company, so it stays out of the a11y tree.
+ * Render the original Logo.png, unchanged. No replacement symbol, recoloring,
+ * generated wordmark or image filter. A neutral white canvas behind its
+ * transparency keeps the supplied blue artwork legible on dark site surfaces.
+ * `unoptimized` serves the actual PNG bytes rather than a re-encoded variant.
  */
 export function QPMark({
   className,
@@ -35,7 +19,7 @@ export function QPMark({
   alt = "",
 }: {
   className?: string;
-  /** kept for API compatibility — the supplied PNG is a single, fixed artwork */
+  /** API compatibility only; the original artwork has no color variants. */
   tone?: "navy" | "white";
   priority?: boolean;
   alt?: string;
@@ -47,64 +31,46 @@ export function QPMark({
       width={LOGO_INTRINSIC.w}
       height={LOGO_INTRINSIC.h}
       priority={priority}
-      className={className}
+      unoptimized
+      className={`bg-white object-contain ${className ?? ""}`}
     />
   );
 }
 
-/**
- * Header logo: the supplied PNG next to the brand name set in the site's own
- * display type (the PNG contains the monogram only, so the name is live text —
- * never a second, hand-made logo image).
- */
+/** Header identity is only the supplied artwork — never separately typed lettering. */
 export function Logo({
-  tone = "navy",
   className,
   priority = false,
   size = "md",
 }: {
+  /** API compatibility only; the image is never recolored to match the header. */
   tone?: "navy" | "white";
   className?: string;
   priority?: boolean;
-  /** md = header bar · lg = drawer / hero */
   size?: "md" | "lg";
 }) {
-  const box = size === "lg" ? "h-[50px] w-[50px] sm:h-[58px] sm:w-[58px]" : "h-[42px] w-[42px] sm:h-[46px] sm:w-[46px]";
-  const isWhite = tone === "white";
+  const box = size === "lg" ? "h-16 w-16 sm:h-20 sm:w-20" : "h-14 w-14 sm:h-16 sm:w-16";
 
   return (
-    <Link href="/" aria-label={`${org.name} — home`} className={`group inline-flex shrink-0 items-center gap-2.5 ${className ?? ""}`}>
-      <span data-brand-logo className={`relative block shrink-0 origin-left ${box}`}>
-        <Image src={LOGO_SRC} alt="" priority={priority} fill sizes="58px" className="object-contain" />
-      </span>
-      <span className="flex flex-col leading-none">
-        <span
-          className={`font-display text-[1.02rem] font-extrabold tracking-tight sm:text-[1.12rem] ${
-            isWhite ? "text-white" : "text-navy-900"
-          }`}
-        >
-          QP Trucking
-        </span>
-        <span
-          className={`mt-1 font-display text-[0.72rem] font-semibold tracking-[0.06em] sm:text-[0.78rem] ${
-            isWhite ? "text-brand-300" : "text-brand-500"
-          }`}
-        >
-          Solutions
-        </span>
+    <Link
+      href="/"
+      aria-label={`${org.name} — home`}
+      className={`inline-flex shrink-0 ${className ?? ""}`}
+    >
+      <span data-brand-logo className={`block shrink-0 ${box}`}>
+        <QPMark priority={priority} className="block h-full w-full" />
       </span>
     </Link>
   );
 }
 
-/** The same file as a standalone lockup — footer, hero cards, document headers. */
+/** The same untouched artwork for the footer and other identity surfaces. */
 export function BrandLockup({
-  tone,
   className,
   height = 96,
   priority = false,
 }: {
-  /** kept for API compatibility — the supplied PNG works on navy and on white */
+  /** API compatibility only; the image is never recolored. */
   tone?: "navy" | "white";
   className?: string;
   height?: number;
@@ -117,7 +83,8 @@ export function BrandLockup({
       width={height}
       height={height}
       priority={priority}
-      className={className}
+      unoptimized
+      className={`bg-white object-contain ${className ?? ""}`}
     />
   );
 }

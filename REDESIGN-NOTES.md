@@ -11,7 +11,7 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 | --- | --- |
 | Redesign the site | 38 routes rebuilt from the original WordPress site — same company voice, same services, same pricing, new architecture and UI |
 | Keep the documents on record | `CONTENT-RECORD.md` (page-by-page ledger) + every original URL 308-redirected in `next.config.ts` + original copy carried into `src/content/*` |
-| Official logo, used correctly | `src/components/brand.tsx` renders the supplied *QP Trucking Solutions Logo — Navy Final* artwork (§2.1) in the header, footer, favicon, app icon, OG card, mobile drawer and 404 |
+| Official logo, used correctly | `src/components/brand.tsx` renders the original repository `Logo.png` (§2.1), with no recreated icon or typed wordmark |
 | Keep the vibe | Brand navy + royal blue from the QP monogram, slab-serif display type matching the wordmark, the diagonal "freight stripe" motif, red/gold accents, and the original headline promise: *"get started, grow quickly, AND operate profitably — without incurring debt!"* |
 | Hero banners per page | Every route has its own banner photograph (`public/images/hero/*.jpg`) rendered full-bleed by `HeroBackdrop`, with a page-specific `variant` driving the desktop spec card (`HERO_ART` in `src/components/hero/HeroArt.tsx`) — 14 variants, no shared generic hero |
 | Big hero banner | The photograph **is** the banner: it fills the hero edge to edge at every breakpoint (`HeroBackdrop`, `sizes="100vw"`, srcset served up to 1920 px). No plate, no inset frame |
@@ -36,29 +36,29 @@ Branch: `arena/01a0b213-qp-trucking-website` · Built: September 2026 · Stack: 
 
 **Typography** — Bitter Variable (slab serif, matches the wordmark) for all display type; Inter Variable for body; IBM Plex Mono for eyebrows, prices, spec labels and stamps. Fluid `--text-display-*` clamps scale from 320 px to 1920 px with no breakpoint jumps.
 
-### 2.1 Brand mark — one file, everywhere
+### 2.1 Brand mark — original artwork only
 
-The logo is **one supplied PNG**: `public/images/brand/qp-logo.png` (512×512 — the navy field with
-the QP ring/cross monogram). Nothing is redrawn, re-typeset, recoloured or re-derived: every
-surface renders that exact file through `src/components/brand.tsx` (`LOGO_SRC`).
+**Correction:** the legacy `public/images/brand/qp-logo.png` was a different
+white/gold symbol, not the original supplied `Logo.png`. The original is a
+560×560 transparent blue mark at the repository root. Earlier claims that the
+legacy icon plus live lettering reproduced the supplied logo were incorrect.
 
-| Surface | How it renders the file |
-| --- | --- |
-| Header bar (`<Logo />`) | The PNG next to the brand name as live text — one image, so the mark can never drift |
-| Mobile drawer, 404, badges (`<QPMark />`) | The PNG alone |
-| Footer identity block (`<BrandLockup />`) | The PNG at 108px |
-| Trust marquee | The PNG at 16px |
-| Browser tab / favicon | `src/app/icon.png` (the same file, byte-for-byte) + `src/app/favicon.ico` (48/32/16) |
-| iOS home screen | `src/app/apple-icon.png` (180×180, the mark on the artwork's own navy) |
-| Installed app (PWA) | `src/app/manifest.ts` → the same PNG, `any` + `maskable` |
-| Google Rich Results | `org.logo` in `src/content/site.ts` → the same PNG |
+- `public/images/brand/qp-logo-original.png` is now a byte-for-byte copy of
+  `Logo.png`. Its distinct URL avoids the immutable cache of the old asset.
+- Shared source and dimensions live in `src/content/brand.ts`. Components,
+  organization schema, logo metadata and the manifest use this same reference.
+- Header, footer, drawer and 404 use the **complete original image** with no
+  retyped wordmark, recoloring, cropping, filters or GSAP logo transforms.
+- A plain white CSS canvas behind the original transparency provides contrast;
+  the source PNG itself is never flattened or edited.
+- `src/app/icon.png` is also a byte-for-byte copy. ICO and iOS files are only
+  resized derivatives; the iOS icon uses a neutral white backing.
+- `tests/brand-assets.test.mjs` pins the original SHA-256 and verifies the served
+  copy, browser icon and dimensions. Future redesign work must not replace it.
 
-Because there is a single source file, the tab icon, the header, the footer and the schema logo can
-never fall out of sync. Swap the brand: replace `public/images/brand/qp-logo.png`, re-run the three
-`convert` commands documented in the README, and every surface updates.
-
-The header logo is the element GSAP scales down (`[data-brand-logo]`, `scale: 0.9`) as the bar
-shrinks on scroll.
+The header may tighten its own padding while scrolling, but the logo's dimensions
+remain fixed at each responsive breakpoint. Keyboard focus remains visible for
+accessibility; it is a link outline, not part of the artwork.
 
 > **No texture layers.** The blueprint grid (`.blueprint`) and film grain (`.grain`) overlays that
 > used to sit behind heroes and dark panels were removed site-wide — surfaces are flat navy, the
@@ -123,7 +123,7 @@ header scroll compaction and reading progress stay functional on every page.
 | --- | --- |
 | Staggered entrance | navigation/actions fade down only on the session entry page; the supplied logo is excluded and always visible |
 | Underline pill follow | one `gsap.quickTo`-driven underline glides to the hovered/focused nav item and eases back out on leave |
-| Shrink on scroll | `ScrollTrigger` toggles a compact bar (reduced padding, translucent backdrop, hairline rule) and eases the brand mark to `scale: 0.9` in the same gesture |
+| Shrink on scroll | `ScrollTrigger` toggles a compact bar (reduced padding, translucent backdrop, hairline rule) without scaling or modifying the original logo |
 | Mobile drawer | accordion groups animate open/closed; the drawer is a GSAP-timed panel with a CTA stack |
 
 **Guardrails:** decorative effects share a reduced-motion-aware session policy. Content is

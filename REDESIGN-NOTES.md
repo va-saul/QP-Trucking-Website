@@ -50,7 +50,7 @@ a filter, not a second artwork.
 | Mobile drawer, 404, badges (`<QPMark />`) | The PNG alone |
 | Footer identity block (`<BrandLockup />`) | The PNG at 108px |
 | Trust marquee | The PNG at 16px |
-| 3D truck splash (`<SiteIntro />`) | The PNG on the CSS-3D truck's trailer side (true colour) + white knockout mark in the lockup |
+| 3D truck splash (`<SiteIntro />`) | Every route except `/`: opaque navy-gradient curtains, CSS-3D truck with the PNG on its trailer side (true colour) + white knockout mark in the lockup |
 | Browser tab / favicon | `src/app/icon.png` (512×512, transparency preserved) + `src/app/favicon.ico` (16→256) |
 | iOS home screen | `src/app/apple-icon.png` (180×180, transparency preserved) |
 | Installed app (PWA) | `src/app/manifest.ts` → the same PNG, `any` + `maskable` |

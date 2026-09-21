@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { LOGO_URL } from "@/components/brand";
 import { org } from "@/content/site";
@@ -9,14 +10,20 @@ import { prefersReducedMotion } from "@/components/motion";
 /**
  * THE 3D TRUCK SPLASH — the startup animation.
  *
- * On every page load: night-sky curtains, a perspective highway grid rushing
- * toward the viewer, and a CSS-3D truck (real cuboid planes + spinning wheels,
- * the supplied logo on its trailer side) that GSAP drives in from the horizon
- * on the Z axis with a rotationY swing. The QP mark flips in above it in true
- * 3D, the wordmark rises word-by-word in rotateX, then the truck drives off
- * and the two curtain halves split open to hand over to the hero.
+ * Plays whenever a visitor opens any QP Trucking link / route EXCEPT the
+ * home page (the home hero has its own entrance and must stay clean):
+ * opaque night-sky curtains in the site's navy gradient, a perspective
+ * highway grid rushing toward the viewer, and a CSS-3D truck (real cuboid
+ * planes + spinning wheels, the supplied logo on its trailer side) that
+ * GSAP drives in from the horizon on the Z axis with a rotationY swing.
+ * The QP mark flips in above it in true 3D, the wordmark rises word-by-word
+ * in rotateX, then the truck drives off and the two curtain halves split
+ * open to hand over to the page.
  *
  * Guarantees:
+ *  · never mounts on `/` (home) — no merging with the hero copy;
+ *  · the curtains are fully opaque, so the splash sits on its own
+ *    solid/gradient stage and never blends into page content;
  *  · one logo file only (`LOGO_URL` = the supplied transparent PNG);
  *  · crawlers / no-JS visitors never see the curtain (CSS gates on `js-anim`);
  *  · `prefers-reduced-motion` skips it entirely;
@@ -25,35 +32,50 @@ import { prefersReducedMotion } from "@/components/motion";
  *    ScrollTrigger is refreshed when it lifts (so no reveal stays hidden).
  */
 export function SiteIntro() {
+  const pathname = usePathname();
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [done, setDone] = useState(false);
+  /* Seed from the SSR pathname so non-home pages render the curtain in the
+     server HTML — the opaque stage covers the page from the first paint. */
+  const [run, setRun] = useState(() => (pathname === "/" ? 0 : 1));
+  const [finished, setFinished] = useState(0);
+  const prevPath = useRef(pathname);
+
+  /* A new run starts every time a non-home route is opened (page load or
+     in-app navigation). Navigating to the home page cancels any run. */
+  useEffect(() => {
+    if (prevPath.current === pathname) return;
+    prevPath.current = pathname;
+    if (pathname === "/") {
+      setRun(0);
+      return;
+    }
+    setRun((r) => r + 1);
+  }, [pathname]);
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || done) return;
+    if (!root || run === 0 || run === finished) return;
 
-    const finish = () => {
+    const finishNow = () => {
       document.body.style.overflow = "";
       window.dispatchEvent(new Event("qp:intro-done"));
-      setDone(true);
+      setFinished(run);
     };
 
     if (prefersReducedMotion()) {
-      finish();
+      finishNow();
       return;
     }
 
     document.body.style.overflow = "hidden";
 
-    const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const vw = window.innerWidth;
     let tl: gsap.core.Timeline | null = null;
 
     const ctx = gsap.context(() => {
-      tl = gsap.timeline({ onComplete: finish });
+      tl = gsap.timeline({ onComplete: finishNow });
 
       tl
-        // curtains on
-        .fromTo(root, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3, ease: "power1.out" })
         // highway grid rises into perspective
         .fromTo(
           "[data-intro-road]",
@@ -115,16 +137,9 @@ export function SiteIntro() {
         )
         .to("[data-intro-road]", { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, 2.2)
         // …and the two curtain halves split open
-        .to(
-          "[data-intro-top]",
-          { yPercent: -101, duration: 0.6, ease: "power4.inOut" },
-          2.45,
-        )
-        .to(
-          "[data-intro-bottom]",
-          { yPercent: 101, duration: 0.6, ease: "power4.inOut" },
-          2.45,
-        );
+        .to("[data-intro-top]", { yPercent: -101, duration: 0.55, ease: "power4.inOut" }, 2.4)
+        .to("[data-intro-bottom]", { yPercent: 101, duration: 0.55, ease: "power4.inOut" }, 2.4)
+        .to(root, { autoAlpha: 0, duration: 0.2, ease: "power1.in" }, 2.85);
     }, root);
 
     const skip = () => tl?.progress(1);
@@ -137,9 +152,9 @@ export function SiteIntro() {
       ctx.revert();
       document.body.style.overflow = "";
     };
-  }, [done]);
+  }, [run, finished]);
 
-  if (done) return null;
+  if (run === 0 || run === finished) return null;
 
   return (
     <div ref={rootRef} className="intro-overlay" aria-hidden="true">

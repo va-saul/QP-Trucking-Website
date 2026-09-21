@@ -617,10 +617,12 @@
   }
 }
 
-/* the two curtain halves carry the night-sky background */
+/* the two curtain halves carry the night-sky background — opaque, so the
+   splash never merges with the page behind it */
 .intro-half {
   position: absolute;
-  inset-x: 0;
+  left: 0;
+  right: 0;
   height: 50.5%;
   background:
     radial-gradient(90% 120% at 50% 30%, rgba(47, 111, 224, 0.28), transparent 62%),

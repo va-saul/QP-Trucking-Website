@@ -5,22 +5,24 @@ import { org } from "@/content/site";
 /**
  * THE LOGO — one file, used everywhere.
  *
- * `/images/brand/qp-logo.png` is the supplied artwork (512×512: the navy field
- * with the QP ring/cross monogram). Nothing here redraws, re-typesets or
- * recolours it — every logo surface in the product renders this exact file:
+ * `/Logo.png` is the original artwork from main branch (560×560: the navy field
+ * with the QP ring/cross monogram — gold/blue segments). Restored per request;
+ * header no longer uses the recreated simplified mark. Every logo surface now
+ * renders this exact original file:
  *
  *   · header bar + mobile drawer        (<Logo /> / <QPMark />)
  *   · footer lockup                     (<BrandLockup />)
  *   · 404 page + trust marquee          (<QPMark />)
- *   · browser tab / favicon             src/app/icon.png  (+ favicon.ico)
- *   · iOS home screen                   src/app/apple-icon.png
+ *   · browser tab / favicon             src/app/icon.png  (+ favicon.ico) — copied from Logo.png
+ *   · iOS home screen                   src/app/apple-icon.png — copied from Logo.png
  *   · web manifest (installed app)      src/app/manifest.ts
  *   · Organization schema (Rich Results) src/content/site.ts → org.logo
+ *   · also available as /images/brand/qp-logo.png (mirrored copy for backwards-compat)
  */
-export const LOGO_SRC = "/images/brand/qp-logo.png";
+export const LOGO_SRC = "/Logo.png";
 
-/** Intrinsic size of the supplied PNG. */
-export const LOGO_INTRINSIC = { w: 512, h: 512 } as const;
+/** Intrinsic size of the original Logo.png (560×560). */
+export const LOGO_INTRINSIC = { w: 560, h: 560 } as const;
 
 export const BRAND = { logo: LOGO_SRC } as const;
 export const BRAND_RATIO = { logo: LOGO_INTRINSIC } as const;

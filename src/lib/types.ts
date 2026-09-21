@@ -19,7 +19,9 @@ export type HeroVariant =
   | "tech"
   | "support"
   | "team"
-  | "counter";
+  | "counter"
+  | "ambassador"
+  | "circle";
 
 export type AccentKey = "blue" | "gold" | "teal";
 

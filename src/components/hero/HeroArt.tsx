@@ -165,6 +165,30 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     ],
     accent: "teal",
   },
+  ambassador: {
+    plateLabel: "Referral payout schedule",
+    stamp: "GET PAID",
+    meterLabel: "Ambassador earnings",
+    meter: 0.86,
+    rows: [
+      { k: "Factoring referral", v: "$500 – $700" },
+      { k: "Insurance referral", v: "Up to $250" },
+      { k: "Fuel card / dispatch", v: "$100 each" },
+    ],
+    accent: "gold",
+  },
+  circle: {
+    plateLabel: "Premium member tier",
+    stamp: "IN THE CIRCLE",
+    meterLabel: "Annual value unlocked",
+    meter: 0.92,
+    rows: [
+      { k: "Factoring fees", v: "0% for members" },
+      { k: "Broker directory", v: "40+ day-one friendly" },
+      { k: "Annual value", v: "$2,000+" },
+    ],
+    accent: "gold",
+  },
   highway: {
     plateLabel: "Funding pipeline",
     stamp: "CASH FLOW",

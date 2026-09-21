@@ -137,6 +137,22 @@ export const navigation: NavItem[] = [
     ],
   },
   {
+    label: "Programs",
+    href: "/programs/ambassador",
+    children: [
+      {
+        label: "Ambassador Program",
+        href: "/programs/ambassador",
+        blurb: "Earn $500–$700 per qualified factoring referral",
+      },
+      {
+        label: "Circle Network",
+        href: "/programs/circle-network",
+        blurb: "Premium member tier — $2,000+ in annual value",
+      },
+    ],
+  },
+  {
     label: "Company",
     href: "/about",
     children: [

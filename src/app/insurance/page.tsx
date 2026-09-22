@@ -10,6 +10,7 @@ import {
 } from "@/components/ui";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { LeadForm } from "@/components/LeadForm";
+import { InsuranceCoverageMap } from "@/components/InsuranceCoverageMap";
 import { InsuranceIntakeDetails } from "@/components/InsuranceIntakeDetails";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/schema";
@@ -237,7 +238,10 @@ export default function InsurancePage() {
         </Container>
       </Section>
 
-      {/* Full CRM-order checklist — rendered directly below the quote form section */}
+      {/* Real US coverage map — 44 insured states + 7 excluded */}
+      <InsuranceCoverageMap />
+
+      {/* Full CRM-order intake form — rendered directly below the coverage map */}
       <InsuranceIntakeDetails />
 
       <Section tone="steel">

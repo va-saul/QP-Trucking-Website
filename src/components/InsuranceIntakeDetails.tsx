@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { INSURED_STATES } from "@/components/InsuranceCoverageMap";
 
 type FieldDef = {
   id: string;
@@ -211,6 +212,12 @@ export function InsuranceIntakeDetails() {
 
   const renderFieldInput = (field: FieldDef) => {
     const isTagged = fmcsaTagged[field.id];
+    const isStateSelect =
+      field.type === "state-select" ||
+      field.id === "mailingState" ||
+      field.id.endsWith("dlState") ||
+      field.id.endsWith("_state");
+
     return (
       <div
         key={field.id}
@@ -234,14 +241,32 @@ export function InsuranceIntakeDetails() {
             </span>
           ) : null}
         </div>
-        <input
-          id={field.id}
-          type={field.type || "text"}
-          value={formData[field.id] || ""}
-          onChange={(e) => handleChange(field.id, e.target.value)}
-          placeholder={field.placeholder || "— —"}
-          className="mt-1.5 w-full border-none bg-transparent p-0 font-display text-[0.92rem] font-semibold text-navy-900 placeholder:text-steel-400 focus:outline-none"
-        />
+
+        {isStateSelect ? (
+          <select
+            id={field.id}
+            value={formData[field.id] || ""}
+            onChange={(e) => handleChange(field.id, e.target.value)}
+            className="mt-1.5 w-full cursor-pointer border-none bg-transparent p-0 font-display text-[0.92rem] font-semibold text-navy-900 focus:outline-none"
+          >
+            <option value="">Select state (44 insured states)</option>
+            {INSURED_STATES.map((st) => (
+              <option key={st.code} value={st.code}>
+                {st.code} — {st.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            id={field.id}
+            type={field.type || "text"}
+            value={formData[field.id] || ""}
+            onChange={(e) => handleChange(field.id, e.target.value)}
+            placeholder={field.placeholder || "— —"}
+            className="mt-1.5 w-full border-none bg-transparent p-0 font-display text-[0.92rem] font-semibold text-navy-900 placeholder:text-steel-400 focus:outline-none"
+          />
+        )}
+
         {field.note ? (
           <p className="mt-1 text-[0.72rem] text-steel-500">{field.note}</p>
         ) : null}
@@ -293,7 +318,7 @@ export function InsuranceIntakeDetails() {
     { id: "mailingStreet", label: "Mailing Address — Street address", placeholder: "— —" },
     { id: "mailingCity", label: "Mailing Address — City", placeholder: "— —" },
     { id: "mailingCountry", label: "Mailing Address — Country", placeholder: "United States" },
-    { id: "mailingState", label: "Mailing Address — State", placeholder: "— —" },
+    { id: "mailingState", label: "Mailing Address — State", type: "state-select", placeholder: "— —" },
     { id: "mailingZip", label: "Mailing Address — Postal code", placeholder: "— —" },
     { id: "eldProvider", label: "Who is your ELD provider?", placeholder: "— —" },
     { id: "dob", label: "Date of birth", placeholder: "— —" },
@@ -374,7 +399,7 @@ export function InsuranceIntakeDetails() {
     { key: "name", label: "Driver Name" },
     { key: "dob", label: "Date of Birth" },
     { key: "dlNumber", label: "DL#" },
-    { key: "dlState", label: "State" },
+    { key: "dlState", label: "Driver License State", type: "state-select" },
     { key: "email", label: "Email (for MVR permission)" },
     { key: "phone", label: "Phone # (For MVR Permission)" },
     { key: "cdlClass", label: "CDL Class (A,B,C)" },
@@ -445,7 +470,7 @@ export function InsuranceIntakeDetails() {
           <p className="mt-4 text-[1.02rem] leading-relaxed text-steel-700">
             Fill the quick quote above or complete this full intake form directly. Start with
             your <strong>DOT Number</strong> in Section 01 and click <strong>“Look up on FMCSA”</strong> to
-            auto-fill verified carrier details. All fields are editable and submitted to our licensed agents.
+            auto-fill verified carrier details. All state fields use our 44 insured states dropdown.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -469,7 +494,7 @@ export function InsuranceIntakeDetails() {
               </svg>
             </a>
             <span className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-steel-500">
-              Editable CRM form · Sections 01–09 · FMCSA pre-fill
+              Editable CRM form · 44 insured state dropdowns · FMCSA pre-fill
             </span>
           </div>
         </div>
@@ -642,7 +667,7 @@ export function InsuranceIntakeDetails() {
                   General Info
                 </h3>
                 <p className="mt-2 max-w-3xl text-[0.88rem] leading-relaxed text-steel-600">
-                  Business, ownership and operating basics. Verified FMCSA fields are automatically tagged.
+                  Business, ownership and operating basics. Verified FMCSA fields are automatically tagged. State fields use 44 insured states.
                 </p>
               </div>
               <span
@@ -697,7 +722,7 @@ export function InsuranceIntakeDetails() {
           <details
             id="renewal"
             open={expandAll}
-            className="group/details rounded-[1.1rem] border border-steel-200 bg-paper open:bg-paper open:shadow-[var(--shadow-card)]"
+            className="group/details rounded-[1.1rem] border border-steel-200 bg-paper open:shadow-[var(--shadow-card)]"
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 sm:px-7 sm:py-6 [&::-webkit-details-marker]:hidden">
               <div className="min-w-0">
@@ -738,7 +763,7 @@ export function InsuranceIntakeDetails() {
                   Driver — Please list all Drivers including relisting owners
                 </h3>
                 <p className="mt-2 max-w-3xl text-[0.88rem] leading-relaxed text-steel-600">
-                  Repeat for each driver. We run MVRs with the email/phone you provide for permission.
+                  Repeat for each driver. Driver license state fields use our 44 insured states dropdown.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {[1, 2, 3, 4].map((n) => (
@@ -784,6 +809,7 @@ export function InsuranceIntakeDetails() {
                     id: `driver_${activeDriver}_${tpl.key}`,
                     label: `${tpl.label} — Driver ${activeDriver}`,
                     placeholder: "— —",
+                    type: tpl.type,
                   })
                 )}
               </div>
@@ -981,6 +1007,7 @@ export function InsuranceIntakeDetails() {
                     {renderFieldInput({
                       id: "mvr_driver_1_state",
                       label: "Driver 1 — License State",
+                      type: "state-select",
                       placeholder: "— —",
                     })}
                     {renderFieldInput({
@@ -1004,6 +1031,7 @@ export function InsuranceIntakeDetails() {
                     {renderFieldInput({
                       id: "mvr_driver_2_state",
                       label: "Driver 2 — License State",
+                      type: "state-select",
                       placeholder: "— —",
                     })}
                     {renderFieldInput({

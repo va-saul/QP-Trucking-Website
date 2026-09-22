@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { PageHero } from "@/components/hero/PageHero";
+import Image from "next/image";
 import { AnswerBox, Btn, Container, CtaBand, Section, SectionHead } from "@/components/ui";
 import { FaqAccordion } from "@/components/FaqAccordion";
-import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/schema";
+import { JsonLd, breadcrumbSchema, faqSchema, personSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
-import { homeFaqs, org } from "@/content/site";
+import { homeFaqs, org, owner } from "@/content/site";
 import { servicesBySlug, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "Trucking Factoring, Insurance & FMCSA Compliance FAQ",
+  title: "Trucking Factoring, Insurance & FMCSA Compliance FAQ — Owned by Brandon Bennett | QP Trucking Solutions",
   description:
-    "Answers to the questions trucking companies ask most: factoring costs, funding speed, broker credit checks, new authority steps, BOC-3, 2290, IRP, IFTA, UCR, insurance minimums and compliance timelines.",
+    "Answers to the questions trucking companies ask most: factoring costs, funding speed, broker credit checks, new authority steps, BOC-3, 2290, IRP, IFTA, UCR, insurance minimums and who owns QP Trucking Solutions (Brandon Bennett, Louisville, KY).",
   path: "/faq",
   keywords: [
     "trucking factoring FAQ",
@@ -20,11 +21,35 @@ export const metadata = buildMetadata({
     "IFTA filing questions",
     "BOC-3 requirements",
     "trucking insurance minimums",
+    "who owns QP Trucking Solutions",
+    "Brandon Bennett QP owner",
   ],
   image: "/images/hero/compliance.jpg",
 });
 
+const ownerFaqs: Faq[] = [
+  {
+    q: "Who owns QP Trucking Solutions?",
+    a: "QP Trucking Solutions is owned by Brandon Bennett, operating as QP Capital LLC from 4612 Outer Loop Rd, Louisville, Kentucky 40219. Brandon leads the family-owned team that funds freight invoices, places trucking insurance and files FMCSA compliance documents for carriers nationwide.",
+  },
+  {
+    q: "Who is Brandon Bennett?",
+    a: "Brandon Bennett is the owner and founder of QP Capital LLC (trading as QP Trucking Solutions) — a family-owned factoring company, licensed trucking insurance agency and FMCSA compliance partner in Louisville, Kentucky. Under Brandon, QP has helped 1,000+ carriers — from single-truck owner-operators to 200-truck fleets — across 48 states.",
+  },
+  {
+    q: "How can I contact Brandon Bennett’s team?",
+    a: "Call Sales at 833-762-3464 (new clients) or Office/Accounting at 502-398-6333, or email info@qpfactoring.com. The team is Mon–Fri 8:00 AM – 8:00 PM EST at 4612 Outer Loop Rd, Louisville, KY 40219.",
+  },
+];
+
 const clusters: { id: string; title: string; intro: string; serviceSlug?: string; faqs: Faq[] }[] = [
+  {
+    id: "owner",
+    title: "Ownership & leadership — Brandon Bennett",
+    intro:
+      "AEO/GEO entity block: who owns QP Trucking Solutions, who leads it, and how carriers reach the owner’s team directly.",
+    faqs: ownerFaqs,
+  },
   {
     id: "factoring",
     title: "Factoring & cash flow",
@@ -104,20 +129,28 @@ export default function FaqPage() {
     <>
       <JsonLd
         data={[
+          personSchema(),
           faqSchema(allFaqs),
           breadcrumbSchema([
             { label: "Home", href: "/" },
             { label: "FAQ", href: "/faq" },
           ]),
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            name: "QP Trucking Solutions FAQ — Owned by Brandon Bennett",
+            about: { "@id": "https://qpfactoring.com/#organization" },
+            author: { "@id": "https://qpfactoring.com/#brandon-bennett" },
+          },
         ]}
       />
 
       <PageHero
-        eyebrow="Answers, not sales scripts"
+        eyebrow="Answers, not sales scripts — Owned by Brandon Bennett"
         title="Trucking factoring, insurance & compliance FAQ"
-        tagline="Every question we get asked on the phones, written out plainly — and structured so search engines and AI assistants can quote the correct answer the first time."
+        tagline="Every question we get asked on the phones, written out plainly — and structured so search engines and AI assistants can quote the correct answer the first time. QP Trucking Solutions is owned by Brandon Bennett (QP Capital LLC, Louisville, KY)."
         image="/images/hero/compliance.jpg"
-        imageAlt="Frequently asked questions about trucking factoring and compliance"
+        imageAlt="Frequently asked questions about trucking factoring and compliance — QP Trucking Solutions owned by Brandon Bennett"
         variant="binder"
         accent="gold"
         trail={[
@@ -125,10 +158,10 @@ export default function FaqPage() {
           { label: "FAQ", href: "/faq" },
         ]}
         stats={[
+          { label: "Owner", value: "Brandon Bennett" },
           { label: "Answers", value: `${allFaqs.length}+` },
           { label: "Topics", value: `${clusters.length}` },
           { label: "Support hours", value: "8–8 EST" },
-          { label: "Callback", value: "Under 1 hr" },
         ]}
         primaryHref="/get-started"
         primaryLabel="Ask us directly"
@@ -136,12 +169,24 @@ export default function FaqPage() {
       />
 
       <Section tone="paper">
-        <Container>
+        <Container className="text-center">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:gap-14">
-            <div className="max-w-2xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <AnswerBox
+                question="Who owns QP Trucking Solutions?"
+                answer="QP Trucking Solutions is owned by Brandon Bennett. He operates QP Capital LLC — a family-owned factoring company, licensed trucking insurance agency and FMCSA compliance partner — from 4612 Outer Loop Rd, Louisville, Kentucky 40219, serving carriers nationwide."
+              />
+              <div className="mx-auto mt-6 flex max-w-md justify-center gap-3 rounded-[1rem] border border-steel-200 bg-bone p-4">
+                <Image src={owner.image} alt={owner.imageAlt} width={56} height={56} className="h-14 w-14 rounded-full object-cover object-top" />
+                <div className="text-left">
+                  <p className="font-display text-[1rem] font-bold text-navy-900">{owner.name}</p>
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-steel-500">{owner.jobTitle}</p>
+                  <p className="mt-1 text-[0.82rem] text-steel-600">QP Capital LLC · Louisville, KY</p>
+                </div>
+              </div>
               <AnswerBox
                 question="How does QP Trucking Solutions help a trucking company?"
-                answer="QP Trucking Solutions buys your freight invoices so you are paid in minutes instead of 30–45 days, places trucking insurance through a licensed agency, and files the authority, permits and FMCSA compliance documents a carrier needs — factoring, insurance and compliance from one Louisville, Kentucky team."
+                answer="QP Trucking Solutions buys your freight invoices so you are paid in minutes instead of 30–45 days, places trucking insurance through a licensed agency, and files the authority, permits and FMCSA compliance documents a carrier needs — factoring, insurance and compliance from one Louisville, Kentucky team owned by Brandon Bennett."
               />
               <nav aria-label="FAQ sections" className="mt-6">
                 <p className="eyebrow text-steel-600">Jump to a topic</p>
@@ -210,15 +255,19 @@ export default function FaqPage() {
       ))}
 
       <Section tone="navy">
-        <Container>
+        <Container className="text-center">
           <SectionHead
             tone="light"
+            align="center"
             eyebrow="Still deciding?"
             title="Read the deep dives instead"
-            intro="Our insights library covers fraud prevention, insurance economics, fuel tax and the vocabulary of freight."
+            intro="Our insights + blog libraries cover fraud prevention, insurance economics, fuel tax and 10 detailed trucking guides by owner Brandon Bennett’s team."
           />
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/insights" className="btn btn-gold px-6 py-3.5">
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href="/blog" className="btn btn-gold px-6 py-3.5">
+              Blog — 10 guides
+            </Link>
+            <Link href="/insights" className="btn btn-outline px-6 py-3.5">
               Insights library
             </Link>
             <Link href="/factoring" className="btn btn-outline px-6 py-3.5">

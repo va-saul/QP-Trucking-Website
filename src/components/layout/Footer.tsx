@@ -16,11 +16,12 @@ const columns = [
   {
     title: "Company",
     links: [
-      { label: "About QP", href: "/about" },
+      { label: "About QP — Brandon Bennett", href: "/about" },
+      { label: "Blog — 10 guides", href: "/blog" },
       { label: "Insurance", href: "/insurance" },
       { label: "All services & pricing", href: "/store" },
       { label: "Insights", href: "/insights" },
-      { label: "FAQ", href: "/faq" },
+      { label: "FAQ — Owner: Brandon Bennett", href: "/faq" },
       { label: "Get started", href: "/get-started" },
       { label: "Contact", href: "/contact" },
       { label: "Privacy policy", href: "/privacy-policy" },

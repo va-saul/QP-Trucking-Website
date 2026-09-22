@@ -61,11 +61,13 @@ export function PageHero({
       <HeroBackdrop image={image} alt={imageAlt} priority={priority} overlay="left" />
 
       <Container className="relative flex flex-1 items-end pb-8 sm:items-center sm:pb-4">
-        <div className="grid w-full items-center gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-12">
-          <div className="min-w-0">
-            <Breadcrumbs trail={trail} />
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-12">
+          <div className="min-w-0 text-center">
+            <div className="flex justify-center">
+              <Breadcrumbs trail={trail} />
+            </div>
 
-            <p className="eyebrow mt-5 flex items-center gap-2.5 text-gold-400">
+            <p className="eyebrow mt-5 flex items-center justify-center gap-2.5 text-gold-400">
               <span className={`h-1.5 w-1.5 rounded-full ${accentDot[accent]}`} />
               {eyebrow}
             </p>
@@ -75,12 +77,12 @@ export function PageHero({
               text={title}
               immediate
               delay={0.2}
-              className="mt-3 font-display text-display-lg font-extrabold text-white max-w-[20ch]"
+              className="mx-auto mt-3 max-w-[20ch] text-center font-display text-display-lg font-extrabold text-white"
             />
 
-            <p className="mt-4 max-w-[52ch] text-hero-body text-white/80">{tagline}</p>
+            <p className="mx-auto mt-4 max-w-[52ch] text-center text-hero-body text-white/80">{tagline}</p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <Btn href={primaryHref} variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 {primaryLabel}
               </Btn>

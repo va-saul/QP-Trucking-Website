@@ -2,15 +2,17 @@
 
 Every page, price, phone number and claim from the original WordPress site, with where it now lives.
 Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_store-sitemap.xml`, `robots.txt`) in September 2026.
+**Update September 2026 — Phase 2:** Restored owner portrait `Brandon Bennett.png` to `/about#leadership`, highlighted Programs + Fuel Card above Services on Home, enforced center alignment site-wide, and launched `/blog` with 10 detailed SEO/AEO/GEO guides. See §6 for new inventory.
 
 ---
 
-## 1. Business facts carried over (unchanged)
+## 1. Business facts carried over (unchanged) + ownership clarified
 
 | Field | Value |
 | --- | --- |
 | Trading name | QP Trucking Solutions |
 | Legal entity | QP Capital LLC |
+| Owner | **Brandon Bennett** — Owner & Founder (see `/about#leadership`, `BRAND-LOCK.md`) |
 | Also known as | QP Capital, QP Factoring |
 | Address | 4612 Outer Loop Rd, Louisville, KY 40219 |
 | Hours | Mon – Fri, 8:00 AM – 8:00 PM EST |
@@ -23,6 +25,9 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | Service area | United States (48 contiguous states) |
 | Tagline (home) | "get started, grow quickly, AND operate profitably! –without incurring debt!" |
 | Purpose statement (about) | "Trucking businesses and owner-operators are the backbone of our economy…" |
+| Leadership image | `Brandon Bennett.png` / `public/images/team/brandon-bennett.png` — only approved portrait, shown on About and blog author boxes |
+| Center alignment | Site-wide — `src/app/globals.css` + `SectionHead` default `align=center` (June 2026 request) |
+| Programs + Fuel Card highlight | Home page section `id=programs-fuel` above Services Grid — 3 program cards + QP Card 25–40¢/gal panel |
 
 ---
 
@@ -34,7 +39,10 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | `/trucking-factoring/` | `/factoring/trucking-factoring` (308) | Full copy retained: what factoring is, benefits list, 3 steps, QP Pay card features, app paperwork, simple business relationship, "more than transportation factoring" |
 | `/pure-non-recourse/` | `/factoring/pure-non-recourse` (308) | Full copy retained: Pure load / Pure paperwork / Pure Protection, the 60–90 day chargeback explanation, non-recourse at a discounted rate |
 | `/insurance/` | `/insurance` | Mission statement, "Why use QP Trucking Insurance" list, quote form (rebuilt), coverage range, one-stop-shop section, 833-762-3464 |
-| `/about-us/` | `/about` | Full narrative retained (LLC/EIN/FMCSA support, compliance, insurance, factoring, equipment finance, dispatch) + all 8 video reviews linked |
+| `/about-us/` | `/about` | Full narrative retained + **Brandon Bennett portrait & leadership block (#leadership) restored from main-branch `Brandon Bennett.png`**, owner FAQs and Person schema for AEO — narrative expanded to name owner throughout |
+| `/blog` | `/blog` | **NEW 2026-09** — 10 detailed guides (factoring complete guide, Pure Non-Recourse vs non-recourse, new-authority checklist, insurance costs, IFTA/IRP/UCR/2290, DOT binder audit checklist, BOC-3/MCS-150/SCAC/drug consortium, fuel card 25–40¢ guide, ELD/dashcam 2026, Top 5 scams + double-brokering) — each with keywords, AEO FAQs, clickable primary references, Author Brandon Bennett, BlogPosting schema |
+| `/blog/[slug]` | `/blog/[slug]` | **NEW** — 10 individual guide pages with Speakable, FAQPage, Person, BlogPosting schema, quick-answer box, references list, related services & guides |
+| `/faq` branch | `/faq` | Expanded with owner cluster (`#owner` — Who owns QP? Who is Brandon Bennett?) so answer engines attribute correctly — Person schema added |
 | `/get-started/` | `/get-started` | Free-consultation form (rebuilt), Start Application link, call-us-now CTA |
 | `/contact-us/` | `/contact` | Address, hours, both phones, email, message form (rebuilt) |
 | `/contact-privacy-policy/` | `/contact` + `/privacy-policy` | Contact form → `/contact`; full privacy notice restructured into 14 sections at `/privacy-policy` |
@@ -104,5 +112,20 @@ Video reviews retained as outbound links on `/about`: MBOYS Trucking, Customer r
 | `REDESIGN-NOTES.md` | Design system, hero-banner system, animation inventory, mobile-fold contract, SEO/AEO/GEO workstream, follow-ups |
 | `CONTENT-RECORD.md` | This file — the content ledger and URL map |
 | `README.md` | Stack, routes, commands, launch configuration |
-| `src/content/*.ts` | Machine-readable source of truth for services, site facts, FAQs and editorial |
+| `src/content/*.ts` | Machine-readable source of truth for services, site facts, FAQs and editorial (now includes `src/content/blog.ts` with 10 guides) |
 | `next.config.ts` | The executable redirect map (30 legacy URLs) |
+
+---
+
+## 6. September 2026 — Phase 2 additions (this push)
+
+| Item | What changed | Where |
+| --- | --- | --- |
+| **Brandon Bennett portrait** | Canonical `Brandon Bennett.png` copied to `public/images/team/brandon-bennett.png` and rendered on `/about#leadership` (priority image, gradient caption), in blog author boxes and in FAQ owner cluster. Documented in `BRAND-LOCK.md`. | `src/app/about/page.tsx`, `src/content/site.ts` (`owner`), `src/lib/schema.tsx` (`personSchema`) |
+| **Home Programs + Fuel Card highlight** | New highlighted section `id=programs-fuel` inserted **above** Services Grid: 3 program mini-cards (Recourse / Non-recourse / Pure Non-Recourse™ flagged “Most chosen”) + dark Fuel Card panel (25–40¢/gal, 5 controls, testimonial, dual CTA). Existing deep comparison kept below services. | `src/app/page.tsx` |
+| **Center alignment** | All website content center-aligned per request: `src/app/globals.css` adds `main {text-align:center}` with header/footer exclusions + hero centering on all breakpoints; `SectionHead` default `align=center`; `HomeHero`/`PageHero` updated to `text-center` and `justify-center`. | `globals.css`, `src/components/ui.tsx`, `src/components/hero/*.tsx` |
+| **Blog — 10 detailed posts** | `src/content/blog.ts` with 10 guides: each has slug/title/description/excerpt/updated/category/keywords/blocks (p/h2/h3/ul/quote/tip)/faqs/references/relatedServices. Keywords target “trucking factoring”, “how does freight factoring work”, “best fuel card”, “IFTA filing”, “new authority checklist”, “BOC-3”, “ELD mandate”, etc. Each uses AEO Quick Answer + FAQPage, GEO citations, Clickable external links, and names Brandon Bennett as author/owner. | `src/content/blog.ts`, `src/app/blog/page.tsx`, `src/app/blog/[slug]/page.tsx` |
+| **FAQ owner AEO** | Added `ownerFaqs` cluster (`#owner`) with 3 questions, set as first cluster; added `personSchema` to FAQ JSON-LD and About/Hero stats; updated `homeFaqs[0]` to owner. | `src/app/faq/page.tsx`, `src/content/site.ts` |
+| **SEO/AEO/GEO hardening** | BlogListing emits `Blog` + `BlogPosting` + `FAQPage`; BlogPost emits `BlogPosting` + `FAQPage` + `SpeakableSpecification` + `Person`; `organizationSchema` now `founder`/`owner` → `#brandon-bennett`; layout emits `personSchema` globally; sitemap includes `/blog` + 10 blog slugs; robots welcome AI crawlers already. | `src/lib/schema.tsx`, `src/app/layout.tsx`, `src/app/sitemap.ts` |
+| **Navigation** | Header navigation adds `Blog` under Company, Factoring adds Fuel Card link; Footer already via sitemap. | `src/content/site.ts` |
+| **Hero center + owner mention** | `HomeHero`/`PageHero` now `text-center` with `mx-auto` headings; HomeHero tagline names Brandon Bennett. | `src/components/hero/*` |

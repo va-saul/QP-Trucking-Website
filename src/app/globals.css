@@ -552,3 +552,76 @@
 .hero-shell > * {
   min-width: 0;
 }
+
+/* ------------------------------------------------------------------ */
+/*  CENTER ALIGNMENT — Per client request: all website content is     */
+/*  center-aligned. Header/footer nav and utility bars are excluded   */
+/*  so navigation stays usable; everything inside <main> is centered. */
+/* ------------------------------------------------------------------ */
+main {
+  text-align: center;
+}
+
+main p,
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main li,
+main dd,
+main dt,
+main blockquote,
+main .eyebrow,
+main figcaption {
+  text-align: center;
+  text-wrap: balance;
+}
+
+main p,
+main li,
+main dd {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+main ul,
+main ol {
+  list-style-position: inside;
+}
+
+/* Flex and grid containers inside main default to center */
+main .flex {
+  justify-content: center;
+}
+main .grid {
+  justify-items: center;
+}
+/* Keep header/footer/marquees left-aligned where needed */
+header, footer, nav, .marquee, .lane-line, .trust-marquee {
+  text-align: left;
+}
+header p, header h1, header h2, footer p, footer li, nav a, nav p {
+  text-align: left;
+}
+/* But hero and section headings inside main stay centered */
+main header.hero-shell p,
+main header.hero-shell h1,
+main header.hero-shell h2 {
+  text-align: center;
+}
+/* All hero copy stays centered on every breakpoint per center-align request */
+main header.hero-shell p,
+main header.hero-shell h1,
+main header.hero-shell h2 {
+  text-align: center !important;
+}
+main header.hero-shell .grid {
+  justify-items: center;
+  text-align: center;
+}
+/* Container always centered */
+main .mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}

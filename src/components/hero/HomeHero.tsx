@@ -24,9 +24,9 @@ export function HomeHero() {
       />
 
       <Container className="relative flex flex-1 items-end pb-8 sm:items-center sm:pb-4">
-        <div className="grid w-full items-center gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:gap-12">
-          <div className="min-w-0">
-            <p className="eyebrow flex items-center gap-2.5 text-gold-400">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-12">
+          <div className="min-w-0 text-center">
+            <p className="eyebrow flex items-center justify-center gap-2.5 text-gold-400">
               <span className="h-1.5 w-1.5 rounded-full bg-gold-400" />
               Pure Non-Recourse™ factoring · Insurance · Compliance
             </p>
@@ -36,15 +36,15 @@ export function HomeHero() {
               immediate
               delay={0.2}
               text="Get started, grow quickly, and operate profitably — without incurring debt!"
-              className="mt-3 font-display text-display-lg font-extrabold text-white max-w-[17ch] sm:max-w-[19ch]"
+              className="mx-auto mt-3 max-w-[17ch] font-display text-display-lg font-extrabold text-white sm:max-w-[19ch] text-center"
             />
 
-            <p className="mt-4 max-w-[54ch] text-hero-body text-white/80">
+            <p className="mx-auto mt-4 max-w-[54ch] text-center text-hero-body text-white/80">
               QP Trucking Solutions turns your freight invoices into same-day cash, keeps your authority compliant, and
-              places the insurance brokers demand — one family-owned team in Louisville, Kentucky.
+              places the insurance brokers demand — one family-owned team in Louisville, Kentucky, owned by Brandon Bennett.
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center">
               <Btn href="/get-started" variant="primary" size="lg" withArrow className="w-full py-3.5 sm:w-auto sm:py-4">
                 Become a QP client
               </Btn>
@@ -59,7 +59,7 @@ export function HomeHero() {
             </div>
 
             <Reveal delay={0.35} className="mt-6">
-              <p className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.82rem] text-white/65">
+              <p className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-[0.82rem] text-white/65">
                 {[
                   "Funding in ~15 minutes",
                   "Setup under 24 hours",

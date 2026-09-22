@@ -42,7 +42,7 @@ export function SectionHead({
   eyebrow,
   title,
   intro,
-  align = "left",
+  align = "center",
   tone = "dark",
   cta,
   rule = true,
@@ -57,16 +57,16 @@ export function SectionHead({
 }) {
   const isDark = tone === "dark";
   return (
-    <div className={`flex flex-col gap-6 ${align === "center" ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between"}`}>
-      <div className={`max-w-2xl ${align === "center" ? "mx-auto" : ""}`}>
-        {eyebrow ? <p className={`eyebrow mb-3 ${isDark ? "text-brand-500" : "text-gold-400"}`}>{eyebrow}</p> : null}
-        {rule ? <RuleDraw className={`mb-5 ${isDark ? "bg-steel-200" : "bg-white/20"}`} /> : null}
-        <h2 className={`font-display text-display-md ${isDark ? "text-navy-900" : "text-white"}`}>{title}</h2>
+    <div className={`flex flex-col gap-6 ${align === "center" ? "items-center text-center mx-auto" : "sm:flex-row sm:items-end sm:justify-between"}`}>
+      <div className={`max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
+        {eyebrow ? <p className={`eyebrow mb-3 ${isDark ? "text-brand-500" : "text-gold-400"} ${align === "center" ? "mx-auto" : ""}`}>{eyebrow}</p> : null}
+        {rule ? <RuleDraw className={`mb-5 mx-auto ${align === "center" ? "mx-auto" : ""} ${isDark ? "bg-steel-200" : "bg-white/20"}`} /> : null}
+        <h2 className={`font-display text-display-md ${isDark ? "text-navy-900" : "text-white"} ${align === "center" ? "mx-auto text-center" : ""}`}>{title}</h2>
         {intro ? (
-          <p className={`mt-4 text-[1.02rem] leading-relaxed ${isDark ? "text-steel-600" : "text-white/75"}`}>{intro}</p>
+          <p className={`mt-4 text-[1.02rem] leading-relaxed ${isDark ? "text-steel-600" : "text-white/75"} ${align === "center" ? "mx-auto text-center" : ""}`}>{intro}</p>
         ) : null}
       </div>
-      {cta ? <div className="shrink-0">{cta}</div> : null}
+      {cta ? <div className={`shrink-0 ${align === "center" ? "mx-auto" : ""}`}>{cta}</div> : null}
     </div>
   );
 }

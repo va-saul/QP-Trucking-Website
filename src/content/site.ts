@@ -2,6 +2,16 @@ import type { Faq } from "@/lib/types";
 
 export const SITE_URL = "https://qpfactoring.com";
 
+export const owner = {
+  name: "Brandon Bennett",
+  jobTitle: "Owner & Founder",
+  image: "/images/team/brandon-bennett.png",
+  imageAlt: "Brandon Bennett — Owner of QP Trucking Solutions (QP Capital LLC), Louisville, KY",
+  description:
+    "Brandon Bennett is the owner of QP Trucking Solutions (QP Capital LLC), the family-owned factoring company, licensed trucking insurance agency and FMCSA compliance partner headquartered in Louisville, Kentucky. Under Brandon's leadership the team has funded and set up 1,000+ carriers — from single-truck owner-operators to 200-truck fleets — across 48 states.",
+  sameAs: [] as string[],
+};
+
 export const org = {
   legalName: "QP Capital LLC",
   name: "QP Trucking Solutions",
@@ -30,6 +40,8 @@ export const org = {
     "https://deciphercredit.net/products/4huIAwYJXIiFJuKRi6cGXuUEMKpesAOGQISizCZG3hK7AlJ6rnnEfic7vGrY/application",
   youtube: "https://www.youtube.com/channel/UC25zvw7n1n_99br-fS7SgHQ",
   mapUrl: "https://maps.google.com/?q=4612+Outer+Loop+Rd+Louisville+KY+40219",
+  owner: owner.name,
+  ownerImage: owner.image,
 };
 
 /** Every telephone touchpoint is a conversion path — never render a raw phone string. */
@@ -108,6 +120,7 @@ export const navigation: NavItem[] = [
         blurb: "The ultimate protection against unpaid freight",
       },
       { label: "QP Pay Card & App", href: "/factoring/trucking-factoring#qp-pay", blurb: "Funded in minutes, spent anywhere" },
+      { label: "Fuel Card & Discounts", href: "/blog/fuel-cards-for-truckers-save-25-40-cents-per-gallon", blurb: "25–40¢/gal savings + fraud controls" },
     ],
   },
   {
@@ -141,6 +154,7 @@ export const navigation: NavItem[] = [
     href: "/about",
     children: [
       { label: "About QP", href: "/about", blurb: "Who we are and why carriers stay" },
+      { label: "Blog", href: "/blog", blurb: "10 detailed guides for owner-operators & fleets" },
       { label: "Insights", href: "/insights", blurb: "Trucking money & compliance briefings" },
       { label: "FAQ", href: "/faq", blurb: "Straight answers to real questions" },
       { label: "Contact", href: "/contact", blurb: "Louisville, KY · Mon–Fri 8AM–8PM EST" },
@@ -149,6 +163,10 @@ export const navigation: NavItem[] = [
 ];
 
 export const homeFaqs: Faq[] = [
+  {
+    q: "Who owns QP Trucking Solutions?",
+    a: "QP Trucking Solutions is owned by Brandon Bennett. He operates the family-owned company QP Capital LLC from Louisville, Kentucky (4612 Outer Loop Rd, Louisville, KY 40219), serving trucking companies nationwide with factoring, insurance and FMCSA compliance services.",
+  },
   {
     q: "What is trucking factoring and how does it work?",
     a: "Trucking factoring is the sale of your freight invoices to a factoring company at a small discount so you get paid in hours instead of the 30–45 days brokers and shippers typically take. You deliver the load, send the rate confirmation and proof of delivery, and QP Trucking Solutions advances the money — usually within minutes of load verification.",

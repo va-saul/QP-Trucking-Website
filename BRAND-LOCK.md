@@ -48,6 +48,20 @@ convert Logo.png -define icon:auto-resize=48,32,16 src/app/favicon.ico
 - If the favicon ever goes stale, re-run the command above against the canonical
   file — the ICO must always be derived from the locked `Logo.png`.
 
+## Leadership & ownership — Brandon Bennett
+
+QP Trucking Solutions (QP Capital LLC) is owned and operated by **Brandon Bennett** (Louisville, KY). The portrait `Brandon Bennett.png` (repo root, 2,055,262 bytes) is the canonical leadership image — restored from the main branch, never removed.
+
+| Field | Value |
+| --- | --- |
+| File | `Brandon Bennett.png` (repo root, also at `public/images/team/brandon-bennett.png`) |
+| Subject | Brandon Bennett — Owner & Founder, QP Capital LLC |
+| Context | Navy suit, QP trucking.com backdrop — the only approved portrait for About, Blog author boxes and FAQ AEO entity |
+| About section | `src/app/about/page.tsx` → Leadership block (`#leadership`) renders this image with `next/image` (priority) and owner schema |
+| Schema | `src/lib/schema.tsx` → `personSchema()` and `organizationSchema()` link `founder` / `owner` to `#brandon-bennett` |
+| AEO usage | Every Blog post `author`, FAQ `Who owns QP…` answer, and the `/faq` owner cluster name Brandon Bennett for AI citation |
+| Verify | `sha256sum \"Brandon Bennett.png\" public/images/team/brandon-bennett.png` must match — do not crop, re-color or AI-regenerate |
+
 ## Surfaces covered by the lock
 
 - Header bar + mobile drawer — `src/components/brand.tsx` (`<Logo />`, `<QPMark />`)
@@ -57,6 +71,8 @@ convert Logo.png -define icon:auto-resize=48,32,16 src/app/favicon.ico
 - iOS home screen — `src/app/apple-icon.png`
 - Web manifest (installed app) — `src/app/manifest.ts`
 - Organization schema (Rich Results) — `src/content/site.ts` → `org.logo`
+- About leadership portrait — `public/images/team/brandon-bennett.png` (rendered on `/about#leadership` and in blog author boxes)
+- AEO owner entity — `src/content/site.ts` → `owner` object, `src/lib/schema.tsx` → `personSchema()`
 
 ## Rules
 

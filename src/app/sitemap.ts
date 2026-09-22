@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/content/site";
 import { factoringServices, insuranceServices, complianceServices, servicePath } from "@/content/services";
 import { insights } from "@/content/insights";
+import { blogPosts } from "@/content/blog";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -16,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/faq", priority: 0.85, freq: "monthly" },
     { path: "/about", priority: 0.7, freq: "yearly" },
     { path: "/contact", priority: 0.8, freq: "yearly" },
+    { path: "/blog", priority: 0.85, freq: "weekly" },
     { path: "/insights", priority: 0.7, freq: "weekly" },
     { path: "/privacy-policy", priority: 0.3, freq: "yearly" },
   ];
@@ -44,6 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(post.updated ?? post.date),
       changeFrequency: "yearly" as const,
       priority: 0.6,
+    })),
+    ...blogPosts.map((post) => ({
+      url: `${SITE_URL}/blog/${post.slug}`,
+      lastModified: new Date(post.updated),
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
     })),
   ];
 }

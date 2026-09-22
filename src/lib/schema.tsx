@@ -1,6 +1,20 @@
-import { SITE_URL, org, trust } from "@/content/site";
+import { SITE_URL, org, owner, trust } from "@/content/site";
 import type { Faq, Service } from "@/lib/types";
 import { servicePath } from "@/content/services";
+
+export function personSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${SITE_URL}/#brandon-bennett`,
+    name: owner.name,
+    jobTitle: owner.jobTitle,
+    description: owner.description,
+    image: `${SITE_URL}${owner.image}`,
+    worksFor: { "@id": `${SITE_URL}/#organization` },
+    url: `${SITE_URL}/about#leadership`,
+  };
+}
 
 /** Local/entity graph — powers knowledge panels, Maps and AI citations. */
 export function organizationSchema() {
@@ -15,11 +29,13 @@ export function organizationSchema() {
     logo: { "@type": "ImageObject", url: org.logo, width: 512, height: 512 },
     image: `${SITE_URL}/images/hero/home.jpg`,
     description:
-      "QP Trucking Solutions (QP Capital LLC) provides transportation factoring, trucking insurance, authority setup and FMCSA compliance services for owner-operators and fleets across the United States.",
+      "QP Trucking Solutions (QP Capital LLC) provides transportation factoring, trucking insurance, authority setup and FMCSA compliance services for owner-operators and fleets across the United States — owned by Brandon Bennett.",
     slogan: org.tagline,
     email: org.email,
     telephone: org.officePhone,
     foundingDate: String(org.foundingYear),
+    founder: { "@id": `${SITE_URL}/#brandon-bennett` },
+    owner: { "@id": `${SITE_URL}/#brandon-bennett` },
     address: {
       "@type": "PostalAddress",
       streetAddress: org.street,
@@ -72,6 +88,7 @@ export function organizationSchema() {
         itemOffered: { "@type": "Service", name: b },
       })),
     },
+    employee: { "@id": `${SITE_URL}/#brandon-bennett` },
     sameAs: [org.youtube],
   };
 }

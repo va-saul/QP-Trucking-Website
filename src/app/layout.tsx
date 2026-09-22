@@ -10,17 +10,17 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
 import { RouteProgress } from "@/components/motion";
-import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
-import { SITE_URL, org } from "@/content/site";
+import { JsonLd, organizationSchema, personSchema, websiteSchema } from "@/lib/schema";
+import { SITE_URL, org, owner } from "@/content/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance",
+    default: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance — Owned by Brandon Bennett",
     template: "%s | QP Trucking Solutions",
   },
   description:
-    "Factoring, trucking insurance, new authority setup and FMCSA compliance services for owner-operators and fleets. Get paid in minutes, with no long-term contract and no hidden fees. Call 833-762-3464.",
+    "Factoring, trucking insurance, new authority setup and FMCSA compliance services for owner-operators and fleets — owned by Brandon Bennett in Louisville, KY. Get paid in minutes, with no long-term contract and no hidden fees. Call 833-762-3464.",
   keywords: [
     "trucking factoring",
     "freight bill factoring",
@@ -32,10 +32,12 @@ export const metadata: Metadata = {
     "IRP registration",
     "BOC-3 filing",
     "owner operator services",
+    "Brandon Bennett",
+    "QP Trucking Solutions owner",
   ],
   applicationName: org.name,
-  authors: [{ name: org.name, url: SITE_URL }],
-  creator: org.name,
+  authors: [{ name: owner.name, url: SITE_URL }, { name: org.name, url: SITE_URL }],
+  creator: owner.name,
   publisher: org.legalName,
   category: "trucking finance and compliance",
   alternates: { canonical: SITE_URL },
@@ -91,7 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StickyMobileCta />
         {/* spacer so the sticky mobile bar never covers the end of the page */}
         <div aria-hidden="true" className="h-[68px] lg:hidden" />
-        <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <JsonLd data={[organizationSchema(), personSchema(), websiteSchema()]} />
       </body>
     </html>
   );

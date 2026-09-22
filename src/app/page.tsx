@@ -205,6 +205,115 @@ export default function HomePage() {
       </Section>
 
       {/* ------------------------------------------------------------------ */}
+      {/*  PROGRAMS + FUEL CARD HIGHLIGHT — Above Services                  */}
+      {/*  Highlighted per client request: programs + fuel card             */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="bone" id="programs-fuel">
+        <Container className="text-center">
+          <SectionHead
+            eyebrow="Highlighted for every carrier — Programs + Fuel Card"
+            title="Pick your protection. Pocket the fuel savings."
+            intro="Most carriers lose $10K–$15K on one unpaid invoice. QP removes that risk with Pure Non-Recourse™ — and the same QP Card that funds you in ~15 minutes also saves 25–40¢ per gallon at the pump, every mile, every week."
+          />
+
+          <div className="mx-auto mt-10 grid max-w-6xl gap-6 lg:grid-cols-[1.35fr_0.85fr]">
+            {/* Programs teaser — three mini cards */}
+            <div className="grid gap-4 text-center sm:grid-cols-3 lg:grid-cols-1 lg:gap-3">
+              {programs.map((p) => (
+                <Reveal key={p.name} className="h-full">
+                  <div
+                    className={`flex h-full flex-col rounded-[1.1rem] border p-5 text-center ${
+                      p.tone === "gold"
+                        ? "border-gold-400 bg-white shadow-card"
+                        : "border-steel-200 bg-paper"
+                    }`}
+                  >
+                    <p className="font-display text-[1.05rem] font-bold text-navy-900">{p.name}</p>
+                    <p className={`mt-1 font-mono text-[0.68rem] uppercase tracking-[0.14em] ${p.tone === "gold" ? "text-gold-600" : "text-brand-500"}`}>{p.price}</p>
+                    <p className="mx-auto mt-3 max-w-[28ch] text-[0.88rem] leading-relaxed text-steel-600">
+                      {p.tone === "gold"
+                        ? "No chargeback ever — even if broker never pays. Best for new authorities."
+                        : p.name === "Non-recourse factoring"
+                          ? "QP carries default — protected window 60–90 days."
+                          : "Lowest fee — you carry credit risk. Best for strong brokers."}
+                    </p>
+                    {p.tone === "gold" ? (
+                      <span className="mx-auto mt-3 inline-flex rounded-full bg-gold-400 px-3 py-1 font-mono text-[0.58rem] uppercase tracking-[0.14em] text-navy-950">Most chosen by new authorities</span>
+                    ) : null}
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+
+            {/* Fuel Card highlight */}
+            <Reveal delay={0.1} className="flex">
+              <div className="relative flex w-full flex-col overflow-hidden rounded-[1.3rem] border border-steel-200 bg-navy-900 p-6 text-center text-white sm:p-7">
+                <span aria-hidden="true" className="stripe-band absolute inset-0 opacity-25" />
+                <div className="relative">
+                  <p className="eyebrow text-gold-400">QP Fuel Card — Highlighted</p>
+                  <h3 className="mx-auto mt-3 max-w-[18ch] font-display text-[1.45rem] font-extrabold leading-none text-white">
+                    Save 25–40¢ on every gallon
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-[32ch] text-[0.93rem] leading-relaxed text-white/75">
+                    Every factoring client gets the QP Card — funded in ~15 minutes after load verification. Swipe at the nation&apos;s largest fuel discount network, control limits per driver, and turn fuel fraud off.
+                  </p>
+
+                  <ul className="mx-auto mt-6 grid max-w-md gap-2.5 text-left">
+                    {[
+                      "Largest fuel discount network in North America",
+                      "Real-time limits: product, volume & dollar per driver",
+                      "No cash to carry — lost card shut off instantly",
+                      "24/7 portal + detailed IFTA-ready fuel reporting",
+                      "Accepted everywhere Mastercard is accepted",
+                    ].map((b) => (
+                      <li key={b} className="flex gap-2.5 text-[0.88rem] leading-relaxed text-white/85">
+                        <svg viewBox="0 0 20 20" className="mt-1 h-4 w-4 shrink-0 text-gold-400" aria-hidden="true">
+                          <path d="m5 10.5 3.2 3.2L15 6.9" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span className="text-center sm:text-left">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mx-auto mt-6 grid gap-3 sm:grid-cols-2">
+                    <Btn href="/blog/fuel-cards-for-truckers-save-25-40-cents-per-gallon" variant="gold" withArrow className="w-full justify-center">
+                      Fuel card deep dive
+                    </Btn>
+                    <Btn href="/factoring/trucking-factoring" variant="outline" className="w-full justify-center">
+                      See programs
+                    </Btn>
+                  </div>
+
+                  <p className="mx-auto mt-4 max-w-md text-[0.78rem] leading-relaxed text-white/50">
+                    Already a client? Push funds to sub-cards so drivers buy fuel safely — no advances, no cash fraud.
+                  </p>
+
+                  <div className="mt-6 rounded-[0.9rem] bg-white/[0.07] p-4">
+                    <p className="font-display text-[0.95rem] font-bold text-white">What drivers say</p>
+                    <p className="mx-auto mt-2 max-w-md text-[0.88rem] italic leading-relaxed text-white/75">
+                      “Every time I look at that statement and see 25 or 40 cents off the cash price it makes me tingle.” — Owner-Operator, Flatbed · 1 truck · TN
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal delay={0.16} className="mx-auto mt-8 flex max-w-2xl flex-wrap justify-center gap-3">
+            <Btn href="/factoring/pure-non-recourse" variant="primary" withArrow>
+              Compare Pure Non-Recourse™
+            </Btn>
+            <Btn href="/blog" variant="outlineDark">
+              Read 10 detailed trucking guides
+            </Btn>
+            <Btn href="/get-started" variant="outlineDark">
+              Get my flat rate — 833-762-3464
+            </Btn>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
       {/*  SERVICES GRID                                                     */}
       {/* ------------------------------------------------------------------ */}
       <Section tone="paper" id="services">

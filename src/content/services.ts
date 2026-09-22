@@ -252,7 +252,7 @@ export const services: Service[] = [
     tagline:
       "Liability, cargo, bobtail and physical damage coverage built for owner-operators and fleets — bound quickly, priced right.",
     answer:
-      "QP Trucking Insurance is a licensed trucking insurance agency serving owner-operators and fleets nationwide. We bind primary liability, cargo, bobtail, physical damage and non-trucking coverage, usually within one business day of receiving your application, with new-authority filings handled alongside your FMCSA registration.",
+      "QP Trucking Insurance is a licensed trucking insurance agency serving owner-operators and fleets across 44 states. We bind primary liability, cargo, bobtail, physical damage and non-trucking coverage, usually within one business day of receiving your application, with new-authority filings handled alongside your FMCSA registration.",
     heroVariant: "shield",
     heroImage: "/images/hero/insurance.jpg",
     accent: "teal",
@@ -264,7 +264,7 @@ export const services: Service[] = [
     heroStats: [
       { label: "Binding", value: "Fast" },
       { label: "Coverage types", value: "6+" },
-      { label: "States", value: "48" },
+      { label: "States", value: "44" },
     ],
     intro: [
       "At QP Trucking Insurance our mission is simple: provide comprehensive insurance solutions tailored to the unique needs of trucking companies. With extensive expertise and diverse coverage options, QP Trucking Insurance is your trusted partner for all your insurance needs.",
@@ -335,6 +335,10 @@ export const services: Service[] = [
       {
         q: "Can QP insure a carrier with a less-than-perfect driving record?",
         a: "Often, yes. We work with multiple carriers and can usually place risks that standard markets decline, including violations, accidents or lapses — though pricing reflects the record.",
+      },
+      {
+        q: "Which states is QP trucking insurance available in?",
+        a: "QP Trucking Insurance is licensed and available in 44 states across the United States. We write commercial liability, cargo, physical damage, and bobtail coverage in every state except Alaska (AK), California (CA), District of Columbia (DC), Hawaii (HI), Louisiana (LA), New York (NY), and Utah (UT).",
       },
       {
         q: "What is the difference between bobtail and non-trucking liability?",

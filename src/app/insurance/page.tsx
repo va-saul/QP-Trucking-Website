@@ -10,6 +10,7 @@ import {
 } from "@/components/ui";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { LeadForm } from "@/components/LeadForm";
+import { InsuranceCoverageMap } from "@/components/InsuranceCoverageMap";
 import { InsuranceIntakeDetails } from "@/components/InsuranceIntakeDetails";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/schema";
@@ -113,7 +114,7 @@ export default function InsurancePage() {
         ]}
         stats={[
           { label: "Coverage types", value: "6+" },
-          { label: "States served", value: "48" },
+          { label: "States served", value: "44" },
           { label: "Binding", value: "Same day" },
           { label: "Quote cost", value: "Free" },
         ]}
@@ -189,22 +190,22 @@ export default function InsurancePage() {
                 </Btn>
               </div>
 
-              {/* Below-form intake preview — anchors to full checklist */}
+              {/* Below-form intake preview — anchors to full form */}
               <div className="mt-5 rounded-[1.1rem] border border-steel-200 bg-paper p-5 shadow-[var(--shadow-card)]">
                 <p className="eyebrow text-brand-500">Below the quote form</p>
                 <h4 className="mt-2 font-display text-[1.05rem] font-bold leading-tight text-navy-900">
-                  Complete intake checklist — 140+ fields
+                  Complete intake form — 140+ fields
                 </h4>
                 <p className="mt-2 text-[0.88rem] leading-relaxed text-steel-600">
-                  Contact, new-authority questions, business info, operations, renewals, drivers (×4), vehicles (×4),
-                  FMCSA, and policy history. Gather it once — we file it everywhere.
+                  Start with your DOT number for instant FMCSA pre-fill, or complete manually. Contact, business info,
+                  drivers (×4), vehicles (×4), existing policies, and MVR authorization.
                 </p>
                 <div className="mt-4 flex flex-col gap-2.5">
                   <a
                     href="#intake-checklist"
                     className="btn btn-primary w-full justify-center px-5 py-3 text-[0.9rem]"
                   >
-                    View full checklist
+                    Open intake form
                     <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
                       <path
                         d="M5 8l5 5 5-5"
@@ -218,17 +219,17 @@ export default function InsurancePage() {
                   </a>
                   <div className="flex flex-wrap gap-2">
                     <span className="rounded-full bg-bone px-3 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-600">
-                      Contact · DOT/MC · Phone · Email
+                      DOT Pre-fill · Contact · Phone · Email
                     </span>
                     <span className="rounded-full bg-bone px-3 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-600">
                       Drivers ×4 · Vehicles ×4
                     </span>
                     <span className="rounded-full bg-bone px-3 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-600">
-                      Policies 1–5 · MVR
+                      Existing Policies · MVR
                     </span>
                   </div>
                   <p className="text-center font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-400">
-                    Empty values show as — — until you provide them
+                    All CRM fields editable · Submits via secure intake
                   </p>
                 </div>
               </div>
@@ -237,7 +238,10 @@ export default function InsurancePage() {
         </Container>
       </Section>
 
-      {/* Full CRM-order checklist — rendered directly below the quote form section */}
+      {/* Real US coverage map — 44 insured states + 7 excluded */}
+      <InsuranceCoverageMap />
+
+      {/* Full CRM-order intake form — rendered directly below the coverage map */}
       <InsuranceIntakeDetails />
 
       <Section tone="steel">

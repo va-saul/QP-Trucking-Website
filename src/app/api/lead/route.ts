@@ -17,14 +17,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const required = ["name", "phone", "email"];
-  const missing = required.filter((k) => !payload[k]);
-  if (missing.length) {
-    return NextResponse.json({ ok: false, error: `Missing required fields: ${missing.join(", ")}` }, { status: 422 });
+  const isIntake = payload.formType === "insurance-intake";
+  const firstName = (payload.firstName || payload["First name"] || "") as string;
+  const lastName = (payload.lastName || payload["Last name"] || "") as string;
+  const derivedName = payload.name || [firstName, lastName].filter(Boolean).join(" ");
+
+  if (isIntake) {
+    const missing: string[] = [];
+    if (!firstName && !payload.name) missing.push("First name");
+    if (!payload.phone) missing.push("Phone");
+    if (!payload.email) missing.push("Email");
+
+    if (missing.length) {
+      return NextResponse.json(
+        { ok: false, error: `Missing required fields: ${missing.join(", ")}` },
+        { status: 422 }
+      );
+    }
+  } else {
+    const required = ["name", "phone", "email"];
+    const missing = required.filter((k) => !payload[k]);
+    if (missing.length) {
+      return NextResponse.json(
+        { ok: false, error: `Missing required fields: ${missing.join(", ")}` },
+        { status: 422 }
+      );
+    }
   }
 
   const record = {
     ...payload,
+    name: derivedName || payload.name || undefined,
     receivedAt: new Date().toISOString(),
     userAgent: request.headers.get("user-agent") ?? undefined,
   };

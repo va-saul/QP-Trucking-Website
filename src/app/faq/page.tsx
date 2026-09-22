@@ -91,7 +91,7 @@ const clusters: { id: string; title: string; intro: string; serviceSlug?: string
       },
       {
         q: "Does QP serve carriers outside Kentucky?",
-        a: "Yes. QP is headquartered in Louisville, Kentucky but funds carriers and files compliance documents in all 48 contiguous states, and our factoring and insurance programs are available nationwide.",
+        a: "Yes. QP is headquartered in Louisville, Kentucky and funds carriers and files compliance documents across the contiguous United States. Our factoring programs serve carriers nationwide, while QP Trucking Insurance is licensed and available in 44 states (excluding AK, CA, DC, HI, LA, NY, and UT).",
       },
     ],
   },

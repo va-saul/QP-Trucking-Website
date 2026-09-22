@@ -114,7 +114,7 @@ export default function InsurancePage() {
         ]}
         stats={[
           { label: "Coverage types", value: "6+" },
-          { label: "States served", value: "48" },
+          { label: "States served", value: "44" },
           { label: "Binding", value: "Same day" },
           { label: "Quote cost", value: "Free" },
         ]}

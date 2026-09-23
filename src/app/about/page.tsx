@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { PageHero } from "@/components/hero/PageHero";
 import {
   AnswerBox,
@@ -187,6 +188,76 @@ export default function AboutPage() {
                   </div>
                 </div>
               </Reveal>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/*  LEADERSHIP: BRANDON BENNETT, CEO & FOUNDER                        */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="bone" id="leadership">
+        <Container>
+          <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+            <Reveal>
+              <div className="relative mx-auto max-w-[420px] lg:max-w-none">
+                <div className="relative overflow-hidden rounded-[1.6rem] border border-steel-200 bg-navy-950 shadow-xl shadow-navy-950/10">
+                  <Image
+                    src="/images/brandon-bennett.png"
+                    alt="Brandon Bennett, Chief Executive Officer & Founder of QP Capital LLC"
+                    width={1145}
+                    height={1374}
+                    className="h-auto w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
+                    priority
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-950/95 via-navy-950/60 to-transparent p-5 text-white">
+                    <p className="font-display text-lg font-black text-white">Brandon Bennett</p>
+                    <p className="font-mono text-[0.68rem] uppercase tracking-wider text-gold-400">
+                      Owner &amp; Chief Executive Officer
+                    </p>
+                    <p className="mt-1 text-xs text-white/75">QP Capital · QP Factoring · QP Trucking Solutions</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+
+            <div>
+              <SectionHead
+                eyebrow="Executive Leadership & Ownership"
+                title="Built by truckers, led with integrity"
+                intro="QP Capital, QP Factoring, and QP Trucking Solutions are owned and led by Brandon Bennett with a singular mission: to provide American trucking carriers and owner-operators with transparent capital, fast cash flow, and complete compliance without debt."
+              />
+
+              <div className="mt-6 rounded-[1.2rem] border border-steel-200 bg-white p-6 shadow-sm">
+                <blockquote className="font-display text-[1.08rem] font-medium italic leading-relaxed text-navy-950">
+                  &ldquo;Trucking businesses and owner-operators are the true backbone of our economy. When I founded QP Capital in Louisville, Kentucky, I wanted to eliminate the games that traditional factoring companies play. We answer the phone ourselves, verify loads in minutes, and treat every single carrier like our only client.&rdquo;
+                </blockquote>
+                <p className="mt-3 font-mono text-[0.72rem] font-bold uppercase tracking-wider text-brand-600">
+                  — Brandon Bennett, Owner &amp; CEO
+                </p>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 text-[0.88rem] text-steel-700">
+                <div className="rounded-xl border border-steel-200 bg-paper p-4">
+                  <p className="font-mono text-[0.62rem] font-bold uppercase tracking-wider text-gold-600">Ownership &amp; Leadership</p>
+                  <p className="mt-1 font-bold text-navy-900">Owner &amp; CEO</p>
+                  <p className="mt-0.5 text-xs text-steel-600">Owner and CEO of QP Capital LLC, QP Factoring, and QP Trucking Solutions since 2017 with 1,000+ carriers funded nationwide.</p>
+                </div>
+                <div className="rounded-xl border border-steel-200 bg-paper p-4">
+                  <p className="font-mono text-[0.62rem] font-bold uppercase tracking-wider text-gold-600">Financial Background</p>
+                  <p className="mt-1 font-bold text-navy-900">University of Kentucky</p>
+                  <p className="mt-0.5 text-xs text-steel-600">Finance graduate specializing in commercial asset-based lending, freight liquidity &amp; risk management.</p>
+                </div>
+              </div>
+
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Btn href={`tel:${org.salesPhone}`} variant="primary" withArrow>
+                  Speak with our team: {org.salesPhoneDisplay}
+                </Btn>
+                <Btn href={`mailto:${org.email}`} variant="outlineDark">
+                  Contact executive office
+                </Btn>
+              </div>
             </div>
           </div>
         </Container>

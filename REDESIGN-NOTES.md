@@ -178,3 +178,40 @@ Skip link, visible gold focus rings, `aria-expanded` on menus and accordions, ke
 2. **Six derived banners** — `eld.jpg`, `about.jpg`, `contact.jpg`, `get-started.jpg`, `faq.jpg` and `insights.jpg` were produced as graded crops of the primary shoots (unique per page, brand-graded). They can be swapped for bespoke shoots or fresh AI frames at any time by replacing the file — the components reference paths only.
 3. **Video reviews** — the about page links to the original YouTube reviews; embedding them via `next/third-parties` is a one-line change if wanted.
 4. **Analytics/consent** — Google Analytics and a consent banner were intentionally left out of this build.
+
+---
+
+## 8. Addendum (September 2026) — splash, mobile bottom nav, review wall
+
+Three additions requested after the initial build shipped; nothing above was changed.
+
+**1. 3D truck splash on the Home page** — `src/components/SiteIntro.tsx` (+ its
+`.intro-*` / `.truck3d*` / `.t-*` styles in `globals.css`). A GSAP-choreographed
+CSS-3D semi (cuboid trailer + cab planes, six spinning wheels, the supplied
+`Logo.png` on the trailer side in true colour) drives in from the horizon on Z
+with a rotationY swing; the mark flips in, the wordmark rises in rotateX, the
+truck drives off and the navy curtain halves split open. Mounted only by
+`src/app/page.tsx`, so it plays like a splash screen whenever a visitor comes to
+the Home page (first load or in-app return). Skippable (tap/click/any key),
+skipped for `prefers-reduced-motion`, invisible to crawlers and no-JS (CSS gates
+on `js-anim`), scroll locked only while on screen, `ScrollTrigger.refresh()` on
+lift. One logo file only — true colour per `BRAND-LOCK.md`.
+
+**2. Mobile bottom navigation** — `src/components/layout/MobileBottomNav.tsx`,
+mounted from the root layout in place of the sticky two-button CTA bar (both are
+fixed to the same edge on phones; the sticky bar component is left in place).
+Five slots: Home · Services · **raised call FAB** (tel:+1-833-762-3464) · Contact
+· **More**. The More drawer carries quick links (Get started, About, Store, FAQ),
+the six social profiles, and the default call line **833-762-3464**
+(`tel:+1-833-762-3464`) above the office line. Social profile URLs were added to
+`org` in `src/content/site.ts` (additive fields only).
+
+**3. Review wall (side scroller) on the Home page** — `src/components/ReviewsRail.tsx`
++ `src/content/reviews.ts`, inserted as its own section between *Testimonials*
+and *Insurance Spotlight*. One horizontal snap rail carrying 18 cards from all
+three requested sources: 8 **YouTube** video reviews (real `i.ytimg.com`
+thumbnails, same IDs as `/about`), 4 **Google** review cards (the featured
+client quotes QP publishes), and 6 verbatim **Trustpilot** cards from the live
+[QP CAPITAL profile](https://www.trustpilot.com/review/qpfactoring.com)
+(4.7★ “Excellent”, 72 reviews). Arrow buttons, mouse drag-to-scroll and touch
+scroll all drive the same rail; every card links out to its real source.

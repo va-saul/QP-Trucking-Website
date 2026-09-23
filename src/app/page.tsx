@@ -15,6 +15,8 @@ import {
   TrustBadges,
 } from "@/components/ui";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { ReviewsRail } from "@/components/ReviewsRail";
+import { SiteIntro } from "@/components/SiteIntro";
 import { Reveal } from "@/components/motion";
 import { JsonLd, faqSchema, howToSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
@@ -125,6 +127,9 @@ export default function HomePage() {
 
   return (
     <>
+      {/* 3D truck splash — plays whenever the user comes to the Home page */}
+      <SiteIntro />
+
       <JsonLd
         data={[
           faqSchema(homeFaqs),
@@ -403,6 +408,22 @@ export default function HomePage() {
           <div className="mt-10">
             <Testimonials items={testimonials} />
           </div>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/*  REVIEWS SIDE SCROLLER — YouTube · Google · Trustpilot             */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="ink">
+        <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
+        <Container className="relative">
+          <SectionHead
+            tone="light"
+            eyebrow="Verified reviews"
+            title="YouTube, Google & Trustpilot reviews"
+            intro="Video reviews with real client faces, featured Google feedback and verified Trustpilot reviews — side-scroll them all."
+          />
+          <ReviewsRail />
         </Container>
       </Section>
 

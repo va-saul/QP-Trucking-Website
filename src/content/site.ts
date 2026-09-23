@@ -168,6 +168,16 @@ export const navigation: NavItem[] = [
     ],
   },
   {
+    label: "Pricing",
+    href: "/store",
+    children: [
+      { label: "Pricing & Service Catalog", href: "/store", blurb: "Complete published pricing and member discount rates" },
+      { label: "Operating Authority Fees", href: "/store#authority-pricing", blurb: "New authority, BOC-3, Form 2290, IFTA, IRP, UCR" },
+      { label: "Factoring & Advance Rates", href: "/factoring", blurb: "Recourse and Pure Non-Recourse™ fee schedules" },
+      { label: "Program Referral Payouts", href: "/programs/ambassador", blurb: "$500–$700 referral payouts per qualified carrier" },
+    ],
+  },
+  {
     label: "Company",
     href: "/about",
     children: [

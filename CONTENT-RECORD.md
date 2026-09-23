@@ -61,6 +61,10 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | `/are-carriers-being-to-hopeful/` | `/insights/are-carriers-being-to-hopeful` (308) | Freight sentiment content retained (title tidied) |
 | `/a-sleeper-cab-with-a-jacuzzi/` | `/insights/a-sleeper-cab-with-a-jacuzzi` (308) | Reconstructed from sitemap title + industry context |
 | `/bottom-line-blogging/` | `/insights` (308) | Blog index |
+| `/programs/ambassador` | `/programs/ambassador` | Ambassador Referral Program: $500–$700 factoring, up to $250 insurance, $100 fuel/dispatch, $20/service authority |
+| `/programs/circle-network` | `/programs/circle-network` | Circle Network premium tier: 0% factoring fees, free fuel card setup, complimentary IFTA & IRP, $2,000+ value, 40+ broker directory |
+| `/programs/fuel-card` | `/programs/fuel-card` | QP Fuel Card: 48¢/gal partner savings, 9,000+ stations, $0 POS fees, save $1,000+/mo per truck |
+| `/programs/equipment-finance` | `/programs/equipment-finance` | Equipment Finance: Tractors, trailers and rolling iron, online credit application |
 
 ---
 
@@ -83,6 +87,10 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | ELD & Dashcam Program | Member pricing | — | Quoted by fleet size |
 | Trucking Insurance | Free to quote | — | Premium varies by operation |
 | Factoring | Flat, disclosed fee | — | No application fee, no minimums, no long-term contract |
+| Ambassador Program | $500–$700 factoring, up to $250 insurance, $100 fuel/dispatch, $20/service | Direct payout per qualified referral |
+| Circle Network | $2,000+ annual member value | 0% factoring fee, free fuel card setup, free IFTA/IRP processing |
+| QP Fuel Card | 48¢/gal avg partner savings, $0 POS fees | Universal Mastercard acceptance, 9,000+ stations |
+| Equipment Finance | Tractor & trailer financing | Paired with factoring & insurance |
 
 ---
 

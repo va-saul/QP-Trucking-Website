@@ -89,6 +89,37 @@ const programs = [
   },
 ];
 
+const programCards = [
+  {
+    eyebrow: "Referral program",
+    title: "Ambassador Program",
+    blurb: "Earn $500–$700 per qualified factoring referral — plus payouts on insurance, fuel cards, dispatch and authority services.",
+    stat: "$500–$700 per referral",
+    href: "/programs/ambassador",
+  },
+  {
+    eyebrow: "Premium member tier",
+    title: "Circle Network",
+    blurb: "0% factoring fees, free fuel card setup, complimentary IFTA & IRP processing and a 40+ broker directory for new authorities.",
+    stat: "$2,000+ in annual value",
+    href: "/programs/circle-network",
+  },
+  {
+    eyebrow: "Fuel savings",
+    title: "QP Fuel Card",
+    blurb: "48¢/gal average savings at 9,000+ stations, zero POS fees and flexible approvals with no traditional credit needed.",
+    stat: "48¢/gal average savings",
+    href: "/programs/fuel-card",
+  },
+  {
+    eyebrow: "Fleet growth",
+    title: "Equipment Finance",
+    blurb: "Tractors, trailers and rolling equipment financed through the same team that factors your invoices.",
+    stat: "One application, one team",
+    href: "/programs/equipment-finance",
+  },
+];
+
 export default function HomePage() {
   const allServices = [...factoringServices, ...insuranceServices, ...complianceServices];
 
@@ -222,6 +253,46 @@ export default function HomePage() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {allServices.map((s, i) => (
               <ServiceCard key={s.slug} service={s} href={servicePath(s)} index={i} />
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/*  PROGRAMS & FUNDING                                                */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="bone">
+        <Container>
+          <SectionHead
+            eyebrow="Programs & funding"
+            title="Built to keep you moving — and pay you while you do"
+            intro="Beyond factoring and compliance: referral payouts, premium membership, fuel savings and equipment finance, all under the same roof."
+          />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {programCards.map((c, i) => (
+              <Reveal key={c.title} delay={i * 0.06} className="h-full">
+                <Link
+                  href={c.href}
+                  className="card-hover group flex h-full flex-col justify-between rounded-[1.15rem] border border-steel-200 bg-paper p-6"
+                >
+                  <div>
+                    <span className="eyebrow text-brand-500">{c.eyebrow}</span>
+                    <h3 className="mt-3 font-display text-[1.15rem] font-bold leading-snug text-navy-900 group-hover:text-brand-500">
+                      {c.title}
+                    </h3>
+                    <p className="mt-3 text-[0.92rem] leading-relaxed text-steel-600">{c.blurb}</p>
+                  </div>
+                  <div className="mt-5 border-t border-steel-100 pt-4">
+                    <p className="font-mono text-[0.78rem] font-medium text-gold-600">{c.stat}</p>
+                    <span className="mt-2 inline-flex items-center gap-2 text-[0.82rem] font-semibold text-brand-500">
+                      Explore
+                      <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true">
+                        <path d="M4 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </Container>

@@ -386,7 +386,7 @@ export const services: Service[] = [
     price: {
       summary: "$200 — or $100 for factoring clients with promo code",
       tiers: [
-        { label: "New Authority Set-Up", price: "$200", note: "Standard" },
+        { label: "New Authority Set-Up", price: "$200" },
         { label: "Factoring client rate", price: "$100", note: "With promo code" },
       ],
       fine: "Price covers our service; government filing fees are separate and disclosed up front.",

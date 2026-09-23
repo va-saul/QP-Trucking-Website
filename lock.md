@@ -3,8 +3,8 @@
 **Date Locked:** September 2026  
 **Status:** All Core Features & Architecture Fully Locked  
 **Repository:** `va-saul/QP-Trucking-Website`  
-**Active Working Branch:** `arena/01a0cf44-qp-trucking-website`  
-**Merged Branches / PRs:** PR #1, PR #2, PR #3, PR #4, PR #5, PR #6, PR #7, PR #8, PR #9, PR #10  
+**Active Working Branch:** `arena/01a0cfe9-qp-trucking-website`  
+**Merged Branches / PRs:** PR #1, PR #2, PR #3, PR #4, PR #5, PR #6, PR #7, PR #8, PR #9, PR #10 (PR #11 — this refinement pass)  
 
 ---
 
@@ -16,6 +16,10 @@
 ---
 
 ## 2. Header Navigation & Pricing Lock
+- **Brand lockup typography (`src/components/brand.tsx` → `<Logo />`):** beside the official Logo mark (`public/Logo.png`, per `BRAND-LOCK.md`), **"QP"** is written on the top line in large, bold slab display type (Bitter extrabold, `1.5rem → 1.72rem`), and **"Trucking Solutions"** is written directly below it on the second line.
+- **Width & spacing:** the Header shell **and** the utility bar containers are expanded to `max-w-[1440px]` with generous padding (`px-5 sm:px-8 lg:px-8 xl:px-10`, `py-4`; utility bar `h-10`, header offset `lg:top-10`).
+- **Navigation font sizes:** top-level nav links render at `0.95rem`, stepping up to `0.98rem` at `2xl` (`text-[0.95rem] 2xl:text-[0.98rem]`), with the GSAP hover pill sized `h-9`.
+- **Clear phone & CTA:** the utility bar shows a gold-accented **Sales 833-762-3464** call link plus **Office / accounting 502-398-6333** at every desktop width; from `xl` the header also carries an outlined `833-762-3464` phone button beside the prominent primary **"Get started"** CTA (`px-6 py-3.5 text-[0.95rem]`).
 - The desktop Header (`src/components/layout/Header.tsx`) and mobile drawer provide direct, persistent access to:
   1. **Factoring** (`/factoring`) — Transportation Factoring, Pure Non-Recourse™, QP Pay Card
   2. **Insurance** (`/insurance`) — Trucking Insurance, Quote Intake
@@ -44,11 +48,12 @@
   2. **Insurance** (`/insurance`)
   3. **Call Us** (`tel:+1-833-762-3464`) — Raised central FAB with gold pulse ring dialing the default line `833-762-3464`.
   4. **CIRCLE Network** (`/programs/circle-network`)
-  5. **More** — Opens the slide-up drawer containing:
+  5. **More** — **Elevated** above the dock surface (raised chip, `-translate-y-1.5`, `z-[58]`) and opens the slide-up drawer containing:
      - Quick links to all remaining pages (Home, Start Application, Pricing & Store, All Services, Ambassador, Fuel Card, Equipment Finance, About QP & Leadership, Insights, FAQ, Contact).
      - Full Social Media Suite (Facebook, Instagram, X, LinkedIn, YouTube, TikTok).
      - Direct hotline call banner ending in **3464** (`833-762-3464`).
-- **StickyMobileCta:** Replaced to prevent any duplicate 2-button bar from appearing.
+- **Chat widget offset:** on mobile screens (`max-width: 1023.98px`) `src/app/globals.css` lifts the floating Momentum CRM chat widget with `bottom: 88px !important;` so the chat bot button never blocks or hides the elevated "More" button.
+- **StickyMobileCta:** `src/components/layout/StickyMobileCta.tsx` **returns `null`** — no duplicate 2-button bar can ever appear.
 
 ---
 
@@ -75,4 +80,11 @@
 - **Ambassador Referral Program** (`/programs/ambassador`): $500–$700 factoring referral payouts, $250 insurance, $100 fuel/dispatch.
 - **QP Fuel Card** (`/programs/fuel-card`): 48¢/gal partner savings across 9,000+ stations.
 - **Equipment Finance** (`/programs/equipment-finance`): Tractor and trailer loan application.
-- **Momentum CRM Chat Widget:** Mounted in `src/app/layout.tsx` with LeadConnector script.
+- **Momentum CRM Chat Widget:** Mounted in `src/app/layout.tsx` with LeadConnector script. On mobile screens the widget is offset with `bottom: 88px !important;` (`globals.css`) so it floats clear of the 5-button bottom dock and never covers the "More" button.
+
+---
+
+## 8. Full-Width Container Lock (Bootstrap XXL Standard)
+- **`src/components/ui.tsx` → `Container`:** `mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-10` — the sitewide content container used by every page and section.
+- **`src/components/InsuranceIntakeDetails.tsx`:** the intake form wrapper (`#intake-form`) uses the identical `max-w-[1400px] px-5 sm:px-8 lg:px-10` box.
+- Purpose: content uses widescreen real estate properly (Bootstrap XXL container standard) — no large blank side margins on widescreen displays — while prose blocks keep their own inner reading widths.

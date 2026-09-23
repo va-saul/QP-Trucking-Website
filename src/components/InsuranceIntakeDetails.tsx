@@ -460,7 +460,7 @@ export function InsuranceIntakeDetails() {
       id="intake-checklist"
       className="relative border-t border-steel-200 bg-bone py-12 sm:py-16 lg:py-20"
     >
-      <div id="intake-form" className="mx-auto w-full max-w-[1180px] px-5 sm:px-7 lg:px-8">
+      <div id="intake-form" className="mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-10">
         {/* Header */}
         <div className="max-w-3xl">
           <p className="eyebrow text-brand-500">Below the quote form — complete intake</p>

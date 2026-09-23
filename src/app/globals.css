@@ -839,3 +839,23 @@
 .review-rail.dragging a {
   pointer-events: none;
 }
+
+/* ------------------------------------------------------------------ */
+/*  MOMENTUM CRM CHAT WIDGET — MOBILE OFFSET                           */
+/*  The LeadConnector launcher floats in the bottom-right corner and    */
+/*  would otherwise sit directly on top of the 5-button mobile dock,    */
+/*  hiding the elevated "More" button. On phone/tablet widths (< lg,    */
+/*  where MobileBottomNav renders) the widget is lifted 88px clear of   */
+/*  the bar; on desktop it keeps its default corner placement.          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 1023.98px) {
+  chat-widget,
+  chat-widget > *,
+  div[data-chat-widget],
+  div[data-chat-widget] > *,
+  div[data-loader-instance-id],
+  div[data-loader-instance-id] > *,
+  #chat-widget {
+    bottom: 88px !important;
+  }
+}

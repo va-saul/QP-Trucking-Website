@@ -2,15 +2,22 @@
 
 /**
  * Mobile bottom navigation — app-style dock that's always reachable on
- * phones. Restored per request:
+ * phones. LOCKED (see /lock.md §4): exactly 5 buttons, in order:
  *
- *  · a prominent raised CALL button in the center (the 3464 sales line),
- *  · a "More" button opening the social-media drawer, whose default call
- *    line is 833-762-3464 (tel:+1-833-762-3464),
- *  · quick links (Home · Services · Contact) alongside.
+ *  1. Factoring      → /factoring
+ *  2. Insurance      → /insurance
+ *  3. Call Us        → tel:+1-833-762-3464 — raised central FAB with gold
+ *                      pulse ring dialing the default sales line
+ *  4. CIRCLE Network → /programs/circle-network
+ *  5. More           → opens the slide-up drawer (quick links, full social
+ *                      suite, and the direct 833-762-3464 hotline banner).
+ *                      The button is elevated above the dock surface so the
+ *                      floating Momentum CRM chat widget — offset to
+ *                      bottom:88px on mobile in globals.css — never blocks
+ *                      or hides it.
  *
- * Replaces the sticky two-button CTA bar on small screens (they would
- * overlap); the sticky bar component itself is left untouched.
+ * Replaces the sticky two-button CTA bar on small screens; StickyMobileCta
+ * now returns null so no duplicate bar can ever render.
  */
 
 import Link from "next/link";
@@ -212,12 +219,17 @@ export function MobileBottomNav() {
             }
             const active = item.label !== "More" && isActive(item.href);
             const isMore = item.label === "More";
-            const cls = `flex min-w-[56px] flex-col items-center gap-0.5 rounded-xl px-1.5 py-1 text-[0.6rem] font-semibold transition-colors text-center ${
-              active
+            // "More" is elevated above the dock surface (raised chip) so it
+            // stays visible and tappable — the CRM chat widget is offset to
+            // bottom:88px on mobile (globals.css) and never covers it.
+            const cls = `relative z-[58] flex min-w-[56px] flex-col items-center gap-0.5 rounded-xl px-1.5 py-1 text-[0.6rem] font-semibold transition-colors text-center ${
+              isMore
+                ? "-translate-y-1.5 border border-white/15 bg-white/[0.08] pb-1.5 shadow-[0_10px_20px_-8px_rgba(0,0,0,0.85)] "
+                : ""
+            }${
+              active || (isMore && moreOpen)
                 ? "text-gold-400"
-                : isMore && moreOpen
-                  ? "text-gold-400"
-                  : "text-white/65 hover:text-white"
+                : "text-white/65 hover:text-white"
             }`;
             if (isMore) {
               return (

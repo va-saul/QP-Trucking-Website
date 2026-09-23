@@ -113,13 +113,25 @@ export function Header() {
   return (
     <>
       {/* utility strip — desktop only */}
-      <div className="fixed inset-x-0 top-0 z-[55] hidden h-9 items-center bg-navy-950/90 text-white backdrop-blur-sm lg:flex">
-        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-8 text-[0.75rem]">
+      <div className="fixed inset-x-0 top-0 z-[55] hidden h-10 items-center bg-navy-950/90 text-white backdrop-blur-sm lg:flex">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-6 px-6 text-[0.78rem] lg:px-8 xl:px-10">
           <p className="flex items-center gap-2 text-white/70">
             <span className="h-1 w-1 rounded-full bg-gold-400" />
             Family-owned in Louisville, KY · {org.hoursDisplay}
           </p>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-5 xl:gap-7">
+            <a
+              href={`tel:${org.salesPhone}`}
+              className="flex items-center gap-1.5 text-white/70 transition-colors hover:text-white"
+            >
+              <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 text-gold-400" aria-hidden="true">
+                <path
+                  d="M4.2 3.3h3l1.4 3.5-2 1.4a10.4 10.4 0 0 0 5.2 5.2l1.4-2 3.5 1.4v3c0 .8-.7 1.4-1.5 1.4A14.6 14.6 0 0 1 2.8 4.8c0-.8.6-1.5 1.4-1.5Z"
+                  fill="currentColor"
+                />
+              </svg>
+              Sales <span className="font-bold text-gold-400">{org.salesPhoneDisplay}</span>
+            </a>
             <a href={`tel:${org.officePhone}`} className="text-white/70 transition-colors hover:text-white">
               Office / accounting <span className="font-semibold text-white">{org.officePhoneDisplay}</span>
             </a>
@@ -134,7 +146,7 @@ export function Header() {
       </div>
 
       <header
-        className={`fixed inset-x-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 lg:top-9 ${
+        className={`fixed inset-x-0 z-50 transition-[background-color,border-color,box-shadow] duration-300 lg:top-10 ${
           solid
             ? "border-b border-navy-900/8 bg-white/92 backdrop-blur-xl"
             : "border-b border-transparent bg-transparent"
@@ -142,7 +154,7 @@ export function Header() {
       >
         <div
           ref={shellRef}
-          className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-3.5 sm:px-7 lg:px-8"
+          className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-8 xl:px-10"
         >
           <div data-header-item>
             <Logo tone={solid ? "navy" : "white"} priority />
@@ -153,7 +165,7 @@ export function Header() {
             <span
               ref={pillRef}
               aria-hidden="true"
-              className={`pointer-events-none absolute left-0 top-1/2 h-8 -translate-y-1/2 rounded-full ${
+              className={`pointer-events-none absolute left-0 top-1/2 h-9 -translate-y-1/2 rounded-full ${
                 solid ? "bg-navy-900/6" : "bg-white/12"
               }`}
               style={{ width: 0, opacity: 0 }}
@@ -169,7 +181,7 @@ export function Header() {
                   data-header-item
                   data-nav-link
                   href={item.href}
-                  className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-[0.85rem] font-semibold transition-colors xl:text-[0.88rem] ${
+                  className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-2.5 text-[0.95rem] font-semibold transition-colors xl:px-3 2xl:px-3.5 2xl:text-[0.98rem] ${
                     solid ? "text-navy-800 hover:text-brand-500" : "text-white/90 hover:text-white"
                   }`}
                   aria-expanded={item.children ? hovered === item.label : undefined}
@@ -213,10 +225,12 @@ export function Header() {
             <a
               data-header-item
               href={`tel:${org.salesPhone}`}
-              // the mark-only logo is wider than the old typeset one, so the phone
-              // number yields to the nav until there is real room (xl)
-              className={`hidden items-center gap-2 whitespace-nowrap text-[0.88rem] font-bold transition-colors xl:flex ${
-                solid ? "text-navy-900 hover:text-brand-500" : "text-white hover:text-gold-400"
+              // clear phone button — the sales line yields to the nav until
+              // there is real room (xl), and always appears in the utility bar
+              className={`hidden items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2.5 text-[0.9rem] font-bold transition-colors xl:flex ${
+                solid
+                  ? "border-navy-900/15 text-navy-900 hover:border-brand-400 hover:text-brand-500"
+                  : "border-white/35 text-white hover:border-gold-400 hover:text-gold-400"
               }`}
             >
               <svg viewBox="0 0 20 20" className="h-4 w-4" aria-hidden="true">
@@ -227,7 +241,7 @@ export function Header() {
               </svg>
               {org.salesPhoneDisplay}
             </a>
-            <Link data-header-item href="/get-started" className="btn btn-primary px-5 py-3 text-[0.88rem]">
+            <Link data-header-item href="/get-started" className="btn btn-primary px-6 py-3.5 text-[0.95rem]">
               Get started
             </Link>
           </div>

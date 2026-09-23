@@ -6,6 +6,7 @@ import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { services, servicePath, complianceServices, factoringServices } from "@/content/services";
+import { ambassadorProgram, circleNetworkProgram, fuelCardProgram, equipmentFinanceProgram } from "@/content/programs";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
@@ -21,6 +22,10 @@ export const metadata = buildMetadata({
     "IFTA filing price",
     "DOT binder price",
     "new authority setup price",
+    "Circle Network",
+    "QP Ambassador Program",
+    "QP Fuel Card",
+    "Equipment Finance",
   ],
   image: "/images/hero/compliance.jpg",
 });
@@ -48,16 +53,97 @@ const faqs: Faq[] = [
   },
 ];
 
+const catalogPricing: Record<
+  string,
+  {
+    standard: { label?: string; price: string }[];
+    client: { label?: string; price: string }[];
+  }
+> = {
+  "new-authority": {
+    standard: [{ label: "Standard setup", price: "$200" }],
+    client: [{ label: "With promo code", price: "$100" }],
+  },
+  "boc-3": {
+    standard: [{ label: "Standard filing", price: "$60" }],
+    client: [{ label: "With promo code", price: "$40" }],
+  },
+  "form-2290": {
+    standard: [{ label: "IRS HVUT e-filing", price: "$60" }],
+    client: [{ label: "With promo code", price: "$40" }],
+  },
+  irp: {
+    standard: [{ label: "Registration service", price: "$195" }],
+    client: [{ label: "State fees separate", price: "Call for rate" }],
+  },
+  ifta: {
+    standard: [
+      { label: "Registration", price: "$150" },
+      { label: "Quarterly filing", price: "$60" },
+      { label: "Annual renewal", price: "$100" },
+    ],
+    client: [
+      { label: "Registration", price: "$100" },
+      { label: "Quarterly filing", price: "$40" },
+      { label: "Annual renewal", price: "$70" },
+    ],
+  },
+  ucr: {
+    standard: [{ label: "Annual registration", price: "$60" }],
+    client: [{ label: "With promo code", price: "$40" }],
+  },
+  "mcs-150": {
+    standard: [{ label: "Filing or update", price: "$60" }],
+    client: [{ label: "With promo code", price: "$40" }],
+  },
+  scac: {
+    standard: [{ label: "NMFTA code registration", price: "$60" }],
+    client: [{ label: "With promo code", price: "$40" }],
+  },
+  "dot-binder": {
+    standard: [
+      { label: "Digital PDF binder", price: "$99" },
+      { label: "Printed physical binder", price: "$139" },
+    ],
+    client: [{ label: "Bundle rate available", price: "Call for rate" }],
+  },
+  "drug-alcohol-consortium": {
+    standard: [{ label: "Consortium enrollment", price: "$135" }],
+    client: [{ label: "With promo code", price: "$100" }],
+  },
+  "eld-dashcam": {
+    standard: [{ label: "FMCSA-registered devices", price: "Member pricing" }],
+    client: [{ label: "Discounts by fleet size", price: "Preferred rates" }],
+  },
+  "trucking-factoring": {
+    standard: [{ label: "Recourse & non-recourse", price: "Flat, disclosed fee" }],
+    client: [{ label: "With Circle Network", price: "0% factoring fees" }],
+  },
+  "pure-non-recourse": {
+    standard: [{ label: "Pure Protection (no chargebacks)", price: "Flat, disclosed fee" }],
+    client: [{ label: "Lifetime protection", price: "Included in rate" }],
+  },
+  insurance: {
+    standard: [{ label: "Liability, cargo, physical damage", price: "Free to quote" }],
+    client: [{ label: "With Circle Network", price: "50% down assistance" }],
+  },
+};
+
 export default function StorePage() {
-  const rows = services.map((s) => ({
-    name: s.name,
-    short: s.short,
-    href: servicePath(s),
-    category: s.category,
-    tiers: s.price?.tiers ?? [],
-    summary: s.price?.summary ?? "",
-    fine: s.price?.fine ?? "",
-  }));
+  const rows = services.map((s) => {
+    const custom = catalogPricing[s.slug];
+    const standard = custom?.standard ?? (s.price?.tiers?.length ? [s.price.tiers[0]] : [{ label: s.price?.summary ?? "Disclosed fee", price: "" }]);
+    const client = custom?.client ?? (s.price?.tiers && s.price.tiers.length > 1 ? [s.price.tiers[1]] : [{ label: "Call for client rate", price: "" }]);
+
+    return {
+      name: s.name,
+      short: s.short,
+      href: servicePath(s),
+      category: s.category,
+      standard,
+      client,
+    };
+  });
 
   return (
     <>
@@ -144,33 +230,24 @@ export default function StorePage() {
                         </p>
                       </th>
                       <td className="px-5 py-4 align-top text-[0.95rem] text-steel-700">
-                        {r.tiers.length ? (
-                          <ul className="grid gap-1">
-                            {r.tiers.map((t) => (
-                              <li key={t.label}>
-                                <span className="font-semibold text-navy-900">{t.price}</span>{" "}
-                                <span className="text-steel-600">{t.label}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <span>{r.summary}</span>
-                        )}
+                        <ul className="grid gap-1">
+                          {r.standard.map((t, idx) => (
+                            <li key={idx}>
+                              {t.price ? <span className="font-semibold text-navy-900">{t.price}</span> : null}{" "}
+                              <span className="text-steel-600">{t.label}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </td>
                       <td className="px-5 py-4 align-top">
-                        {r.tiers.some((t) => t.note) ? (
-                          <ul className="grid gap-1">
-                            {r.tiers
-                              .filter((t) => t.note)
-                              .map((t) => (
-                                <li key={t.label} className="text-[0.95rem]">
-                                  <span className="font-semibold text-gold-600">{t.price}</span> {t.label}
-                                </li>
-                              ))}
-                          </ul>
-                        ) : (
-                          <span className="text-[0.95rem] text-steel-600">Call for client rate</span>
-                        )}
+                        <ul className="grid gap-1">
+                          {r.client.map((t, idx) => (
+                            <li key={idx} className="text-[0.95rem]">
+                              {t.price ? <span className="font-semibold text-gold-600">{t.price}</span> : null}{" "}
+                              <span className="text-steel-700">{t.label}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </td>
                       <td className="px-5 py-4 align-top">
                         <Btn href={`/get-started?service=${encodeURIComponent(r.short)}`} variant="outlineDark" size="sm">
@@ -184,7 +261,7 @@ export default function StorePage() {
             </div>
           </Reveal>
 
-          <Reveal className="mt-6 grid gap-4 sm:grid-cols-2">
+          <Reveal className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
               <p className="eyebrow text-brand-500">Factoring programs</p>
               <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
@@ -205,7 +282,181 @@ export default function StorePage() {
                 Get an insurance quote
               </Btn>
             </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">QP Fuel Card</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                48¢/gal average savings at partner stations, 9,000+ stations, zero POS fees — with approval paths that
+                do not require traditional credit.
+              </p>
+              <Btn href="/programs/fuel-card" variant="outlineDark" size="sm" className="mt-4">
+                Fuel card program
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Equipment finance</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                Tractors, trailers and rolling equipment financed through the same team that factors your invoices.
+                One application, reviewed by a specialist.
+              </p>
+              <Btn href="/programs/equipment-finance" variant="outlineDark" size="sm" className="mt-4">
+                Equipment finance
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Circle Network</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                The premium member tier: 0% factoring fees, free fuel card setup, complimentary IFTA &amp; IRP
+                processing and $2,000+ in annual value.
+              </p>
+              <Btn href="/programs/circle-network" variant="outlineDark" size="sm" className="mt-4">
+                Circle Network
+              </Btn>
+            </div>
+            <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+              <p className="eyebrow text-brand-500">Ambassador Program</p>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
+                Refer carriers and earn $500–$700 per factoring referral, up to $250 insurance, $100 fuel &amp;
+                dispatch, $20 per authority service.
+              </p>
+              <Btn href="/programs/ambassador" variant="outlineDark" size="sm" className="mt-4">
+                Ambassador payouts
+              </Btn>
+            </div>
           </Reveal>
+        </Container>
+      </Section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/*  PROGRAMS & MEMBERSHIP PRICING                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <Section tone="bone">
+        <Container>
+          <SectionHead
+            eyebrow="Special programs & memberships"
+            title="Referral payouts, member benefits, fuel savings & iron financing"
+            intro="Four programs with transparent value propositions and direct cash impact for your trucking business."
+          />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <Reveal delay={0} className="h-full">
+              <div className="flex h-full flex-col justify-between rounded-[1.15rem] border border-steel-200 bg-paper p-6">
+                <div>
+                  <span className="eyebrow text-brand-500">{ambassadorProgram.short}</span>
+                  <h3 className="mt-2 font-display text-[1.15rem] font-bold text-navy-900">Referral Payouts</h3>
+                  <div className="mt-4 space-y-2 text-[0.88rem] text-steel-700">
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Factoring referral</span>
+                      <strong className="text-brand-600">$500 – $700</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Insurance referral</span>
+                      <strong className="text-brand-600">Up to $250</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Fuel card / dispatch</span>
+                      <strong className="text-brand-600">$100 each</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Authority service</span>
+                      <strong className="text-brand-600">$20 / service</strong>
+                    </div>
+                  </div>
+                </div>
+                <Btn href={ambassadorProgram.path} variant="outlineDark" size="sm" className="mt-6 w-full">
+                  Ambassador details
+                </Btn>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.06} className="h-full">
+              <div className="flex h-full flex-col justify-between rounded-[1.15rem] border border-steel-200 bg-paper p-6">
+                <div>
+                  <span className="eyebrow text-gold-600">{circleNetworkProgram.short}</span>
+                  <h3 className="mt-2 font-display text-[1.15rem] font-bold text-navy-900">Premium Membership</h3>
+                  <div className="mt-4 space-y-2 text-[0.88rem] text-steel-700">
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Annual value</span>
+                      <strong className="text-gold-600">$2,000+</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Factoring fee</span>
+                      <strong className="text-teal-600">0% for members</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Fuel card setup</span>
+                      <strong className="text-teal-600">Free ($0)</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>IFTA &amp; IRP fee</span>
+                      <strong className="text-teal-600">Complimentary</strong>
+                    </div>
+                  </div>
+                </div>
+                <Btn href={circleNetworkProgram.path} variant="outlineDark" size="sm" className="mt-6 w-full">
+                  Circle Network details
+                </Btn>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.12} className="h-full">
+              <div className="flex h-full flex-col justify-between rounded-[1.15rem] border border-steel-200 bg-paper p-6">
+                <div>
+                  <span className="eyebrow text-brand-500">{fuelCardProgram.short}</span>
+                  <h3 className="mt-2 font-display text-[1.15rem] font-bold text-navy-900">Fuel Savings Card</h3>
+                  <div className="mt-4 space-y-2 text-[0.88rem] text-steel-700">
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Avg pump savings</span>
+                      <strong className="text-teal-600">48¢/gal</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>POS purchase fees</span>
+                      <strong className="text-teal-600">$0.00</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Customer service</span>
+                      <strong className="text-teal-600">$0.00</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Station network</span>
+                      <strong className="text-navy-900">9,000+ stations</strong>
+                    </div>
+                  </div>
+                </div>
+                <Btn href={fuelCardProgram.path} variant="outlineDark" size="sm" className="mt-6 w-full">
+                  Fuel card details
+                </Btn>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.18} className="h-full">
+              <div className="flex h-full flex-col justify-between rounded-[1.15rem] border border-steel-200 bg-paper p-6">
+                <div>
+                  <span className="eyebrow text-brand-500">{equipmentFinanceProgram.short}</span>
+                  <h3 className="mt-2 font-display text-[1.15rem] font-bold text-navy-900">Equipment Finance</h3>
+                  <div className="mt-4 space-y-2 text-[0.88rem] text-steel-700">
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Iron financed</span>
+                      <strong className="text-navy-900">Tractors &amp; trailers</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Application fee</span>
+                      <strong className="text-teal-600">$0</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-steel-100 pb-1.5">
+                      <span>Credit structure</span>
+                      <strong className="text-navy-900">Custom terms</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Review speed</span>
+                      <strong className="text-brand-600">Fast decision</strong>
+                    </div>
+                  </div>
+                </div>
+                <Btn href={equipmentFinanceProgram.path} variant="outlineDark" size="sm" className="mt-6 w-full">
+                  Equipment finance details
+                </Btn>
+              </div>
+            </Reveal>
+          </div>
         </Container>
       </Section>
 

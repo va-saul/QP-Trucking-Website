@@ -17,6 +17,10 @@ const columns = [
     title: "Company",
     links: [
       { label: "About QP", href: "/about" },
+      { label: "Ambassador Program", href: "/programs/ambassador" },
+      { label: "Circle Network", href: "/programs/circle-network" },
+      { label: "QP Fuel Card", href: "/programs/fuel-card" },
+      { label: "Equipment Finance", href: "/programs/equipment-finance" },
       { label: "Insurance", href: "/insurance" },
       { label: "All services & pricing", href: "/store" },
       { label: "Insights", href: "/insights" },

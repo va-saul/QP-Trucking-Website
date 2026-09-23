@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { createElement } from "react";
 import Script from "next/script";
 import "@fontsource-variable/bitter/wght.css";
 import "@fontsource-variable/inter/wght.css";
@@ -89,6 +90,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main">{children}</main>
         <Footer />
         <StickyMobileCta />
+        {/* CRM owns the chat conversation and consent flow. */}
+        {createElement("chat-widget", {
+          "location-id": "yvQJy3oBoDmK005drBmX",
+          "prompt-msg": "Hi there! Have a question? Chat with us here.",
+          "prompt-avatar": "https://assets.cdn.filesafe.space/yvQJy3oBoDmK005drBmX/media/6a87408e994ded095ad630d6.png",
+          "agency-name": "Momentum CRM",
+          "agency-website": "momentumamp.com",
+          "chat-type": "allInOneChat",
+          "show-consent-checkbox": "true",
+          source: "WEB_USER",
+        })}
+        <Script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" strategy="afterInteractive" />
         {/* spacer so the sticky mobile bar never covers the end of the page */}
         <div aria-hidden="true" className="h-[68px] lg:hidden" />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />

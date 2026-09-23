@@ -174,7 +174,7 @@ Skip link, visible gold focus rings, `aria-expanded` on menus and accordions, ke
 
 ## 7. Known follow-ups
 
-1. **Lead delivery** — `/api/lead` logs submissions until `LEAD_WEBHOOK_URL` is configured.
+1. **Lead delivery** — `/api/lead` routes notifications through Resend (`RESEND_API_KEY`, `EMAIL_FROM`) to the configured marketing or insurance inbox. See the Vercel environment setup in `README.md`; optional `LEAD_WEBHOOK_URL` adds a CRM copy.
 2. **Six derived banners** — `eld.jpg`, `about.jpg`, `contact.jpg`, `get-started.jpg`, `faq.jpg` and `insights.jpg` were produced as graded crops of the primary shoots (unique per page, brand-graded). They can be swapped for bespoke shoots or fresh AI frames at any time by replacing the file — the components reference paths only.
 3. **Video reviews** — the about page links to the original YouTube reviews; embedding them via `next/third-parties` is a one-line change if wanted.
 4. **Analytics/consent** — Google Analytics and a consent banner were intentionally left out of this build.

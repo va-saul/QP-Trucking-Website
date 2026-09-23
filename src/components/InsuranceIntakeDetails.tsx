@@ -68,11 +68,11 @@ export function InsuranceIntakeDetails() {
       const json = await res.json();
 
       if (!res.ok) {
-        if (res.status === 503) {
+        if (json.code === "not_configured") {
           setFmcsaStatus({
             type: "info",
             message:
-              "FMCSA auto-fill unavailable — service not configured. Every field remains fully editable manually.",
+              "FMCSA auto-fill is not configured yet. Every field remains editable, so you can complete the form manually.",
           });
         } else {
           setFmcsaStatus({

@@ -19,7 +19,7 @@ npm run lint     # typecheck (tsc --noEmit)
 > Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
 > the dev server will start 404-ing. Stop the dev server (or `rm -rf .next` and restart it) instead.
 
-Node 20+ required. No environment variables are needed to run the site.
+Node 20+ required. The site can render without environment variables, but FMCSA lookup and form-email delivery need the server-side variables listed under [Vercel environment setup](#vercel-environment-setup).
 
 ---
 
@@ -33,7 +33,7 @@ Node 20+ required. No environment variables are needed to run the site.
 | Motion | GSAP 3.15 (`ScrollTrigger`, `SplitText`) — `src/components/motion.tsx` |
 | Imagery | 16 page-specific hero banners in `public/images/hero/`, rendered **full-bleed** by `HeroBackdrop` at every breakpoint (`fill` + `object-cover`, `sizes="100vw"`), served through `next/image` (AVIF/WebP) |
 | Brand | **One logo file** — `public/images/brand/qp-logo.png` — used by the header, mobile drawer, footer, marquee, 404, the browser tab, the iOS home screen and the PWA manifest. Nothing is redrawn or re-typeset |
-| Forms | `LeadForm` client component → `POST /api/lead` → optional webhook (`LEAD_WEBHOOK_URL`) |
+| Forms | Site forms → `POST /api/lead` → Resend email routing (insurance to `insurance@qpfactoring.com`, other forms to `marketing@qpfactoring.com`) + optional CRM webhook |
 | SEO | Per-page metadata, canonicals, OpenGraph/Twitter, `sitemap.xml`, `robots.txt`, 40+ JSON-LD graphs |
 
 ### Brand assets (single source)
@@ -76,7 +76,8 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 /insights/[slug]                     7 articles (incl. the 80-term glossary)
 /privacy-policy                      Privacy notice
 /sitemap.xml · /robots.txt · /manifest.webmanifest · /icon.svg
-/api/lead                            Lead intake endpoint
+/api/lead                            Lead intake, email routing and optional CRM webhook
+/api/fmcsa                           Server-side FMCSA QCMobile DOT lookup
 ```
 
 **30 legacy WordPress URLs** (`/trucking-factoring`, `/2290-2`, `/oil-and-gas-factoring`, `/scac-2`, `/store/*` duplicates, `/get-started-2`, …) are 308-redirected in `next.config.ts` — no indexed URL or backlink is lost.
@@ -85,10 +86,30 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 
 ## Configuration for launch
 
-1. **Lead routing** — set `LEAD_WEBHOOK_URL` (and optionally `LEAD_WEBHOOK_TOKEN`) to forward form submissions to your CRM/Zapier/Slack. Without it, submissions are logged server-side.
+1. **Form email delivery** — configure Resend and the email variables in the Vercel setup below. The API emails insurance quote/intake submissions to `insurance@qpfactoring.com` and all other website forms to `marketing@qpfactoring.com`. The optional `LEAD_WEBHOOK_URL` / `LEAD_WEBHOOK_TOKEN` can additionally copy submissions into a CRM. The server no longer logs submitted form contents.
 2. **Domain** — `SITE_URL` in `src/content/site.ts` is used for canonicals, JSON-LD, sitemap and OG URLs.
 3. **Analytics** — add your tag in `src/app/layout.tsx`; the site ships with zero third-party scripts by default (fast Core Web Vitals).
 4. **Payments** — the original site's cart links pointed at `https://qpfactoring.com/cart/?ec_action=addtocart&model_number=…`. The redesign routes orders through `/get-started?service=…` (a human confirms every order) and keeps the loan-application link (`deciphercredit.net`) intact on the factoring and get-started pages.
+
+### Vercel environment setup
+
+First, create a [Resend](https://resend.com) account, verify the `qpfactoring.com` sending domain (including the DNS records Resend provides), and create an API key. Then open Vercel **Project → Settings → Environment Variables** and add the following server-only variables. Apply them to every environment that should handle live forms/lookups (usually **Production** and **Preview**), then redeploy so the functions pick them up. Do not prefix secrets with `NEXT_PUBLIC_`.
+
+| Variable | Value / purpose |
+| --- | --- |
+| `FMCSA_API_KEY` | Your FMCSA QCMobile WebKey. Create a developer account and generate a WebKey at [FMCSA API Access](https://mobile.fmcsa.dot.gov/QCDevsite/docs/apiAccess). This is used only by `/api/fmcsa`; the key is never sent to the browser. |
+| `RESEND_API_KEY` | Server-side API key from your Resend account. Required to deliver form emails. |
+| `EMAIL_FROM` | Sender on a domain verified in Resend, e.g. `QP Trucking Website <forms@qpfactoring.com>`. Verify the domain and its DNS records in Resend first. |
+| `LEAD_EMAIL_TO` | `marketing@qpfactoring.com` — destination for general, factoring, compliance and equipment-finance forms. |
+| `INSURANCE_EMAIL_TO` | `insurance@qpfactoring.com` — destination for insurance quote and full insurance-intake forms. |
+| `LEAD_WEBHOOK_URL` | Optional CRM/automation webhook for an additional copy of each submission. |
+| `LEAD_WEBHOOK_TOKEN` | Optional bearer token sent with the webhook. |
+
+The exact names and safe example values are in `.env.example`. If FMCSA returns an authentication error, check that `FMCSA_API_KEY` is the **WebKey** from the FMCSA QCMobile developer portal, not a SAFER website password. The DOT lookup calls FMCSA from the server and accepts the key through this environment variable.
+
+All forms in this repository that submit to `/api/lead` are routed here. The separate third-party factoring application link (Decipher Credit) stays on its own provider and is not intercepted by this site endpoint.
+
+**Sensitive form data:** the full insurance intake and equipment-credit application collect sensitive details. The notification email includes the submitted fields, so limit mailbox access and use your organization’s approved secure mail/CRM policies. For stricter handling, use a secured CRM webhook for those applications rather than forwarding unmasked identity/credit data by email.
 
 ---
 
@@ -99,4 +120,4 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 
 ## Deployment
 
-Any Node host works (Vercel, Netlify, Render, a VPS with `npm run build && npm start`). The build output is fully static except `/api/lead`. `sharp` is included for image optimization; `next.config.ts` also sets long-lived cache headers for `/images/*`.
+Any Node host works (Vercel, Netlify, Render, a VPS with `npm run build && npm start`). The pages are statically rendered where possible; `/api/lead` and `/api/fmcsa` run as server-side endpoints and need the environment configuration above for production delivery. `sharp` is included for image optimization; `next.config.ts` also sets long-lived cache headers for `/images/*`.

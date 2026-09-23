@@ -1,3 +1,5 @@
+import type { Faq } from "@/lib/types";
+
 export type InsightBlock =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
@@ -17,6 +19,7 @@ export type Insight = {
   category: "Industry news" | "Money & cash flow" | "Compliance" | "Glossary";
   keywords: string[];
   blocks: InsightBlock[];
+  faqs?: Faq[];
   glossary?: { term: string; definition: string }[];
 };
 
@@ -25,6 +28,256 @@ export type Insight = {
  * keep their content) plus evergreen reference material for AEO/GEO citations.
  */
 export const insights: Insight[] = [
+  {
+    slug: "how-trucking-factoring-works",
+    title: "How Trucking Factoring Works: A Practical Guide for Carriers",
+    description:
+      "Learn how trucking factoring turns approved freight invoices into working capital, what happens from paperwork to payment, and which fees and contract terms to compare.",
+    excerpt:
+      "Trucking factoring is the sale of an approved freight invoice for earlier access to cash. Here is the invoice-to-cash process, the paperwork carriers commonly need, and the questions to ask before choosing a factor.",
+    date: "2026-09-23",
+    image: "/images/hero/factoring.jpg",
+    author: "QP Trucking Solutions",
+    readingMinutes: 7,
+    category: "Money & cash flow",
+    keywords: [
+      "how trucking factoring works",
+      "freight invoice factoring explained",
+      "invoice factoring for owner operators",
+      "trucking factoring fees",
+      "factoring documents for carriers",
+    ],
+    blocks: [
+      {
+        type: "p",
+        text: "Trucking factoring is a way for a carrier to sell an approved freight invoice to a factoring company and receive funds sooner than waiting for the broker or shipper's normal payment terms. The factor verifies the receivable, advances funds according to the agreed terms, and handles collection as set out in the contract.",
+      },
+      { type: "h2", text: "How the invoice-to-cash process works" },
+      {
+        type: "ul",
+        items: [
+          "Deliver the load and keep the signed proof of delivery and rate confirmation.",
+          "Submit the invoice and required load documents through the factor's approved process.",
+          "The factor reviews the paperwork and checks that the broker or shipper and invoice meet its approval rules.",
+          "If approved, the factor advances funds under the fee, timing and reserve terms in your agreement.",
+          "The factor invoices or collects from the customer; the exact workflow and any remaining balance are defined by your contract.",
+        ],
+      },
+      { type: "h2", text: "Factoring is a receivables transaction, not a bank loan" },
+      {
+        type: "p",
+        text: "In a factoring arrangement, the carrier sells or assigns eligible invoices rather than borrowing against a conventional term loan. That distinction does not make every factoring agreement identical: the recourse rules, approval process, fees, reserves, notice requirements and termination terms still matter. Read the written agreement and ask the provider to explain each charge before signing.",
+      },
+      { type: "h2", text: "What carriers should compare" },
+      {
+        type: "ul",
+        items: [
+          "The complete fee schedule, including how fees change with invoice age and whether any separate charges apply.",
+          "Recourse, non-recourse and chargeback terms — ask what specific events are covered and which remain the carrier's responsibility.",
+          "Minimum volume, contract length, termination notice and any early-exit fee.",
+          "Which brokers and shippers are approved, how credit checks work, and how disputes or deductions are handled.",
+          "Funding options, customer service access, online tools and how missing paperwork affects a payment.",
+        ],
+      },
+      { type: "h2", text: "Common documents a factor may request" },
+      {
+        type: "p",
+        text: "A carrier is commonly asked for operating authority details, a certificate of insurance, a completed W-9, a customer or broker list, and load documents such as the rate confirmation and proof of delivery. Requirements vary by provider and customer, so confirm the checklist before submitting an invoice.",
+      },
+      { type: "h2", text: "How QP Trucking Solutions approaches factoring" },
+      {
+        type: "p",
+        text: "QP Trucking Solutions offers recourse, non-recourse and Pure Non-Recourse™ factoring programs with fees disclosed before enrollment. QP also provides broker credit checks to clients and has no long-term contract requirement. The right option depends on your customers, volume and risk preferences; ask for the program terms in writing and compare them with your current cash-flow needs.",
+      },
+    ],
+    faqs: [
+      {
+        q: "How quickly does a carrier get paid after factoring an invoice?",
+        a: "Timing depends on the factor's approval process, the customer's credit and whether the load paperwork is complete. Ask the provider to state its funding cutoff times and what happens when a document needs correction.",
+      },
+      {
+        q: "Does a carrier need excellent personal credit to factor invoices?",
+        a: "Factoring providers commonly focus on the creditworthiness of the broker or shipper that owes the invoice, but each company has its own onboarding and approval requirements. Ask what information it evaluates before applying.",
+      },
+      {
+        q: "What is the difference between recourse and non-recourse factoring?",
+        a: "The contract defines when a carrier must repurchase or repay an invoice. Non-recourse protection is limited to the events and conditions specified in the agreement; it should not be assumed to cover every dispute, deduction or paperwork issue.",
+      },
+      {
+        q: "What documents should I have ready to apply?",
+        a: "A provider may request your authority information, certificate of insurance, W-9, customer list and sample load paperwork. Confirm the exact checklist with the provider you choose.",
+      },
+    ],
+  },
+  {
+    slug: "new-trucking-authority-checklist-cost",
+    title: "New Trucking Authority Checklist: The Steps and Costs to Plan For",
+    description:
+      "Starting a trucking company? Follow a practical sequence for business setup, operating authority, insurance and filings, and learn which service and government costs to verify.",
+    excerpt:
+      "A new authority launch involves more than one application. Use this step-by-step checklist to organize your business details, insurance, registrations and first-load paperwork without confusing service fees with government charges.",
+    date: "2026-09-23",
+    image: "/images/hero/new-authority.jpg",
+    author: "QP Trucking Solutions",
+    readingMinutes: 8,
+    category: "Compliance",
+    keywords: [
+      "new trucking authority checklist",
+      "how to start a trucking company",
+      "new authority trucking costs",
+      "FMCSA operating authority steps",
+      "new carrier permits and filings",
+    ],
+    blocks: [
+      {
+        type: "p",
+        text: "A new trucking authority launch is a sequence of business, FMCSA, insurance and state-filing tasks. The exact requirements depend on your operation, equipment and location, so use this checklist to plan the work and confirm current deadlines and fees with the relevant regulator or a qualified service provider.",
+      },
+      { type: "h2", text: "A practical order of operations" },
+      {
+        type: "ul",
+        items: [
+          "Set up the business information you will use consistently, including legal name, address, ownership details, tax ID and business banking.",
+          "Determine which USDOT registration and operating-authority filings apply to the type of transportation you plan to perform.",
+          "Arrange required insurance and verify that the policy information matches your legal business and authority records.",
+          "Handle the process-agent designation and applicable tax, registration and permit tasks, such as BOC-3, Form 2290, IRP, IFTA and UCR when required for your operation.",
+          "Prepare a compliance system for driver qualification, vehicle maintenance, drug-and-alcohol program requirements and records that apply to your business.",
+          "Before booking, confirm that the authority and insurance status are active and that your broker packet and load paperwork are ready.",
+        ],
+      },
+      { type: "h2", text: "Plan costs in separate buckets" },
+      {
+        type: "p",
+        text: "Build a launch budget that separates professional preparation or filing service fees from government charges, state registration fees, insurance premiums, equipment costs and working capital. A published service price is not necessarily the total cost of starting operations: some government and state charges are passed through separately, and insurance pricing depends on the operation and underwriting details.",
+      },
+      {
+        type: "p",
+        text: "QP publishes service pricing for authority setup and compliance filings in its catalog. Review the current prices at /store and ask which government or state fees are additional before authorizing work. Requirements and amounts can change, so confirm the current figures for your specific filing before paying.",
+      },
+      { type: "h2", text: "Information to gather before you begin" },
+      {
+        type: "ul",
+        items: [
+          "Legal business name, formation details, tax ID and responsible-party contact information.",
+          "USDOT or MC details if already issued, plus the business address and intended operation type.",
+          "Truck and trailer details, garaging location, commodities, operating radius and estimated mileage.",
+          "Driver roster and the documents your insurance or compliance provider asks you to supply.",
+          "A target start date and a list of the brokers or shippers you expect to work with.",
+        ],
+      },
+      { type: "h2", text: "Avoid delays with a consistency check" },
+      {
+        type: "p",
+        text: "Before submitting anything, compare the business name, address, USDOT information and insurance documents across the application packet. Mismatched or incomplete details can lead to corrections and extra waiting. Keep copies of submission confirmations and check official status sources rather than assuming that a submitted application is already active.",
+      },
+      {
+        type: "p",
+        text: "QP Trucking Solutions coordinates authority setup, insurance and compliance services from one team. A specialist can help identify the steps relevant to your situation, but final requirements and approval timing are determined by the applicable government agencies and insurance providers.",
+      },
+    ],
+    faqs: [
+      {
+        q: "What should I do first when starting a trucking company?",
+        a: "Start by confirming your business details and the type of operation you plan to run. Those details guide which USDOT, operating-authority, insurance and state filing steps apply.",
+      },
+      {
+        q: "How much does it cost to get new trucking authority?",
+        a: "There is no single total for every carrier. Separate service fees from government and state charges, insurance, equipment and working capital, then verify the current itemized amounts for your operation. QP's published service prices are listed at /store.",
+      },
+      {
+        q: "Can I start hauling as soon as I submit an authority application?",
+        a: "Do not treat submission as approval. Confirm that the authority and any required insurance filings show the status needed for your operation before accepting or hauling a load.",
+      },
+      {
+        q: "Does QP help with insurance and compliance as well as authority setup?",
+        a: "Yes. QP offers trucking insurance and a range of compliance services, including authority setup and related filings. The exact services needed depend on your operation and location.",
+      },
+    ],
+  },
+  {
+    slug: "trucking-insurance-quote-checklist",
+    title: "Trucking Insurance Quote Checklist: What to Prepare Before You Call",
+    description:
+      "Get a more complete trucking insurance quote by organizing your DOT details, equipment, drivers, cargo, operating radius and prior coverage before speaking with an agent.",
+    excerpt:
+      "A clear insurance submission starts with accurate business, vehicle, driver and operating details. This checklist helps owner-operators and fleets prepare for a more useful first conversation with a licensed agent.",
+    date: "2026-09-23",
+    image: "/images/hero/insurance.jpg",
+    author: "QP Trucking Solutions",
+    readingMinutes: 6,
+    category: "Compliance",
+    keywords: [
+      "trucking insurance quote checklist",
+      "commercial truck insurance information needed",
+      "owner operator insurance quote",
+      "truck insurance application documents",
+      "commercial auto insurance for trucking",
+    ],
+    blocks: [
+      {
+        type: "p",
+        text: "To request a trucking insurance quote, prepare accurate details about the business, vehicles, drivers, cargo and operating territory. A licensed agent can use that information to understand the exposure, identify questions for the underwriter and compare available options; a quote is not a bound policy until coverage is accepted and confirmed.",
+      },
+      { type: "h2", text: "Business and authority details" },
+      {
+        type: "ul",
+        items: [
+          "Legal business name, business address, contact person, USDOT number and MC number if applicable.",
+          "Business start date, ownership structure and a short description of the operation.",
+          "Whether the operation is new authority, an established carrier or a renewal, and the requested effective date.",
+          "The states or regions where the vehicles are garaged and regularly operated.",
+        ],
+      },
+      { type: "h2", text: "Vehicles, drivers and the work you haul" },
+      {
+        type: "ul",
+        items: [
+          "For each power unit and trailer: year, make, model, VIN, stated value and any permanently attached equipment.",
+          "For each driver: experience, license state and class, hire date, and any information the agent needs to request records with proper authorization.",
+          "Commodities hauled, typical shipment value, hazmat status where applicable and the operating radius.",
+          "Estimated annual mileage, number of power units and whether you hire, lease or interchange equipment.",
+        ],
+      },
+      { type: "h2", text: "Current or prior coverage" },
+      {
+        type: "p",
+        text: "If you have existing insurance, gather the declarations page, policy expiration date, coverage limits, deductibles and any information about prior cancellations or losses that the agent requests. Share accurate history; missing or inconsistent information can lead to a revised quote or delay during underwriting.",
+      },
+      { type: "h2", text: "Compare more than the premium" },
+      {
+        type: "ul",
+        items: [
+          "Confirm the coverage types, limits, deductibles and exclusions that apply to your operation.",
+          "Ask which drivers, vehicles, commodities and territories are included or restricted.",
+          "Check how filings and certificates will be handled and when they will be effective.",
+          "Review the down payment, installment schedule and any fees with the agent before binding.",
+          "Ask what documents are still outstanding and how a material business change should be reported.",
+        ],
+      },
+      {
+        type: "p",
+        text: "QP Trucking Insurance offers quote support for owner-operators and fleets and can coordinate coverage questions with authority and compliance work. Use the online insurance intake to begin, and provide sensitive identity or driver information only through the authorized process explained by the licensed agent.",
+      },
+    ],
+    faqs: [
+      {
+        q: "What information is needed for a trucking insurance quote?",
+        a: "An agent commonly needs business and DOT details, vehicle and driver information, cargo, operating radius, mileage and prior coverage or loss history. The exact checklist varies by operation and insurer.",
+      },
+      {
+        q: "Does requesting an insurance quote mean my policy is active?",
+        a: "No. A quote is an offer to consider coverage. A policy is not bound until the application is accepted, required payment and documents are handled, and the agent confirms the effective coverage.",
+      },
+      {
+        q: "Should I choose a policy based only on the lowest premium?",
+        a: "No. Compare limits, deductibles, exclusions, covered drivers and vehicles, territory, filing support and payment terms as well as the premium. Ask the agent to explain any difference you do not understand.",
+      },
+      {
+        q: "Can I use FMCSA lookup to pre-fill an insurance intake?",
+        a: "The QP insurance intake can look up some carrier details using a DOT number when the FMCSA connection is configured. Verify the returned details and complete any missing or outdated information before submitting.",
+      },
+    ],
+  },
   {
     slug: "top-5-trucking-scams-and-how-to-avoid-them",
     title: "Top 5 Trucking Scams and How to Avoid Them",

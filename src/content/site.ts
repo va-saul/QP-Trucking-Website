@@ -137,6 +137,10 @@ export const navigation: NavItem[] = [
     ],
   },
   {
+    label: "Pricing",
+    href: "/store",
+  },
+  {
     label: "Programs",
     href: "/programs/ambassador",
     children: [
@@ -163,12 +167,22 @@ export const navigation: NavItem[] = [
     ],
   },
   {
+    label: "Resources",
+    href: "/insights",
+    children: [
+      { label: "FAQs", href: "/faq", blurb: "Straight answers on factoring, insurance, compliance & pricing" },
+      { label: "Blog & insights — 10 guides", href: "/insights", blurb: "Practical carrier guides, industry explainers and reference articles" },
+      { label: "How trucking factoring works", href: "/insights/how-trucking-factoring-works", blurb: "Invoice-to-cash steps, costs and questions to ask" },
+      { label: "New authority checklist & costs", href: "/insights/new-trucking-authority-checklist-cost", blurb: "A practical sequence for a new carrier launch" },
+      { label: "Insurance quote checklist", href: "/insights/trucking-insurance-quote-checklist", blurb: "What to gather before speaking with a licensed agent" },
+      { label: "Trucking terminology glossary", href: "/insights/get-to-know-your-trucking-terms", blurb: "Plain-English freight and compliance terms" },
+    ],
+  },
+  {
     label: "Company",
     href: "/about",
     children: [
       { label: "About QP", href: "/about", blurb: "Who we are and why carriers stay" },
-      { label: "Insights", href: "/insights", blurb: "Trucking money & compliance briefings" },
-      { label: "FAQ", href: "/faq", blurb: "Straight answers to real questions" },
       { label: "Contact", href: "/contact", blurb: "Louisville, KY · Mon–Fri 8AM–8PM EST" },
     ],
   },

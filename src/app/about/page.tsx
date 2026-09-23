@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PageHero } from "@/components/hero/PageHero";
 import {
@@ -19,12 +20,13 @@ import { org, testimonials } from "@/content/site";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "About QP Trucking Solutions — Louisville, KY Factoring & Insurance",
+  title: "About QP Trucking Solutions — Brandon Bennett, CEO",
   description:
-    "QP Capital LLC (QP Trucking Solutions) is a family-owned factoring company, licensed insurance agency and compliance partner for new authority trucking companies and fleets nationwide. Meet the team behind 1,000+ carriers.",
+    "Meet Brandon Bennett, CEO of QP Capital LLC, the family-owned company behind QP Trucking Solutions. Learn how the Louisville team supports carriers with factoring, insurance and FMCSA compliance.",
   path: "/about",
   keywords: [
     "about QP Trucking Solutions",
+    "Brandon Bennett QP Capital CEO",
     "QP Capital LLC",
     "trucking factoring company Louisville KY",
     "trucking insurance agency Kentucky",
@@ -79,6 +81,16 @@ export default function AboutPage() {
             name: "About QP Trucking Solutions",
             url: "https://qpfactoring.com/about",
             about: { "@id": "https://qpfactoring.com/#organization" },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "@id": `${org.url}/about#brandon-bennett`,
+            name: "Brandon Bennett",
+            jobTitle: "Chief Executive Officer",
+            worksFor: { "@id": `${org.url}/#organization` },
+            image: `${org.url}/images/team/brandon-bennett.webp`,
+            url: `${org.url}/about#brandon-bennett`,
           },
         ]}
       />
@@ -187,6 +199,47 @@ export default function AboutPage() {
                   </div>
                 </div>
               </Reveal>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section tone="bone" id="brandon-bennett">
+        <Container>
+          <div className="grid overflow-hidden rounded-[1.35rem] border border-steel-200 bg-paper shadow-[var(--shadow-card)] md:grid-cols-[0.8fr_1.2fr]">
+            <div className="relative mx-auto aspect-[5/6] w-full max-w-[430px] overflow-hidden bg-navy-950 md:max-w-none">
+              <Image
+                src="/images/team/brandon-bennett.webp"
+                alt="Brandon Bennett, Chief Executive Officer of QP Capital LLC"
+                width={900}
+                height={1080}
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex flex-col justify-center p-6 sm:p-9 lg:p-12">
+              <p className="eyebrow text-brand-500">Leadership · QP Capital LLC</p>
+              <h2 className="mt-3 font-display text-display-md text-navy-900">Brandon Bennett</h2>
+              <p className="mt-2 font-mono text-[0.72rem] uppercase tracking-[0.15em] text-steel-500">
+                Chief Executive Officer
+              </p>
+              <p className="mt-5 text-[1.02rem] leading-relaxed text-steel-700">
+                Brandon Bennett is the Chief Executive Officer of QP Capital LLC, the family-owned company behind QP
+                Trucking Solutions. Based in Louisville, Kentucky, he leads a team focused on helping owner-operators
+                and fleets manage the business side of trucking.
+              </p>
+              <p className="mt-4 text-[1.02rem] leading-relaxed text-steel-700">
+                QP brings invoice factoring, trucking insurance and FMCSA compliance support together under one roof —
+                helping carriers get started, keep paperwork moving and build a more predictable operation.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Btn href="/get-started" variant="primary" withArrow>
+                  Talk to the QP team
+                </Btn>
+                <Btn href="/contact" variant="outlineDark">
+                  Contact QP
+                </Btn>
+              </div>
             </div>
           </div>
         </Container>

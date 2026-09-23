@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PageHero } from "@/components/hero/PageHero";
+import { FaqAccordion } from "@/components/FaqAccordion";
 import { Btn, Container, CtaBand, Section, SectionHead } from "@/components/ui";
 import { Reveal } from "@/components/motion";
-import { JsonLd, articleSchema, breadcrumbSchema } from "@/lib/schema";
+import { JsonLd, articleSchema, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { insights, insightsBySlug } from "@/content/insights";
 import { org } from "@/content/site";
@@ -54,6 +55,7 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             { label: "Insights", href: "/insights" },
             { label: post.title, href: `/insights/${post.slug}` },
           ]),
+          ...(post.faqs?.length ? [faqSchema(post.faqs)] : []),
         ]}
       />
 
@@ -183,6 +185,21 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
           </div>
         </Container>
       </Section>
+
+      {post.faqs?.length ? (
+        <Section tone="steel" id="article-faqs">
+          <Container>
+            <div className="grid gap-8 lg:grid-cols-[0.85fr_1.4fr] lg:gap-12">
+              <SectionHead
+                eyebrow="Article FAQs"
+                title={`Questions about ${post.title.toLowerCase()}`}
+                intro="Quick, direct answers to common follow-up questions. Confirm current requirements and your written agreement for your specific operation."
+              />
+              <FaqAccordion faqs={post.faqs} defaultOpen={null} />
+            </div>
+          </Container>
+        </Section>
+      ) : null}
 
       <Section tone="steel">
         <Container>

@@ -73,7 +73,7 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 /contact                             Contact, NAP, map, routing
 /get-started                         Consultation form + application path
 /insights                            Editorial hub
-/insights/[slug]                     7 articles (incl. the 80-term glossary)
+/insights/[slug]                     10 articles (incl. the 80-term glossary)
 /privacy-policy                      Privacy notice
 /sitemap.xml · /robots.txt · /manifest.webmanifest · /icon.svg
 /api/lead                            Lead intake, email routing and optional CRM webhook

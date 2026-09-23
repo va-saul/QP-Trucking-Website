@@ -169,7 +169,7 @@ export function Header() {
                   data-header-item
                   data-nav-link
                   href={item.href}
-                  className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-2 text-[0.85rem] font-semibold transition-colors xl:text-[0.88rem] ${
+                  className={`relative z-10 flex items-center gap-1 whitespace-nowrap rounded-full px-1.5 py-2 text-[0.78rem] font-semibold transition-colors xl:px-2 xl:text-[0.82rem] ${
                     solid ? "text-navy-800 hover:text-brand-500" : "text-white/90 hover:text-white"
                   }`}
                   aria-expanded={item.children ? hovered === item.label : undefined}

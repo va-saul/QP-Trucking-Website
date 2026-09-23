@@ -8,9 +8,9 @@ import { insights, glossaryTerms } from "@/content/insights";
 import { org } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Trucking Insights — Freight Fraud, Insurance Costs & Industry Data",
+  title: "Trucking Insights & Guides — Factoring, Insurance & Compliance",
   description:
-    "Plain-English briefings for carriers: freight fraud prevention, why insurance premiums move, bottleneck data, freight sentiment and a full trucking terminology glossary.",
+    "Ten practical trucking guides covering invoice factoring, new authority setup, insurance quotes, compliance, freight fraud and industry terms, with direct FAQs on key how-to topics.",
   path: "/insights",
   keywords: [
     "trucking industry news",
@@ -18,6 +18,9 @@ export const metadata = buildMetadata({
     "trucking insurance costs",
     "trucking terminology glossary",
     "freight market data",
+    "how trucking factoring works",
+    "new trucking authority checklist",
+    "trucking insurance quote checklist",
   ],
   image: "/images/hero/insights.jpg",
 });
@@ -51,7 +54,7 @@ export default function InsightsPage() {
       <PageHero
         eyebrow="Insights"
         title="Trucking money & compliance briefings"
-        tagline="The material we hand new clients: how fraud works, why premiums move, what the data says about freight, and the working vocabulary of the industry."
+        tagline="Ten practical guides for carriers, covering invoice factoring, new authority, insurance quotes, freight fraud, compliance and the working vocabulary of the industry."
         image="/images/hero/factoring.jpg"
         imageAlt="QP Trucking Solutions insights and industry briefings for carriers"
         variant="tech"
@@ -128,6 +131,33 @@ export default function InsightsPage() {
                 </Reveal>
               ))}
             </div>
+          </div>
+        </Container>
+      </Section>
+
+      <Section tone="paper" id="articles">
+        <Container>
+          <SectionHead
+            eyebrow="Browse the library"
+            title="More carrier guides and explainers"
+            intro="Ten focused articles cover cash flow, insurance, authority, compliance and the wider freight industry. The new how-to guides include visible FAQs and structured answer data."
+          />
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {insights.slice(5).map((post, i) => (
+              <Reveal key={post.slug} delay={(i % 3) * 0.05}>
+                <Link
+                  href={`/insights/${post.slug}`}
+                  className="card-hover group flex h-full flex-col rounded-[1.1rem] border border-steel-200 bg-white p-6"
+                >
+                  <span className="eyebrow text-brand-500">{post.category} · {post.readingMinutes} min read</span>
+                  <h3 className="mt-3 font-display text-[1.08rem] font-bold leading-snug text-navy-900 group-hover:text-brand-500">
+                    {post.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-3 text-[0.9rem] leading-relaxed text-steel-600">{post.excerpt}</p>
+                  <span className="mt-5 text-[0.82rem] font-bold text-brand-500 group-hover:underline">Read the guide →</span>
+                </Link>
+              </Reveal>
+            ))}
           </div>
         </Container>
       </Section>

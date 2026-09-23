@@ -9,7 +9,7 @@ import "./globals.css";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { StickyMobileCta } from "@/components/layout/StickyMobileCta";
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { RouteProgress } from "@/components/motion";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
 import { SITE_URL, org } from "@/content/site";
@@ -89,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main id="main">{children}</main>
         <Footer />
-        <StickyMobileCta />
+        <MobileBottomNav />
         {/* CRM owns the chat conversation and consent flow. */}
         {createElement("chat-widget", {
           "location-id": "yvQJy3oBoDmK005drBmX",

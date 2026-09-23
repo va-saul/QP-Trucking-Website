@@ -84,20 +84,22 @@ export function Logo({
       <span data-brand-logo className={`relative block shrink-0 origin-left ${box}`}>
         <Image src={LOGO_SRC} alt="" priority={priority} fill sizes="58px" className="object-contain" />
       </span>
+      {/* wordmark lockup — "QP" in large bold slab display type on the top
+          line, "Trucking Solutions" directly below it on the second line */}
       <span className="flex flex-col leading-none">
         <span
-          className={`font-display text-[1.02rem] font-extrabold tracking-tight sm:text-[1.12rem] ${
+          className={`font-display text-[1.5rem] font-extrabold leading-none tracking-tight sm:text-[1.72rem] ${
             isWhite ? "text-white" : "text-navy-900"
           }`}
         >
-          QP Trucking
+          QP
         </span>
         <span
-          className={`mt-1 font-display text-[0.72rem] font-semibold tracking-[0.06em] sm:text-[0.78rem] ${
+          className={`mt-1.5 font-display text-[0.7rem] font-bold leading-none tracking-[0.03em] sm:text-[0.74rem] ${
             isWhite ? "text-brand-300" : "text-brand-500"
           }`}
         >
-          Solutions
+          Trucking Solutions
         </span>
       </span>
     </Link>

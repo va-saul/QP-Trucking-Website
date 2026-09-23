@@ -10,7 +10,9 @@ import type { Service } from "@/lib/types";
 /*  LAYOUT                                                            */
 /* ------------------------------------------------------------------ */
 export function Container({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto w-full max-w-[1180px] px-5 sm:px-7 lg:px-8 ${className ?? ""}`}>{children}</div>;
+  /* Full-width Bootstrap XXL container standard — uses widescreen real
+     estate without leaving large blank margins on either side. */
+  return <div className={`mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-10 ${className ?? ""}`}>{children}</div>;
 }
 
 export function Section({

@@ -182,6 +182,7 @@ export const navigation: NavItem[] = [
     href: "/about",
     children: [
       { label: "About QP", href: "/about", blurb: "Who we are and why carriers stay" },
+      { label: "Awards & Recognition", href: "/awards", blurb: "Top Trucking Factoring Solution 2026" },
       { label: "Insights", href: "/insights", blurb: "Trucking money & compliance briefings" },
       { label: "FAQ", href: "/faq", blurb: "Straight answers to real questions" },
       { label: "Contact", href: "/contact", blurb: "Louisville, KY · Mon–Fri 8AM–8PM EST" },

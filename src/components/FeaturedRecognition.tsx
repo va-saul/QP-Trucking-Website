@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { Container, TrustBadges } from "@/components/ui";
 
 const links = [
@@ -12,26 +14,89 @@ export function FeaturedRecognition({ compact = false }: { compact?: boolean }) 
   return (
     <section aria-labelledby="featured-recognition" className={compact ? "bg-navy-950 py-10 text-white" : "bg-gold-50 py-16"}>
       <Container>
-        <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr] lg:items-center">
+        <div className="grid gap-8 lg:grid-cols-[auto_1fr_1.25fr] lg:items-center">
+          {/* Award logo (exact JPG rendered from the Transportation Review PDF) */}
+          <Link
+            href="/awards"
+            className={`group mx-auto block w-full max-w-[220px] rounded-2xl border p-3 transition-all hover:-translate-y-1 ${
+              compact ? "border-gold-400/30 bg-white/5" : "border-gold-200 bg-white shadow-sm hover:border-brand-500"
+            }`}
+            aria-label="View the Top Trucking Factoring Solution 2026 award page"
+          >
+            <Image
+              src="/images/awards/award-logo.jpg"
+              alt="Top Trucking Factoring Solution 2026 — QP Trucking Solutions, awarded by Transportation Review"
+              width={750}
+              height={750}
+              className="h-auto w-full"
+            />
+          </Link>
+
           <div>
             <p className="eyebrow text-brand-500">Industry recognition</p>
             <h2 id="featured-recognition" className="mt-3 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-tight text-navy-900">
               QP Trucking Solutions is featured by Transportation Review
             </h2>
             <p className={compact ? "mt-4 leading-relaxed text-white/75" : "mt-4 leading-relaxed text-steel-700"}>
-              Explore our featured profile and learn why carriers choose QP for trucking factoring, freight receivables financing, and transportation business solutions.
+              Named a <strong className={compact ? "text-gold-400" : "text-brand-600"}>Top Trucking Factoring Solution for 2026</strong> by
+              Transportation Review&apos;s Editorial Board. Explore our featured profile and official certificate.
             </p>
-            <div className="mt-6">
-              <TrustBadges items={["Featured company", "Top transportation factoring service", "Trucking factoring solutions"]} tone={compact ? "dark" : "light"} />
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                href="/awards"
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[0.88rem] font-bold transition-colors ${
+                  compact
+                    ? "bg-gold-400 text-navy-950 hover:bg-gold-300"
+                    : "bg-brand-500 text-white hover:bg-brand-600"
+                }`}
+              >
+                View award &amp; certificate
+                <span aria-hidden="true">→</span>
+              </Link>
+              <a
+                href="https://www.transportationreview.com/qp-trucking-solutions-2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1 text-[0.88rem] font-semibold underline-offset-4 hover:underline ${
+                  compact ? "text-white/80 hover:text-white" : "text-navy-800"
+                }`}
+              >
+                Featured profile ↗
+              </a>
+            </div>
+            <div className="mt-5">
+              <TrustBadges
+                items={[
+                  "Top Trucking Factoring Solution 2026",
+                  "Featured company",
+                  "Editorial board recognition",
+                ]}
+                tone={compact ? "dark" : "light"}
+              />
             </div>
           </div>
+
           <nav aria-label="QP Trucking Solutions featured coverage">
             <ul className="grid gap-3">
               {links.map(([label, href]) => (
                 <li key={href}>
-                  <a href={href} target="_blank" rel="noopener noreferrer" className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-colors ${compact ? "border-white/15 bg-white/5 hover:bg-white/10" : "border-gold-200 bg-white hover:border-brand-500"}`}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`group flex items-center justify-between rounded-xl border px-5 py-4 transition-colors ${
+                      compact
+                        ? "border-white/15 bg-white/5 hover:bg-white/10"
+                        : "border-gold-200 bg-white hover:border-brand-500"
+                    }`}
+                  >
                     <span className={`font-semibold ${compact ? "text-white" : "text-navy-900"}`}>{label}</span>
-                    <span aria-hidden="true" className="ml-4 text-brand-500 transition-transform group-hover:translate-x-1">↗</span>
+                    <span
+                      aria-hidden="true"
+                      className="ml-4 text-brand-500 transition-transform group-hover:translate-x-1"
+                    >
+                      ↗
+                    </span>
                   </a>
                 </li>
               ))}

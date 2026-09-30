@@ -18,6 +18,7 @@ const columns = [
     title: "Company",
     links: [
       { label: "About QP", href: "/about" },
+      { label: "Awards & Recognition", href: "/awards" },
       { label: "Ambassador Program", href: "/programs/ambassador" },
       { label: "Circle Network", href: "/programs/circle-network" },
       { label: "QP Fuel Card", href: "/programs/fuel-card" },

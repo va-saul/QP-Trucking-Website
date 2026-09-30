@@ -1,4 +1,5 @@
 import { Container, TrustBadges } from "@/components/ui";
+import { Reveal } from "@/components/motion";
 
 const links = [
   ["Featured profile: QP Trucking Solutions", "https://www.transportationreview.com/qp-trucking-solutions-2026"],
@@ -14,10 +15,12 @@ export function FeaturedRecognition({ compact = false }: { compact?: boolean }) 
       <Container>
         <div className="grid gap-8 lg:grid-cols-[1fr_1.35fr] lg:items-center">
           <div>
-            <p className="eyebrow text-brand-500">Industry recognition</p>
-            <h2 id="featured-recognition" className="mt-3 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-tight text-navy-900">
-              QP Trucking Solutions is featured by Transportation Review
-            </h2>
+            <p className={`eyebrow ${compact ? "text-gold-400" : "text-brand-500"}`}>Industry recognition</p>
+            <Reveal>
+              <h2 id="featured-recognition" className={`mt-3 font-display text-[clamp(1.8rem,3vw,2.6rem)] font-bold leading-tight ${compact ? "featured-headline-glow text-white" : "text-navy-900"}`}>
+                QP Trucking Solutions is featured by Transportation Review
+              </h2>
+            </Reveal>
             <p className={compact ? "mt-4 leading-relaxed text-white/75" : "mt-4 leading-relaxed text-steel-700"}>
               Explore our featured profile and learn why carriers choose QP for trucking factoring, freight receivables financing, and transportation business solutions.
             </p>

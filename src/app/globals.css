@@ -859,3 +859,14 @@
     bottom: 88px !important;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  FEATURED RECOGNITION — subtle headline glow (dark navy variant)    */
+/*  Applied to the footer `compact` section only, where the headline   */
+/*  is white on bg-navy-950; the light gold-50 variant is untouched.   */
+/* ------------------------------------------------------------------ */
+.featured-headline-glow {
+  text-shadow:
+    0 0 22px rgba(242, 180, 65, 0.28),
+    0 0 60px rgba(242, 180, 65, 0.12);
+}

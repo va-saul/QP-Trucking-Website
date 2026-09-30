@@ -3,6 +3,7 @@ import { QPMark, BrandLockup } from "@/components/brand";
 import { Container } from "@/components/ui";
 import { org, trust } from "@/content/site";
 import { complianceServices, factoringServices, servicePath } from "@/content/services";
+import { FeaturedRecognition } from "@/components/FeaturedRecognition";
 
 const columns = [
   {
@@ -36,7 +37,9 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden bg-navy-950 text-white">
+    <>
+      <FeaturedRecognition compact />
+      <footer className="relative overflow-hidden bg-navy-950 text-white">
       <span aria-hidden="true" className="stripe-band pointer-events-none absolute inset-0 opacity-25" />
       <span
         aria-hidden="true"
@@ -129,6 +132,7 @@ export function Footer() {
           </div>
         </div>
       </Container>
-    </footer>
+      </footer>
+    </>
   );
 }

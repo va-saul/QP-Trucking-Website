@@ -23,6 +23,7 @@ import { buildMetadata } from "@/lib/seo";
 import { homeFaqs, org, processSteps, testimonials, trust } from "@/content/site";
 import { complianceServices, factoringServices, insuranceServices, servicePath } from "@/content/services";
 import { insights } from "@/content/insights";
+import { FeaturedRecognition } from "@/components/FeaturedRecognition";
 
 export const metadata = buildMetadata({
   title: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance",
@@ -556,6 +557,8 @@ export default function HomePage() {
           </div>
         </Container>
       </Section>
+
+      <FeaturedRecognition />
 
       <CtaBand
         eyebrow="Free consultation"

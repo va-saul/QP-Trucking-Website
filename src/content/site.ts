@@ -2,6 +2,15 @@ import type { Faq } from "@/lib/types";
 
 export const SITE_URL = "https://qpfactoring.com";
 
+/** Ahrefs Web Analytics project key (Ahrefs → Project Settings → Web Analytics). */
+export const AHREFS_KEY = process.env.NEXT_PUBLIC_AHREFS_KEY || "b03/07XFm/RsSZuo5DEMzA";
+
+/**
+ * Google Search Console "HTML tag" verification token — only the content="..." value.
+ * Set NEXT_PUBLIC_GSC_VERIFICATION in Vercel; the meta tag is omitted until it is set.
+ */
+export const GSC_VERIFICATION = process.env.NEXT_PUBLIC_GSC_VERIFICATION || "";
+
 export const org = {
   legalName: "QP Capital LLC",
   name: "QP Trucking Solutions",

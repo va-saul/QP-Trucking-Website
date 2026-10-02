@@ -40,6 +40,7 @@ const sections = [
     h: "4. Do we use cookies and other tracking technologies?",
     body: [
       "We may use cookies and similar technologies to maintain sessions, remember preferences and understand how visitors use our site. You can set your browser to refuse cookies, although some parts of the site may not function properly as a result.",
+      "We use Ahrefs Web Analytics to understand aggregate traffic to this site, such as pages viewed, referring sites, device type and approximate country. We also use Google Search Console to monitor how our pages appear in Google Search; it does not place tracking scripts on your browser.",
     ],
   },
   {

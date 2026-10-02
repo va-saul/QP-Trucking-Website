@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Btn, Container } from "@/components/ui";
 import { QPMark } from "@/components/brand";
 import { org } from "@/content/site";
+
+export const metadata: Metadata = {
+  title: { absolute: "Page not found | QP Trucking Solutions" },
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

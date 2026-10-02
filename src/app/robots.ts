@@ -28,10 +28,11 @@ const aiAgents = [
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: "*", allow: "/", disallow: ["/api/", "/_next/"] },
-      ...aiAgents.map((ua) => ({ userAgent: ua, allow: "/" })),
+      // /_next/ must stay crawlable: Google needs its JS/CSS to render pages (blocking it triggers
+      // "resources blocked" issues in Search Console). Only the API routes are off-limits.
+      { userAgent: "*", allow: "/", disallow: ["/api/"] },
+      ...aiAgents.map((ua) => ({ userAgent: ua, allow: "/", disallow: ["/api/"] })),
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
   };
 }

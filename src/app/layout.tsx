@@ -12,7 +12,7 @@ import { Footer } from "@/components/layout/Footer";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { RouteProgress } from "@/components/motion";
 import { JsonLd, organizationSchema, websiteSchema } from "@/lib/schema";
-import { SITE_URL, org } from "@/content/site";
+import { AHREFS_KEY, GSC_VERIFICATION, SITE_URL, org } from "@/content/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -52,6 +52,7 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   },
+  ...(GSC_VERIFICATION ? { verification: { google: GSC_VERIFICATION } } : {}),
   formatDetection: { telephone: true, address: true, email: true },
 };
 
@@ -77,6 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`document.documentElement.classList.add('js-anim');`}
         </Script>
         <link rel="preconnect" href="https://deciphercredit.net" />
+        {/* Ahrefs Web Analytics — plain async tag so it is present in the server-rendered HTML. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key={AHREFS_KEY} async />
       </head>
       <body className="min-h-screen bg-paper antialiased">
         <a

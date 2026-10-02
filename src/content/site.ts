@@ -1,6 +1,12 @@
 import type { Faq } from "@/lib/types";
 
-export const SITE_URL = "https://qpfactoring.com";
+/**
+ * Canonical production origin. Must match the domain the site is actually served on
+ * (and audited/verified under in Ahrefs + Search Console), otherwise every canonical,
+ * sitemap and structured-data URL points at a different host. Override in Vercel with
+ * NEXT_PUBLIC_SITE_URL if the primary domain ever changes.
+ */
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.qptrucking.com").replace(/\/+$/, "");
 
 /** Ahrefs Web Analytics project key (Ahrefs → Project Settings → Web Analytics). */
 export const AHREFS_KEY = process.env.NEXT_PUBLIC_AHREFS_KEY || "b03/07XFm/RsSZuo5DEMzA";

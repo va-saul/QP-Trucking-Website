@@ -4,7 +4,7 @@ import { LeadForm } from "@/components/LeadForm";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
-import { org } from "@/content/site";
+import { org, SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
   title: "Contact QP Trucking Solutions — Louisville, KY · 833-762-3464",
@@ -60,10 +60,10 @@ export default function ContactPage() {
             "@context": "https://schema.org",
             "@type": "ContactPage",
             name: "Contact QP Trucking Solutions",
-            url: "https://qpfactoring.com/contact",
+            url: `${SITE_URL}/contact`,
             mainEntity: {
               "@type": "Organization",
-              "@id": "https://qpfactoring.com/#organization",
+              "@id": `${SITE_URL}/#organization`,
               name: org.name,
               telephone: org.officePhone,
               email: org.email,
@@ -190,7 +190,7 @@ export default function ContactPage() {
               { t: "I want a factoring quote", h: "/factoring", c: "Compare programs" },
               { t: "I need a new MC number", h: "/services/new-authority", c: "Authority setup" },
               { t: "I need insurance now", h: "/insurance", c: "Get a quote" },
-              { t: "I have a billing question", h: `/tel:${org.officePhone}`, c: `Call ${org.officePhoneDisplay}` },
+              { t: "I have a billing question", h: `tel:${org.officePhone}`, c: `Call ${org.officePhoneDisplay}` },
             ].map((r, i) => (
               <Reveal key={r.t} delay={i * 0.06}>
                 <div className="flex h-full flex-col justify-between rounded-[1.1rem] border border-steel-200 bg-paper p-5">

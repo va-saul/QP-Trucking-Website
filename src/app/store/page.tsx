@@ -8,6 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 import { services, servicePath, complianceServices, factoringServices } from "@/content/services";
 import { ambassadorProgram, circleNetworkProgram, fuelCardProgram, equipmentFinanceProgram } from "@/content/programs";
 import type { Faq } from "@/lib/types";
+import { SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
   title: "Services & Pricing Catalog — Trucking Compliance, Factoring & Insurance",
@@ -162,7 +163,7 @@ export default function StorePage() {
               "@type": "ListItem",
               position: i + 1,
               name: s.name,
-              url: `https://qpfactoring.com${servicePath(s)}`,
+              url: `${SITE_URL}${servicePath(s)}`,
             })),
           },
         ]}

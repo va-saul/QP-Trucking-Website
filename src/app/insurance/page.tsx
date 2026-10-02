@@ -16,7 +16,7 @@ import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { servicesBySlug, servicePath } from "@/content/services";
-import { org } from "@/content/site";
+import { org, SITE_URL } from "@/content/site";
 import type { Faq } from "@/lib/types";
 
 const service = servicesBySlug["insurance"];
@@ -92,8 +92,8 @@ export default function InsurancePage() {
             "@context": "https://schema.org",
             "@type": "InsuranceAgency",
             name: "QP Trucking Insurance",
-            parentOrganization: { "@id": "https://qpfactoring.com/#organization" },
-            url: "https://qpfactoring.com/insurance",
+            parentOrganization: { "@id": `${SITE_URL}/#organization` },
+            url: `${SITE_URL}/insurance`,
             telephone: org.salesPhone,
             areaServed: "United States",
           },

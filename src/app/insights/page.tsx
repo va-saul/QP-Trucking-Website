@@ -5,7 +5,7 @@ import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { insights, glossaryTerms } from "@/content/insights";
-import { org } from "@/content/site";
+import { org, SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
   title: "Trucking Insights — Freight Fraud, Insurance Costs & Industry Data",
@@ -35,12 +35,12 @@ export default function InsightsPage() {
             "@context": "https://schema.org",
             "@type": "Blog",
             name: "QP Trucking Solutions Insights",
-            url: "https://qpfactoring.com/insights",
-            publisher: { "@id": "https://qpfactoring.com/#organization" },
+            url: `${SITE_URL}/insights`,
+            publisher: { "@id": `${SITE_URL}/#organization` },
             blogPost: insights.map((p) => ({
               "@type": "BlogPosting",
               headline: p.title,
-              url: `https://qpfactoring.com/insights/${p.slug}`,
+              url: `${SITE_URL}/insights/${p.slug}`,
               datePublished: p.date,
               description: p.description,
             })),

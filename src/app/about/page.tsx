@@ -16,7 +16,7 @@ import { FaqAccordion } from "@/components/FaqAccordion";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
-import { org, testimonials } from "@/content/site";
+import { org, testimonials, SITE_URL } from "@/content/site";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
@@ -78,8 +78,8 @@ export default function AboutPage() {
             "@context": "https://schema.org",
             "@type": "AboutPage",
             name: "About QP Trucking Solutions",
-            url: "https://qpfactoring.com/about",
-            about: { "@id": "https://qpfactoring.com/#organization" },
+            url: `${SITE_URL}/about`,
+            about: { "@id": `${SITE_URL}/#organization` },
           },
         ]}
       />

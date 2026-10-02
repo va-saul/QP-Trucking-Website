@@ -5,8 +5,8 @@ import { LeadForm } from "@/components/LeadForm";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
-import { org } from "@/content/site";
-import { servicesBySlug } from "@/content/services";
+import { org, SITE_URL } from "@/content/site";
+import { servicesBySlug, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
@@ -63,7 +63,7 @@ export default function GetStartedPage() {
             name: "Get started with QP Trucking Solutions",
             description:
               "Request a free consultation, apply for factoring, or get trucking insurance and compliance help from QP Trucking Solutions.",
-            url: "https://qpfactoring.com/get-started",
+            url: `${SITE_URL}/get-started`,
           },
         ]}
       />
@@ -176,7 +176,7 @@ export default function GetStartedPage() {
                     <h3 className="mt-3 font-display text-[1.05rem] font-bold text-navy-900">{s.short}</h3>
                     <p className="mt-2 flex-1 text-[0.88rem] leading-relaxed text-steel-600">{s.tagline}</p>
                     <Btn
-                      href={s.slug === "insurance" ? "/insurance" : `/factoring/${s.slug}`}
+                      href={servicePath(s)}
                       variant="outlineDark"
                       size="sm"
                       className="mt-4"

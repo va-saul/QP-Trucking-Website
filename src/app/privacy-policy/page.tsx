@@ -5,9 +5,9 @@ import { buildMetadata } from "@/lib/seo";
 import { org } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Privacy Policy",
+  title: "Privacy Policy | QP Trucking Solutions",
   description:
-    "How QP Capital LLC (QP Trucking Solutions) collects, uses, shares and protects personal information submitted through qptrucking.com, including SMS, payment and credit data, and how to exercise your privacy rights.",
+    "How QP Capital LLC (QP Trucking Solutions) collects, uses and protects personal information on qptrucking.com, and how to exercise your privacy rights.",
   path: "/privacy-policy",
   image: "/images/hero/compliance.jpg",
 });
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
       />
       <PageHero
         eyebrow="Legal"
-        title="Privacy Policy"
+        title="Privacy Policy | QP Trucking Solutions"
         tagline="This privacy notice for QP Capital LLC describes how and why we might collect, store, use and share your information when you use our services, including when you visit qptrucking.com."
         image="/images/hero/compliance.jpg"
         imageAlt="QP Trucking Solutions privacy policy"

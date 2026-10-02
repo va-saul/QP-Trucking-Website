@@ -7,9 +7,9 @@ import { buildMetadata } from "@/lib/seo";
 import { org, SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Contact QP Trucking Solutions — Louisville, KY · 833-762-3464",
+  title: "Contact QP Trucking Solutions | Louisville, KY",
   description:
-    "Contact QP Trucking Solutions at 4612 Outer Loop Rd, Louisville KY 40219. Sales 833-762-3464, office and accounting 502-398-6333, email info@qpfactoring.com. Open Mon–Fri 8AM–8PM EST.",
+    "Contact QP Trucking Solutions: 4612 Outer Loop Rd, Louisville KY. Sales 833-762-3464, office 502-398-6333. Open Mon–Fri 8AM–8PM EST.",
   path: "/contact",
   keywords: [
     "contact QP Trucking Solutions",

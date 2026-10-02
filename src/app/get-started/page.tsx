@@ -10,9 +10,9 @@ import { servicesBySlug, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "Get Started — Free Trucking Consultation & Factoring Application",
+  title: "Get Started | Free Trucking Consultation & Factoring",
   description:
-    "Start with QP Trucking Solutions: request a free consultation, apply for factoring, or ask about insurance, authority setup and compliance. Same-day callbacks, no obligation. Call 833-762-3464.",
+    "Request a free consultation, apply for factoring, or ask about insurance, authority setup and compliance. Same-day callbacks. Call 833-762-3464.",
   path: "/get-started",
   keywords: [
     "start trucking factoring",

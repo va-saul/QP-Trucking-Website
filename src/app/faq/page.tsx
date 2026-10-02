@@ -11,7 +11,7 @@ import type { Faq } from "@/lib/types";
 export const metadata = buildMetadata({
   title: "Trucking Factoring, Insurance & FMCSA Compliance FAQ",
   description:
-    "Answers to the questions trucking companies ask most: factoring costs, funding speed, broker credit checks, new authority steps, BOC-3, 2290, IRP, IFTA, UCR, insurance minimums and compliance timelines.",
+    "Answers to common trucking questions: factoring costs, funding speed, new authority steps, BOC-3, 2290, IRP, IFTA, UCR and insurance minimums.",
   path: "/faq",
   keywords: [
     "trucking factoring FAQ",

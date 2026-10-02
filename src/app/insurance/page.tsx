@@ -22,9 +22,9 @@ import type { Faq } from "@/lib/types";
 const service = servicesBySlug["insurance"];
 
 export const metadata = buildMetadata({
-  title: "Trucking Insurance Quotes — Liability, Cargo, Bobtail & Physical Damage",
+  title: "Trucking Insurance Quotes | QP Trucking Solutions",
   description:
-    "Licensed trucking insurance agency placing primary liability, cargo, bobtail, physical damage, NTL and general liability for owner-operators and fleets. Fast binding, FMCSA filings handled, one-stop with factoring.",
+    "Licensed trucking insurance agency: primary liability, cargo, bobtail, physical damage and more. Fast binding, FMCSA filings handled.",
   path: "/insurance",
   keywords: [
     "trucking insurance",

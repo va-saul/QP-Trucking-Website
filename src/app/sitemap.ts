@@ -37,7 +37,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: r.freq,
       priority: r.priority,
     })),
-    ...[...new Set(serviceRoutes)].map((p) => ({
+    // De-dupe against the static routes too (e.g. /insurance is both a page and a service path).
+    ...[...new Set(serviceRoutes)].filter((p) => !staticRoutes.some((r) => r.path === p)).map((p) => ({
       url: `${SITE_URL}${p}`,
       lastModified: now,
       changeFrequency: "monthly" as const,

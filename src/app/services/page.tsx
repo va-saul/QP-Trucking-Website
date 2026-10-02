@@ -20,7 +20,7 @@ import type { Faq } from "@/lib/types";
 export const metadata = buildMetadata({
   title: "Trucking Authority, Permits & FMCSA Compliance Services",
   description:
-    "New authority setup, BOC-3, Form 2290, IRP, IFTA, UCR, MCS-150, SCAC, DOT binders, drug consortium and ELD programs — filed fast, at disclosed prices. $40 client rates for factoring clients.",
+    "New authority, BOC-3, Form 2290, IRP, IFTA, UCR, MCS-150, SCAC, DOT binders and ELD programs, filed fast at disclosed prices.",
   path: "/services",
   keywords: [
     "new authority setup",

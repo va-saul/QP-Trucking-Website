@@ -8,9 +8,9 @@ import { insights, glossaryTerms } from "@/content/insights";
 import { org, SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Trucking Insights — Freight Fraud, Insurance Costs & Industry Data",
+  title: "Trucking Insights | Fraud, Insurance & Industry Data",
   description:
-    "Plain-English briefings for carriers: freight fraud prevention, why insurance premiums move, bottleneck data, freight sentiment and a full trucking terminology glossary.",
+    "Plain-English briefings for carriers: freight fraud prevention, why insurance premiums move, bottleneck data and a trucking terminology glossary.",
   path: "/insights",
   keywords: [
     "trucking industry news",
@@ -113,7 +113,7 @@ export default function InsightsPage() {
 
             {/* secondary list */}
             <div className="grid gap-4">
-              {insights.slice(1, 5).map((post, i) => (
+              {insights.slice(1).map((post, i) => (
                 <Reveal key={post.slug} delay={i * 0.06}>
                   <Link
                     href={`/insights/${post.slug}`}

@@ -20,9 +20,9 @@ import { org, testimonials, SITE_URL } from "@/content/site";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "About QP Trucking Solutions — Louisville, KY Factoring & Insurance",
+  title: "About QP Trucking Solutions | Louisville, KY",
   description:
-    "QP Capital LLC (QP Trucking Solutions) is a family-owned factoring company, licensed insurance agency and compliance partner for new authority trucking companies and fleets nationwide. Meet the team behind 1,000+ carriers.",
+    "QP Capital LLC (QP Trucking Solutions) is a family-owned factoring company and insurance agency serving new authority carriers and fleets nationwide.",
   path: "/about",
   keywords: [
     "about QP Trucking Solutions",

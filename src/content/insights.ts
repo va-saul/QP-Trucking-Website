@@ -29,7 +29,7 @@ export const insights: Insight[] = [
     slug: "top-5-trucking-scams-and-how-to-avoid-them",
     title: "Top 5 Trucking Scams and How to Avoid Them",
     description:
-      "The five fraud schemes hitting carriers and brokers hardest — load scams, fake drivers, false freight claims, DOT impostors and phony repair shops — plus the verification steps that stop them.",
+      "The five fraud schemes hitting carriers and brokers hardest, from load scams to DOT impostors, plus the verification steps that stop them.",
     excerpt:
       "Fraud follows the money, and in trucking the money moves fast. Here are the five schemes we see most often and the exact checks our clients use to shut them down.",
     date: "2023-01-30",
@@ -108,7 +108,7 @@ export const insights: Insight[] = [
     slug: "new-fines-for-double-brokering",
     title: "New Fines for Double Brokering: What Carriers Should Know",
     description:
-      "Double brokering can put a load in the hands of an unauthorized carrier — and federal law allows civil penalties of up to $10,000 per incident under MAP-21.",
+      "Double brokering can put a load with an unauthorized carrier, and federal law allows penalties of up to $10,000 per incident under MAP-21.",
     excerpt:
       "Brokerage trade groups are pushing the double-brokering issue back into the spotlight. The penalty provision has been on the books since MAP-21 — and it is up to $10,000 per incident.",
     date: "2023-02-14",
@@ -148,7 +148,7 @@ export const insights: Insight[] = [
     slug: "get-to-know-your-trucking-terms",
     title: "Get to Know Your Trucking Terms: The Complete Glossary",
     description:
-      "From accessorial charges to white glove logistics — a plain-English glossary of trucking, freight and logistics terminology used by carriers, brokers and shippers every day.",
+      "From accessorial charges to white glove logistics: a plain-English glossary of trucking, freight and logistics terms used every day.",
     excerpt:
       "New to the industry, or onboarding dispatchers and drivers? This is the working vocabulary of freight — roughly 80 terms, defined simply.",
     date: "2024-03-15",
@@ -265,7 +265,7 @@ export const insights: Insight[] = [
     slug: "carriers-hoping-for-relief-on-insurance-premiums",
     title: "Carriers Hoping for Relief on Insurance Premiums",
     description:
-      "Nuclear verdicts, medical costs and repair rates keep pushing trucking insurance premiums up. Here is how fleets are fighting back with technology — and what underwriters actually look at.",
+      "Nuclear verdicts, medical costs and repair rates keep pushing trucking insurance up. See how fleets fight back and what underwriters look at.",
     excerpt:
       "Nuclear verdicts are not easing, claims severity keeps climbing, and social inflation is real. Fleets are turning to cameras, telemetry and AI to bend the curve.",
     date: "2023-02-06",
@@ -315,7 +315,7 @@ export const insights: Insight[] = [
     slug: "rush-hour-times-getting-worse-for-truckers",
     title: "Rush Hour Times Are Getting Worse for Truckers",
     description:
-      "Peak-hour speeds at the top 100 freight bottlenecks fell to 36.3 mph as drivers waited 6% longer in congested corridors. What that means for detention pay, scheduling and costs per mile.",
+      "Peak-hour speeds at the top 100 freight bottlenecks fell to 36.3 mph. What that means for detention pay, scheduling and cost per mile.",
     excerpt:
       "ATRI's bottleneck data shows average peak-hour speeds slipping to 36.3 mph at the nation's top 100 freight chokepoints. For carriers, lost time is lost money.",
     date: "2023-02-09",
@@ -354,7 +354,7 @@ export const insights: Insight[] = [
     slug: "are-carriers-being-to-hopeful",
     title: "Are Carriers Being Too Hopeful About Freight Recovery?",
     description:
-      "Freight sentiment data showed carriers split on near-term profitability while staying positive on the longer term. What the indexes said about spot rates, investment and hiring.",
+      "Freight sentiment data showed carriers split on near-term profitability but positive long term. What indexes said about rates, investment and hiring.",
     excerpt:
       "Few in freight had high hopes for first-quarter profits, yet longer-term sentiment stayed positive. Here is what the sentiment indexes actually revealed.",
     date: "2023-01-23",
@@ -395,9 +395,9 @@ export const insights: Insight[] = [
   },
   {
     slug: "a-sleeper-cab-with-a-jacuzzi",
-    title: "A Sleeper Cab With a Jacuzzi? The Ever-Expanding Definition of Driver Comfort",
+    title: "A Sleeper Cab With a Jacuzzi? Driver Comfort Today",
     description:
-      "Sleeper cab design keeps pushing into territory once reserved for hotel rooms. A look at what drivers actually value on the road — and what carriers should weigh before buying.",
+      "Sleeper cab design keeps moving into hotel-room territory. What drivers actually value on the road and what carriers should weigh before buying.",
     excerpt:
       "From memory-foam bunks to built-in refrigeration, sleeper comfort has become a retention tool. Not every upgrade pays for itself.",
     date: "2023-01-25",

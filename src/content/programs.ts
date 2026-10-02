@@ -163,9 +163,9 @@ export const ambassadorProgram = {
       a: "Factoring and hot shot payouts land on the first load factored; fuel card and dispatch payouts on the first active account or dispatched load; the $20 authority completion and the insurance point evaluation are paid per their own schedules. All payout schedules are subject to periodic review.",
     },
   ] as Faq[],
-  metaTitle: "QP Ambassador Referral Program | Earn $500–$700 per Factoring Referral",
+  metaTitle: "QP Ambassador Referral Program | Earn Up to $700",
   metaDescription:
-    "Refer carriers to QP Capital factoring, QP Trucking Insurance, fuel cards and authority services. $500–$700 per factoring referral, up to $250 insurance, $100 fuel & dispatch, $20 per service.",
+    "Refer carriers to QP factoring, insurance, fuel cards and authority services. Earn $500–$700 per factoring referral plus bonuses on other services.",
   keywords: [
     "trucking referral program",
     "factoring referral payout",
@@ -293,9 +293,9 @@ export const circleNetworkProgram = {
       a: "Circle members get exclusive access to 50% down payment assistance for semi-truck insurance binding, which lowers the cash needed up front to get a truck insured and on the road.",
     },
   ] as Faq[],
-  metaTitle: "The Circle Network | Premium Member Program — QP Trucking Solutions",
+  metaTitle: "The Circle Network Premium Member Program | QP Trucking",
   metaDescription:
-    "QP's premium member tier: 0% factoring fees, free fuel card setup, complimentary IFTA & IRP processing, 50% insurance down assistance and a 40+ broker directory for new authorities.",
+    "QP's premium member tier: 0% factoring fees, free fuel card setup, free IFTA & IRP processing, insurance down-payment help and a broker directory.",
   keywords: [
     "Circle Network trucking",
     "no fee factoring",
@@ -386,9 +386,9 @@ export const fuelCardProgram = {
       a: "POS purchases and customer service are $0. Other transactions are priced plainly: registration draft $3.50, ATM withdrawal $2.50, QP Pay quick funding $5.00, and fuel advance (50% of load, $1K max) $15.00.",
     },
   ] as Faq[],
-  metaTitle: "QP Fuel Card | 48¢/gal Savings at 9,000+ Stations — QP Trucking Solutions",
+  metaTitle: "QP Fuel Card | 48¢/gal Savings at 9,000+ Stations",
   metaDescription:
-    "QP fuel card program: 48¢/gal average partner savings, 9,000+ stations, TA/Petro discounts, zero POS fees and flexible approvals with no traditional credit needed.",
+    "QP fuel card: 48¢/gal average savings, 9,000+ stations, TA/Petro discounts, zero POS fees and flexible approvals with no traditional credit needed.",
   keywords: [
     "trucking fuel card",
     "fuel discount program",
@@ -461,9 +461,9 @@ export const equipmentFinanceProgram = {
       a: "A specialist reviews every application personally — during business hours (Mon–Fri, 8AM–8PM EST) you will hear back quickly, and you can always call 833-762-3464 to move a deal forward.",
     },
   ] as Faq[],
-  metaTitle: "Equipment Finance for Trucking Companies | QP Trucking Solutions",
+  metaTitle: "Equipment Finance for Trucking Companies | QP Trucking",
   metaDescription:
-    "Finance tractors, trailers and equipment through QP Trucking Solutions — one application, reviewed by specialists who already know trucking cash flow. Pair with factoring & insurance.",
+    "Finance tractors, trailers and equipment with specialists who know trucking cash flow. One application. Pair with factoring and insurance.",
   keywords: [
     "semi truck financing",
     "trucking equipment finance",

@@ -11,9 +11,9 @@ import type { Faq } from "@/lib/types";
 import { SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Services & Pricing Catalog — Trucking Compliance, Factoring & Insurance",
+  title: "Services & Pricing Catalog | QP Trucking Solutions",
   description:
-    "Every QP Trucking Solutions service with published pricing: new authority $200, BOC-3 $60, Form 2290 $60, IRP $195, IFTA from $60, UCR $60, MCS-150 $60, SCAC $60, DOT binder from $99, drug consortium $135 — $40 client rates available.",
+    "Every QP Trucking Solutions service with published pricing: new authority $200, BOC-3 $60, Form 2290 $60, IRP $195 and more. Client rates available.",
   path: "/store",
   keywords: [
     "trucking compliance service pricing",

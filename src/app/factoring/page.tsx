@@ -19,9 +19,9 @@ import { servicesBySlug, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "Trucking Factoring Programs — Recourse, Non-Recourse & Pure Non-Recourse™",
+  title: "Trucking Factoring Programs | QP Trucking Solutions",
   description:
-    "Compare QP's recourse, non-recourse and Pure Non-Recourse™ freight factoring programs. Get paid in minutes after load verification with flat fees, no minimums and no long-term contract.",
+    "Compare recourse, non-recourse and Pure Non-Recourse™ freight factoring. Get paid in minutes with flat fees, no minimums and no long-term contract.",
   path: "/factoring",
   keywords: [
     "trucking factoring programs",

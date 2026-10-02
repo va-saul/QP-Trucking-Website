@@ -26,9 +26,9 @@ import { insights } from "@/content/insights";
 import { FeaturedRecognition } from "@/components/FeaturedRecognition";
 
 export const metadata = buildMetadata({
-  title: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance",
+  title: "QP Trucking Solutions | Factoring, Insurance & Compliance",
   description:
-    "Trucking factoring, insurance, authority setup and FMCSA compliance for owner-operators and fleets. Get paid in minutes after load verification — no long-term contract, no hidden fees. Call 833-762-3464.",
+    "Trucking factoring, insurance, authority setup and FMCSA compliance for owner-operators and fleets. Get paid in minutes. Call 833-762-3464.",
   path: "/",
   image: "/images/hero/home.jpg",
   keywords: [

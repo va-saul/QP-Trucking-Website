@@ -3,11 +3,12 @@ import { NextResponse } from "next/server";
 /**
  * Lead intake endpoint.
  *
- * The redesign ships with no third-party CRM baked in. Set
- * `LEAD_WEBHOOK_URL` (and optionally `LEAD_WEBHOOK_TOKEN`) in the environment
- * and every submission is forwarded there — HubSpot, Zapier, Make, a Slack
- * workflow, or a CRM of your choice. Without it, the payload is logged so the
- * form still behaves correctly in preview and no lead is silently lost.
+ * Every submission is delivered through up to two channels:
+ *  1. CRM webhook  - `LEAD_WEBHOOK_URL` (Momentum / GoHighLevel inbound webhook)
+ *  2. Email        - Resend (`RESEND_API_KEY`) to `LEAD_NOTIFY_EMAIL`
+ *                    (default marketing@qpfactoring.com)
+ * A lead is accepted if at least one channel succeeds. If none is configured the
+ * endpoint returns 503 so a form never reports success for a lost lead.
  */
 export async function POST(request: Request) {
   let payload: Record<string, unknown>;
@@ -52,24 +53,77 @@ export async function POST(request: Request) {
     userAgent: request.headers.get("user-agent") ?? undefined,
   };
 
-  const webhook = process.env.LEAD_WEBHOOK_URL;
-  if (webhook) {
-    try {
-      const res = await fetch(webhook, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(process.env.LEAD_WEBHOOK_TOKEN ? { Authorization: `Bearer ${process.env.LEAD_WEBHOOK_TOKEN}` } : {}),
-        },
-        body: JSON.stringify(record),
-      });
-      if (!res.ok) throw new Error(`Webhook responded ${res.status}`);
-    } catch (error) {
-      console.error("[lead] webhook delivery failed", error);
-      return NextResponse.json({ ok: false, error: "Delivery failed" }, { status: 502 });
-    }
-  } else {
-    console.info("[lead] captured (no webhook configured)", record);
+  // Flatten nested intake data so GoHighLevel / Momentum can map every field.
+  const flat: Record<string, unknown> = { ...record };
+  if (payload.formData && typeof payload.formData === "object") {
+    Object.assign(flat, payload.formData as Record<string, unknown>);
+    delete flat.formData;
+  }
+
+  const notifyTo = process.env.LEAD_NOTIFY_EMAIL || "marketing@qpfactoring.com";
+  const notifyFrom = process.env.LEAD_FROM_EMAIL || "QP Website <leads@qpfactoring.com>";
+  const label = String(payload.formType || payload.source || "website form");
+  const rows = Object.entries(flat)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
+    .join("\n");
+
+  // Two independent channels: CRM webhook (Momentum / GHL) and direct email.
+  // The lead is accepted if at least one succeeds, so nothing is silently lost.
+  const channels: Array<{ name: string; run: () => Promise<void> }> = [];
+
+  if (process.env.LEAD_WEBHOOK_URL) {
+    channels.push({
+      name: "crm-webhook",
+      run: async () => {
+        const res = await fetch(process.env.LEAD_WEBHOOK_URL as string, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(process.env.LEAD_WEBHOOK_TOKEN ? { Authorization: `Bearer ${process.env.LEAD_WEBHOOK_TOKEN}` } : {}),
+          },
+          body: JSON.stringify(flat),
+        });
+        if (!res.ok) throw new Error(`CRM webhook responded ${res.status}`);
+      },
+    });
+  }
+
+  if (process.env.RESEND_API_KEY) {
+    channels.push({
+      name: "email",
+      run: async () => {
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: notifyFrom,
+            to: [notifyTo],
+            ...(typeof payload.email === "string" && payload.email ? { reply_to: payload.email } : {}),
+            subject: `New website lead: ${record.name ?? "Unknown"} (${label})`,
+            text: rows,
+          }),
+        });
+        if (!res.ok) throw new Error(`Email responded ${res.status}: ${await res.text()}`);
+      },
+    });
+  }
+
+  if (channels.length === 0) {
+    console.error("[lead] NO DELIVERY CHANNEL CONFIGURED - set LEAD_WEBHOOK_URL and/or RESEND_API_KEY", record);
+    return NextResponse.json({ ok: false, error: "Delivery not configured" }, { status: 503 });
+  }
+
+  const results = await Promise.allSettled(channels.map((c) => c.run()));
+  results.forEach((r, i) => {
+    if (r.status === "rejected") console.error(`[lead] ${channels[i].name} failed`, r.reason);
+  });
+  if (results.every((r) => r.status === "rejected")) {
+    console.error("[lead] all channels failed", record);
+    return NextResponse.json({ ok: false, error: "Delivery failed" }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true });

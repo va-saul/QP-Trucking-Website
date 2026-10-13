@@ -108,6 +108,25 @@ export function InsuranceIntakeDetails() {
           ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
           ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
         ].filter(Boolean);
+
+        // Per-source row counts (0 = upstream answered but had no rows for this
+        // DOT, ✗ = the source failed) so it is visible what Motus returned.
+        const src = json.sources || {};
+        const srcFmt = (s: any) =>
+          !s ? "?" : s.status === "error" ? "✗" : String(s.rows ?? 0);
+        const srcSummary = Object.keys(src).length
+          ? ` Sources — cargo ${srcFmt(src.qcmobileCargo)}, dockets ${srcFmt(
+              src.qcmobileDockets
+            )}, Motus: carrier ${srcFmt(src.motusCarrier)}, policies ${srcFmt(
+              src.motusInsur
+            )}, history ${srcFmt(src.motusInsHist)}, authority ${srcFmt(
+              src.motusAuthHist
+            )}`
+          : "";
+        if (json.debug) {
+          console.info("[fmcsa] debug sample rows:", json.debug);
+        }
+
         setFmcsaStatus({
           type: "success",
           message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
@@ -116,7 +135,7 @@ export function InsuranceIntakeDetails() {
             filledCount === 1 ? "" : "s"
           } pre-filled and tagged "FMCSA"${
             insParts.length ? `. ${insParts.join(" · ")}` : ""
-          }. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+          }.${srcSummary}. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
         });
       }
     } catch {

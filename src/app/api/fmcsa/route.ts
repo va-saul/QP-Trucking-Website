@@ -8,11 +8,15 @@ import { NextResponse } from "next/server";
  *    MC docket number.
  *  - Motus open datasets on data.transportation.gov (no key):
  *    Motus Carrier (authority + BI&PD/cargo/bond on file),
- *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies).
+ *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies),
+ *    Motus AuthHist (operating-authority history).
  *
- * Returns `fields`: a map of intake form field ids -> values. The client only
- * fills empty fields and tags them "FMCSA". Personal data (SSN, DOB, driver
- * license, MVR) is intentionally never looked up or returned.
+ * Returns `fields`: a map of intake form field ids -> values, and `sources`:
+ * a per-source diagnostic ({status, rows, error}) so it is visible which
+ * upstream answered and which did not. Pass ?debug=1 to also get one raw
+ * sample row per source. The client only fills empty fields and tags them
+ * "FMCSA". Personal data (SSN, DOB, driver license, MVR) is intentionally
+ * never looked up or returned.
  */
 
 const QC_BASE = "https://mobile.fmcsa.dot.gov/qc/services";
@@ -20,32 +24,60 @@ const SOCRATA_BASE = "https://data.transportation.gov/resource";
 const MOTUS_CARRIER = "inys-ebih"; // Motus Carrier - All With History
 const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History
 const MOTUS_INSHIST = "xe5s-wca7"; // Motus InsHist - All With History
+const MOTUS_AUTHHIST = "yu5v-wbh6"; // Motus AuthHist - All With History
 
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 8000;
+const RETRY_DELAY_MS = 1200;
 const POLICY_SLOTS = 5;
 
 type Row = Record<string, any>;
+
+type SourceStatus = {
+  status: "ok" | "empty" | "error";
+  rows?: number;
+  error?: string;
+  via?: string;
+};
 
 function errorResponse(status: number, error: string, code: string) {
   return NextResponse.json({ ok: false, error, code }, { status });
 }
 
+/* ----------------------------- fetch helpers ------------------------------- */
+
+/** One retry on 429/5xx: Socrata throttles untokened traffic from shared IPs. */
+async function fetchWithRetry(url: string, opts: RequestInit): Promise<Response> {
+  const attempt = () => fetch(url, { ...opts, signal: AbortSignal.timeout(TIMEOUT_MS) });
+  let res = await attempt();
+  if (res.status === 429 || res.status >= 500) {
+    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+    res = await attempt();
+  }
+  return res;
+}
+
 /* ----------------------------- QCMobile helpers ----------------------------- */
 
 async function qcFetch(path: string, apiKey: string) {
-  return fetch(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
+  return fetchWithRetry(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
     headers: { Accept: "application/json" },
     next: { revalidate: 3600 },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  } as RequestInit);
 }
 
-/** Unwrap QCMobile list responses: `{content: [...]}`, `{content: {...}}` or a bare array. */
+/** First array found anywhere in the payload (handles {content:[...]}, {content:{x:[...]}} and bare arrays). */
+function firstArray(v: any, depth = 0): Row[] | null {
+  if (Array.isArray(v)) return v as Row[];
+  if (depth > 3 || !v || typeof v !== "object") return null;
+  for (const key of Object.keys(v)) {
+    const found = firstArray(v[key], depth + 1);
+    if (found) return found;
+  }
+  return null;
+}
+
 function listFrom(json: any): Row[] {
-  if (Array.isArray(json)) return json;
-  if (Array.isArray(json?.content)) return json.content;
-  if (json?.content && typeof json.content === "object") return [json.content];
-  return [];
+  return firstArray(json?.content ?? json) ?? [];
 }
 
 async function qcList(path: string, apiKey: string): Promise<Row[]> {
@@ -56,15 +88,26 @@ async function qcList(path: string, apiKey: string): Promise<Row[]> {
 
 /* ------------------------------- Motus helpers ------------------------------ */
 
-async function motusRows(dataset: string, dot: string): Promise<Row[]> {
-  const url = `${SOCRATA_BASE}/${dataset}.json?usdot_number=${encodeURIComponent(
-    dot
-  )}&$limit=500`;
-  const res = await fetch(url, {
+const sqlStr = (s: string) => `'${s.replace(/'/g, "")}'`;
+
+/** DOT numbers appear padded or unpadded depending on the dataset vintage. */
+function dotWhere(dot: string): string {
+  const variants = uniq([dot, dot.padStart(6, "0"), dot.padStart(7, "0"), dot.padStart(8, "0")]);
+  return `usdot_number IN (${variants.map(sqlStr).join(",")})`;
+}
+
+/** Motus keys many insurance rows by docket ("MC" + 10 digits), not DOT. */
+function docketWhere(prefix: string, docketDigits: string): string {
+  const variants = uniq([docketDigits, docketDigits.padStart(10, "0")]);
+  return `docket_number IN (${variants.map((v) => sqlStr(`${prefix}${v}`)).join(",")})`;
+}
+
+async function motusRows(dataset: string, where: string): Promise<Row[]> {
+  const url = `${SOCRATA_BASE}/${dataset}.json?$where=${encodeURIComponent(where)}&$limit=500`;
+  const res = await fetchWithRetry(url, {
     headers: { Accept: "application/json" },
     next: { revalidate: 3600 },
-    signal: AbortSignal.timeout(TIMEOUT_MS),
-  });
+  } as RequestInit);
   if (!res.ok) throw new Error(`Motus ${dataset} responded ${res.status}`);
   const json = await res.json();
   return Array.isArray(json) ? json : [];
@@ -106,7 +149,9 @@ function parseDate(s: unknown): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-const uniq = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
+function uniq(items: string[]) {
+  return Array.from(new Set(items.filter(Boolean)));
+}
 
 const LOB_BY_TYPE: Record<string, string> = {
   "1": "BI&PD",
@@ -135,6 +180,25 @@ export async function GET(request: Request) {
   const dot = dotParam.replace(/\D/g, "");
   if (!dot) {
     return errorResponse(400, "Invalid DOT number", "invalid_dot");
+  }
+  const debug = searchParams.get("debug") === "1";
+
+  const sources: Record<string, SourceStatus> = {};
+  const debugSample: Record<string, Row | null> = {};
+
+  /** Run a supplemental fetch, record its outcome in `sources`, never throw. */
+  async function guarded(name: string, p: Promise<Row[]>): Promise<Row[]> {
+    try {
+      const rows = await p;
+      sources[name] = { status: rows.length ? "ok" : "empty", rows: rows.length };
+      debugSample[name] = rows[0] ?? null;
+      return rows;
+    } catch (err: any) {
+      sources[name] = { status: "error", error: String(err?.message ?? err).slice(0, 160) };
+      debugSample[name] = null;
+      console.warn(`[fmcsa] ${name} unavailable:`, err?.message ?? err);
+      return [];
+    }
   }
 
   try {
@@ -166,28 +230,20 @@ export async function GET(request: Request) {
     if (!carrier || (!carrier.dotNumber && !carrier.legalName)) {
       return errorResponse(404, "Carrier not found for this DOT number", "not_found");
     }
+    sources.qcmobileCarrier = { status: "ok", rows: 1 };
+    if (debug) debugSample.qcmobileCarrier = carrier;
 
     /* 2. Supplemental sources. Each one is optional: a failure only drops its fields. */
-    const [cargoR, docketR, carrierMotusR, insurMotusR, histMotusR] =
-      await Promise.allSettled([
-        qcList(`/carriers/${dot}/cargo-carried`, apiKey),
-        qcList(`/carriers/${dot}/docket-numbers`, apiKey),
-        motusRows(MOTUS_CARRIER, dot),
-        motusRows(MOTUS_INSUR, dot),
-        motusRows(MOTUS_INSHIST, dot),
+    const dotW = dotWhere(dot);
+    const [cargoRows, docketRows, carrierMotus, insurMotus, histMotus, authMotus] =
+      await Promise.all([
+        guarded("qcmobileCargo", qcList(`/carriers/${dot}/cargo-carried`, apiKey)),
+        guarded("qcmobileDockets", qcList(`/carriers/${dot}/docket-numbers`, apiKey)),
+        guarded("motusCarrier", motusRows(MOTUS_CARRIER, dotW)),
+        guarded("motusInsur", motusRows(MOTUS_INSUR, dotW)),
+        guarded("motusInsHist", motusRows(MOTUS_INSHIST, dotW)),
+        guarded("motusAuthHist", motusRows(MOTUS_AUTHHIST, dotW)),
       ]);
-
-    const settle = <T,>(r: PromiseSettledResult<T[]>): T[] => {
-      if (r.status === "fulfilled") return r.value;
-      console.warn("[fmcsa] supplemental source unavailable:", r.reason?.message ?? r.reason);
-      return [];
-    };
-
-    const cargoRows = settle(cargoR);
-    const docketRows = settle(docketR);
-    const carrierMotus = settle(carrierMotusR);
-    const insurMotus = settle(insurMotusR);
-    const histMotus = settle(histMotusR);
 
     /* 3. Derive values. */
     const legalName = str(carrier.legalName);
@@ -195,10 +251,34 @@ export async function GET(request: Request) {
 
     const docket = docketRows
       .map((d) => d?.docket ?? d)
-      .find((d) => str(d?.prefix).toUpperCase() === "MC");
-    const mc = docket
-      ? `MC${str(docket.docketNumber)}`
-      : str(carrier.docketNumber || carrier.mcNumber);
+      .find((d) => str(d?.prefix).toUpperCase().replace(/[^A-Z]/g, "") === "MC");
+    const rawMc = str(carrier.docketNumber || carrier.mcNumber);
+    const docketDigits = str(docket?.docketNumber).replace(/\D/g, "");
+    const rawMcLetters = (/^([a-z]+)/i.exec(rawMc)?.[1] ?? "").toUpperCase();
+    // Digits come from the MC docket endpoint when present, else from an
+    // "MC0545087"-style value on the carrier record itself.
+    const mcDocketDigits = docketDigits || (rawMcLetters ? rawMc.replace(/\D/g, "") : "");
+    const mcPrefix = docketDigits ? "MC" : rawMcLetters || "MC";
+    const mc = mcDocketDigits ? `${mcPrefix}${mcDocketDigits}` : rawMc ? `MC${rawMc}` : "";
+
+    /* 3b. Motus insurance rows are often keyed by MC docket, not DOT.
+       If the DOT query came back empty and we know the docket, retry by docket. */
+    async function docketFallback(name: string, dataset: string, rows: Row[]): Promise<Row[]> {
+      if (rows.length || !mcDocketDigits) return rows;
+      try {
+        const byDocket = await motusRows(dataset, docketWhere(mcPrefix, mcDocketDigits));
+        if (byDocket.length) {
+          sources[name] = { status: "ok", rows: byDocket.length, via: "docket" };
+          debugSample[name] = byDocket[0] ?? null;
+        }
+        return byDocket;
+      } catch {
+        return rows; // keep the original (empty) result and its diagnostic
+      }
+    }
+    const insurRows = await docketFallback("motusInsur", MOTUS_INSUR, insurMotus);
+    const histRows = await docketFallback("motusInsHist", MOTUS_INSHIST, histMotus);
+    const authRows = await docketFallback("motusAuthHist", MOTUS_AUTHHIST, authMotus);
 
     const cargo = uniq(
       cargoRows.map((c) => str(c?.cargoClassDesc ?? c?.cargoClass?.cargoClassDesc))
@@ -226,11 +306,14 @@ export async function GET(request: Request) {
     const einDigits = str(carrier.ein).replace(/\D/g, "");
     const ein = einDigits && Number(einDigits) > 0 ? einDigits.padStart(9, "0") : "";
 
-    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag);
+    const businessStructure = str(carrier.censusTypeId?.censusTypeDesc ?? carrier.censusTypeId);
+
+    // QCMobile's carrier record has no hazmat flag; absence of one means non-hazmat filing.
+    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag) ?? "No";
     const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
     const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
 
-    // Motus carrier row: amounts on file (thousands of dollars) and authority status.
+    // Motus carrier rows: amounts on file (thousands of dollars) and authority status.
     const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
     const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
     const cargoOnFile =
@@ -244,7 +327,7 @@ export async function GET(request: Request) {
 
     // Current policies (Motus Insur): one row per filing, BI&PD primary first.
     const seenPolicies = new Set<string>();
-    const policies = insurMotus
+    const policies = insurRows
       .filter((r) => {
         const key = `${str(r.policy_no)}|${str(r.ins_type_code)}`;
         if (!str(r.policy_no) || seenPolicies.has(key)) return false;
@@ -263,25 +346,45 @@ export async function GET(request: Request) {
 
     // Prior and cancelled policies (Motus InsHist).
     const priorCompanies = uniq([
-      ...histMotus.map((r) => str(r.insurance_company_name)),
-      ...insurMotus.map((r) => str(r.insurance_company_name)),
+      ...histRows.map((r) => str(r.insurance_company_name)),
+      ...insurRows.map((r) => str(r.insurance_company_name)),
     ]);
-    const cancelled = histMotus.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
+    const cancelled = histRows.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
     const cancelledText = cancelled.length
       ? `Yes — cancelled${cancelled
           .map((r) => (r.cancl_effective_date ? ` ${fmtDate(r.cancl_effective_date)}` : ""))
           .join(",")}`
-      : histMotus.length
+      : histRows.length
       ? "No"
       : "";
-    const priorTypes = uniq(histMotus.map((r) => str(r.ins_type_desc)));
-    const earliest = [...histMotus, ...insurMotus]
+    const priorTypes = uniq(histRows.map((r) => str(r.ins_type_desc)));
+    const earliest = [...histRows, ...insurRows]
       .map((r) => parseDate(r.effective_date))
       .filter((d): d is Date => d !== null)
       .sort((a, b) => a.getTime() - b.getTime())[0];
     const yearsPrior = earliest
       ? String(Math.floor((Date.now() - earliest.getTime()) / (365.25 * 24 * 3600 * 1000)))
       : "";
+
+    // Operating-authority history (Motus AuthHist).
+    const threeYearsAgo = Date.now() - 3 * 365.25 * 24 * 3600 * 1000;
+    const recentChanges = authRows.filter((r) => {
+      const d = parseDate(r.status_change_date);
+      return d !== null && d.getTime() >= threeYearsAgo;
+    });
+    const authChanges = !authRows.length
+      ? ""
+      : recentChanges.length
+      ? `Yes — ${recentChanges.length} change${recentChanges.length === 1 ? "" : "s"} in the last 3 years`
+      : "No";
+    const adverse = authRows.filter((r) =>
+      /revok|suspend|probation|withdraw/i.test(`${str(r.op_auth_status)} ${str(r.reason)}`)
+    );
+    const authAdverse = !authRows.length
+      ? ""
+      : adverse.length
+      ? `Yes — ${uniq(adverse.map((r) => str(r.op_auth_status) || str(r.reason))).join(", ")}`
+      : "No";
 
     /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
     const fields: Record<string, string> = {};
@@ -299,6 +402,7 @@ export async function GET(request: Request) {
     set("generalBusinessName", legalName);
     set("dba", dbaName);
     set("ein", ein);
+    set("businessStructure", businessStructure);
     set("mailingStreet", carrier.mailingStreet || carrier.phyStreet);
     set("mailingCity", carrier.mailingCity || carrier.phyCity);
     set("mailingState", str(carrier.mailingState || carrier.phyState).toUpperCase());
@@ -313,6 +417,8 @@ export async function GET(request: Request) {
     set("brokerageAuthority", brokerage);
     set("rangeOfTransport", isInterstate ? "Interstate" : isIntrastate ? "Intrastate" : "");
     set("estimatedMileage", mileage);
+    set("authorityChangesPast3Years", authChanges);
+    set("authorityWithdrawnOrProbation", authAdverse);
 
     // Section 05 - Renewal / prior insurance
     set("unitsInsured", powerUnits);
@@ -343,7 +449,7 @@ export async function GET(request: Request) {
       zip: str(carrier.phyZip || carrier.phyZipcode),
       phone: str(carrier.telephone),
       commodities: cargo.join(", "),
-      hazmat: hazmat ?? "",
+      hazmat,
       mileage,
       powerUnits,
       authorityStatus: str(carrier.statusCode),
@@ -356,7 +462,9 @@ export async function GET(request: Request) {
       policyCount: policies.length,
     };
 
-    return NextResponse.json({ ok: true, data, fields });
+    return NextResponse.json(
+      debug ? { ok: true, data, fields, sources, debug: debugSample } : { ok: true, data, fields, sources }
+    );
   } catch (err: any) {
     console.error("[fmcsa] lookup error:", err);
     return errorResponse(

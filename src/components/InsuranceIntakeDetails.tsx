@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { INSURED_STATES } from "@/components/InsuranceCoverageMap";
 
 type FieldDef = {
@@ -25,6 +25,7 @@ export function InsuranceIntakeDetails() {
   const [formData, setFormData] = useState<Record<string, string>>({
     mailingCountry: "United States",
   });
+  const latestFormData = useRef(formData);
   const [fmcsaTagged, setFmcsaTagged] = useState<Record<string, boolean>>({});
   const [fmcsaLoading, setFmcsaLoading] = useState(false);
   const [fmcsaStatus, setFmcsaStatus] = useState<{
@@ -45,7 +46,10 @@ export function InsuranceIntakeDetails() {
   }>({ type: "idle", message: "" });
 
   const handleChange = (id: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    latestFormData.current = { ...latestFormData.current, [id]: value };
+    setFormData(latestFormData.current);
+    // An edited value is no longer the value verified by the lookup.
+    setFmcsaTagged((prev) => ({ ...prev, [id]: false }));
   };
 
   const handleFmcsaLookup = async () => {
@@ -84,6 +88,12 @@ export function InsuranceIntakeDetails() {
         return;
       }
 
+      // Ignore a result if the applicant changed the DOT while the request ran.
+      if ((latestFormData.current.dotNumber || "").replace(/\D/g, "") !== cleanDot) {
+        setFmcsaStatus({ type: "info", message: "DOT number changed during lookup. Look up the new number to pre-fill its details." });
+        return;
+      }
+
       if (json.ok && json.data) {
         const d = json.data;
         const found: Record<string, string> = json.fields || {};
@@ -92,13 +102,14 @@ export function InsuranceIntakeDetails() {
 
         // Only fill fields the user has not typed into yet; every filled field is tagged "FMCSA".
         for (const [key, val] of Object.entries(found)) {
-          if (val && !formData[key]) {
+          if (val && !latestFormData.current[key]) {
             updates[key] = val;
             tagged[key] = true;
           }
         }
 
-        setFormData((prev) => ({ ...prev, ...updates }));
+        latestFormData.current = { ...latestFormData.current, ...updates };
+        setFormData(latestFormData.current);
         setFmcsaTagged((prev) => ({ ...prev, ...tagged }));
 
         const filledCount = Object.keys(updates).length;
@@ -113,7 +124,10 @@ export function InsuranceIntakeDetails() {
         // DOT, ✗ = the source failed) so it is visible what Motus returned.
         const src = json.sources || {};
         const srcFmt = (s: any) =>
-          !s ? "?" : s.status === "error" ? "✗" : String(s.rows ?? 0);
+          !s ? "?" : `${s.status === "error" ? "✗" : String(s.rows ?? 0)}${
+            s.via === "docket" ? " (docket)" : s.docketError ? " (docket failed)" :
+            s.docketTried ? " (docket empty)" : ""
+          }`;
         const srcSummary = Object.keys(src).length
           ? ` Sources — cargo ${srcFmt(src.qcmobileCargo)}, dockets ${srcFmt(
               src.qcmobileDockets
@@ -127,6 +141,17 @@ export function InsuranceIntakeDetails() {
           console.info("[fmcsa] debug sample rows:", json.debug);
         }
 
+        const auth = d.authority || {};
+        const authNote = auth.status
+          ? ` Authority: ${auth.status}${auth.reason ? ` — ${auth.reason}` : ""}${auth.date ? ` (${auth.date})` : ""}.`
+          : "";
+        const docketNote = d.mcPending
+          ? " The MC shown is an application docket, not granted authority."
+          : "";
+        const mailNote = d.mailUndeliverable
+          ? " FMCSA marks the mailing address undeliverable — confirm it with the applicant."
+          : "";
+
         setFmcsaStatus({
           type: "success",
           message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
@@ -135,7 +160,7 @@ export function InsuranceIntakeDetails() {
             filledCount === 1 ? "" : "s"
           } pre-filled and tagged "FMCSA"${
             insParts.length ? `. ${insParts.join(" · ")}` : ""
-          }.${srcSummary}. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+          }.${authNote}${docketNote}${srcSummary}.${mailNote} Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
         });
       }
     } catch {

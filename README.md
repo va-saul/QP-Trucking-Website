@@ -14,6 +14,7 @@ npm run dev      # http://localhost:3000
 npm run build    # production build (38 routes, all statically prerendered)
 npm start        # serve the production build
 npm run lint     # typecheck (tsc --noEmit)
+npm test         # FMCSA route regression tests (mocked upstream responses)
 ```
 
 > Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
@@ -89,6 +90,30 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 2. **Domain** — `SITE_URL` in `src/content/site.ts` is used for canonicals, JSON-LD, sitemap and OG URLs.
 3. **Analytics** — add your tag in `src/app/layout.tsx`; the site ships with zero third-party scripts by default (fast Core Web Vitals).
 4. **Payments** — the original site's cart links pointed at `https://qpfactoring.com/cart/?ec_action=addtocart&model_number=…`. The redesign routes orders through `/get-started?service=…` (a human confirms every order) and keeps the loan-application link (`deciphercredit.net`) intact on the factoring and get-started pages.
+
+---
+
+## FMCSA insurance pre-fill
+
+Set `FMCSA_API_KEY` to a QCMobile WebKey on the deployment host, then redeploy.
+The insurance intake calls `/api/fmcsa?dot=…`; public Motus licensing and insurance
+records supplement the required QCMobile carrier record. No extra API key is needed
+for Motus. Supplemental outages do not prevent the core carrier fields from loading.
+
+The lookup uses Motus phone/address/MC data when QCMobile lacks it, then retries
+empty insurance/history sources by MC docket in parallel. Motus coverage amounts
+are dollars; QCMobile required coverage is normally thousands. ISO and compact
+`YYYYMMDD` policy/authority dates display as `MM/DD/YYYY`. The status line reports
+source counts, docket fallback outcomes, pending application dockets, and
+undeliverable-mail flags; an application docket is not proof of granted authority.
+Only empty fields are filled, including when the applicant types during the lookup.
+A result for a DOT number changed during lookup is ignored.
+
+`npm test` runs deterministic route tests without credentials or live network calls.
+These tests are **not live upstream verification**. After deploying, verify with
+known DOT records using the configured WebKey and inspect `sources` in the response.
+`?debug=1` includes public source sample rows for troubleshooting; do not share
+API keys or private intake details in bug reports.
 
 ---
 

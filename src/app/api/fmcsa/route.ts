@@ -37,6 +37,8 @@ type SourceStatus = {
   rows?: number;
   error?: string;
   via?: string;
+  docketTried?: boolean;
+  docketError?: string;
 };
 
 function errorResponse(status: number, error: string, code: string) {
@@ -128,25 +130,39 @@ function yesNo(v: unknown): string | undefined {
 
 const isActiveStatus = (v: unknown) => /^active$/i.test(str(v));
 
-function usd(thousands: unknown): string {
-  const n = Number(thousands);
-  if (!n || Number.isNaN(n)) return "";
-  return `$${(n * 1000).toLocaleString("en-US")}`;
+/** QCMobile required coverage is in thousands; Motus amounts are whole dollars. */
+function qcAmount(value: unknown): string {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? usdDollars(n >= 100000 ? n : n * 1000) : "";
 }
 
-/** Motus/Socrata dates are text; ISO dates are shown as MM/DD/YYYY to match the form. */
-function fmtDate(s: unknown): string {
-  const v = str(s);
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
-  return iso ? `${iso[2]}/${iso[3]}/${iso[1]}` : v;
+function usdDollars(value: unknown): string {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? `$${Math.round(n).toLocaleString("en-US")}` : "";
 }
 
-function parseDate(s: unknown): Date | null {
-  const v = str(s);
-  if (!v) return null;
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
-  const d = iso ? new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])) : new Date(v);
-  return Number.isNaN(d.getTime()) ? null : d;
+/** Motus uses both ISO dates and compact YYYYMMDD strings. */
+function dateParts(value: unknown): [number, number, number] | null {
+  const match = /^(\d{4})-?(\d{2})-?(\d{2})(?:$|T)/.exec(str(value));
+  if (!match) return null;
+  const parts: [number, number, number] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+  return date.getUTCFullYear() === parts[0] && date.getUTCMonth() === parts[1] - 1 &&
+    date.getUTCDate() === parts[2] ? parts : null;
+}
+
+function fmtDate(value: unknown): string {
+  const parts = dateParts(value);
+  return parts ? `${String(parts[1]).padStart(2, "0")}/${String(parts[2]).padStart(2, "0")}/${parts[0]}` : str(value);
+}
+
+function parseDate(value: unknown): Date | null {
+  const parts = dateParts(value);
+  if (parts) return new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+  // Do not let invalid ISO/compact dates roll into the following month.
+  if (/^\d{4}-?\d{2}-?\d{2}/.test(str(value))) return null;
+  const timestamp = Date.parse(str(value));
+  return Number.isNaN(timestamp) ? null : new Date(timestamp);
 }
 
 function uniq(items: string[]) {
@@ -246,7 +262,20 @@ export async function GET(request: Request) {
       ]);
 
     /* 3. Derive values. */
-    const legalName = str(carrier.legalName);
+    const motusCarrierRow: Row = carrierMotus[0] ?? {};
+    const legalName = str(carrier.legalName) || str(motusCarrierRow.legal_name);
+    const phone = str(carrier.telephone) || str(motusCarrierRow.bus_telno);
+    const mailingStreet = str(carrier.mailingStreet || carrier.phyStreet) ||
+      str(motusCarrierRow.mail_street_po || motusCarrierRow.bus_street_po);
+    const mailingCity = str(carrier.mailingCity || carrier.phyCity) ||
+      str(motusCarrierRow.mail_city || motusCarrierRow.bus_city);
+    const mailingState = (str(carrier.mailingState || carrier.phyState) ||
+      str(motusCarrierRow.mail_state_code || motusCarrierRow.bus_state_code)).toUpperCase();
+    const mailingZip = str(carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode) ||
+      str(motusCarrierRow.mail_zip_code || motusCarrierRow.bus_zip_code);
+    const mailUndeliverable = yesNo(
+      motusCarrierRow.mail_undeliverable_mail ?? motusCarrierRow.bus_undeliverable_mail
+    ) === "Yes";
     const dbaName = str(carrier.dbaName) || str(carrierMotus.find((r) => r.dba_name)?.dba_name);
 
     const docket = docketRows
@@ -255,11 +284,18 @@ export async function GET(request: Request) {
     const rawMc = str(carrier.docketNumber || carrier.mcNumber);
     const docketDigits = str(docket?.docketNumber).replace(/\D/g, "");
     const rawMcLetters = (/^([a-z]+)/i.exec(rawMc)?.[1] ?? "").toUpperCase();
-    // Digits come from the MC docket endpoint when present, else from an
-    // "MC0545087"-style value on the carrier record itself.
-    const mcDocketDigits = docketDigits || (rawMcLetters ? rawMc.replace(/\D/g, "") : "");
-    const mcPrefix = docketDigits ? "MC" : rawMcLetters || "MC";
-    const mc = mcDocketDigits ? `${mcPrefix}${mcDocketDigits}` : rawMc ? `MC${rawMc}` : "";
+    // Prefer QCMobile's MC docket, then use the licensing record when QC has no docket.
+    const carrierMcDigits = docketDigits || (/^MC$/i.test(rawMcLetters) || !rawMcLetters
+      ? rawMc.replace(/\D/g, "") : "");
+    const motusDocket = uniq(
+      [...carrierMotus, ...insurMotus, ...histMotus, ...authMotus]
+        .map((row) => str(row.docket_number).toUpperCase().replace(/[^A-Z0-9]/g, ""))
+        .filter((value) => /^MC\d+$/.test(value))
+    )[0] ?? "";
+    const mcDocketDigits = carrierMcDigits || motusDocket.replace(/\D/g, "");
+    const mcPrefix = "MC";
+    const mc = mcDocketDigits ? `${mcPrefix}${mcDocketDigits}` : "";
+    const mcSource = carrierMcDigits ? "qcmobile" : motusDocket ? "motus" : "";
 
     /* 3b. Motus insurance rows are often keyed by MC docket, not DOT.
        If the DOT query came back empty and we know the docket, retry by docket. */
@@ -271,14 +307,21 @@ export async function GET(request: Request) {
           sources[name] = { status: "ok", rows: byDocket.length, via: "docket" };
           debugSample[name] = byDocket[0] ?? null;
         }
+        sources[name] = { ...sources[name], docketTried: true };
         return byDocket;
-      } catch {
-        return rows; // keep the original (empty) result and its diagnostic
+      } catch (err: any) {
+        sources[name] = {
+          ...sources[name], docketTried: true,
+          docketError: String(err?.message ?? err).slice(0, 160),
+        };
+        return rows; // retain the DOT diagnostic; expose the failed fallback separately
       }
     }
-    const insurRows = await docketFallback("motusInsur", MOTUS_INSUR, insurMotus);
-    const histRows = await docketFallback("motusInsHist", MOTUS_INSHIST, histMotus);
-    const authRows = await docketFallback("motusAuthHist", MOTUS_AUTHHIST, authMotus);
+    const [insurRows, histRows, authRows] = await Promise.all([
+      docketFallback("motusInsur", MOTUS_INSUR, insurMotus),
+      docketFallback("motusInsHist", MOTUS_INSHIST, histMotus),
+      docketFallback("motusAuthHist", MOTUS_AUTHHIST, authMotus),
+    ]);
 
     const cargo = uniq(
       cargoRows.map((c) => str(c?.cargoClassDesc ?? c?.cargoClass?.cargoClassDesc))
@@ -313,17 +356,19 @@ export async function GET(request: Request) {
     const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
     const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
 
-    // Motus carrier rows: amounts on file (thousands of dollars) and authority status.
+    // Motus filing flags are Y/N, and coverage amounts are already whole dollars.
     const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
     const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
-    const cargoOnFile =
-      yesNo(carrierMotus.find((r) => yesNo(r.cargo_file) === "Yes")?.cargo_file) ??
-      yesNo(carrier.cargoInsuranceOnFile);
-    const bondOnFile =
-      yesNo(carrierMotus.find((r) => yesNo(r.bond_file) === "Yes")?.bond_file) ??
-      yesNo(carrier.bondInsuranceOnFile);
-    const bipdOnFile = motusBipd ? usd(motusBipd) : yesNo(carrier.bipdInsuranceOnFile) ?? "";
-    const bipdRequired = motusMinBipd ? usd(motusMinBipd) : str(carrier.bipdRequiredAmount);
+    const motusFlag = (field: string, qc: unknown) => {
+      const values = carrierMotus.map((r) => yesNo(r[field])).filter(Boolean);
+      if (values.includes("Yes")) return "Yes";
+      return values.length ? "No" : yesNo(qc);
+    };
+    const cargoOnFile = motusFlag("cargo_file", carrier.cargoInsuranceOnFile);
+    const bondOnFile = motusFlag("bond_file", carrier.bondInsuranceOnFile);
+    const bipdOnFile = motusBipd ? usdDollars(motusBipd) :
+      motusFlag("bipd_file", carrier.bipdInsuranceOnFile) ?? "";
+    const bipdRequired = motusMinBipd ? usdDollars(motusMinBipd) : qcAmount(carrier.bipdRequiredAmount);
 
     // Current policies (Motus Insur): one row per filing, BI&PD primary first.
     const seenPolicies = new Set<string>();
@@ -386,6 +431,19 @@ export async function GET(request: Request) {
       ? `Yes — ${uniq(adverse.map((r) => str(r.op_auth_status) || str(r.reason))).join(", ")}`
       : "No";
 
+    const latestAuth = [...authRows].sort((a, b) =>
+      (parseDate(b.status_change_date)?.getTime() ?? 0) -
+      (parseDate(a.status_change_date)?.getTime() ?? 0)
+    )[0];
+    const authority = latestAuth ? {
+      status: str(latestAuth.op_auth_status),
+      type: str(latestAuth.op_auth_type),
+      reason: str(latestAuth.reason),
+      date: fmtDate(latestAuth.status_change_date),
+    } : null;
+    // A Motus docket may identify an application rather than granted authority.
+    const mcPending = mcSource === "motus" && /pending|inactive|not authorized/i.test(authority?.status ?? "");
+
     /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
     const fields: Record<string, string> = {};
     const set = (id: string, value: unknown) => {
@@ -396,17 +454,17 @@ export async function GET(request: Request) {
     // Section 01 - Contact
     set("businessName", legalName);
     set("mcNumber", mc);
-    set("phone", carrier.telephone);
+    set("phone", phone);
 
     // Section 03 - General info
     set("generalBusinessName", legalName);
     set("dba", dbaName);
     set("ein", ein);
     set("businessStructure", businessStructure);
-    set("mailingStreet", carrier.mailingStreet || carrier.phyStreet);
-    set("mailingCity", carrier.mailingCity || carrier.phyCity);
-    set("mailingState", str(carrier.mailingState || carrier.phyState).toUpperCase());
-    set("mailingZip", carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode);
+    set("mailingStreet", mailingStreet);
+    set("mailingCity", mailingCity);
+    set("mailingState", mailingState);
+    set("mailingZip", mailingZip);
     set("commodities", cargo.join(", "));
     set("hazmat", hazmat);
     set("multiStateOperation", isInterstate ? "Yes" : isIntrastate ? "No" : "");
@@ -447,12 +505,16 @@ export async function GET(request: Request) {
       city: str(carrier.phyCity),
       state: str(carrier.phyState).toUpperCase(),
       zip: str(carrier.phyZip || carrier.phyZipcode),
-      phone: str(carrier.telephone),
+      phone,
       commodities: cargo.join(", "),
       hazmat,
       mileage,
       powerUnits,
       authorityStatus: str(carrier.statusCode),
+      authority,
+      mcSource,
+      mcPending,
+      mailUndeliverable,
       insurance: {
         bipdOnFile,
         bipdRequired,

@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/programs/equipment-finance", priority: 0.85, freq: "monthly" },
     { path: "/faq", priority: 0.85, freq: "monthly" },
     { path: "/about", priority: 0.7, freq: "yearly" },
+    { path: "/industry-recognition", priority: 0.7, freq: "yearly" },
     { path: "/contact", priority: 0.8, freq: "yearly" },
     { path: "/insights", priority: 0.7, freq: "weekly" },
     { path: "/privacy-policy", priority: 0.3, freq: "yearly" },

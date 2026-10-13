@@ -86,43 +86,37 @@ export function InsuranceIntakeDetails() {
 
       if (json.ok && json.data) {
         const d = json.data;
+        const found: Record<string, string> = json.fields || {};
         const updates: Record<string, string> = {};
         const tagged: Record<string, boolean> = {};
 
-        const fillIfEmpty = (key: string, val: string | undefined) => {
+        // Only fill fields the user has not typed into yet; every filled field is tagged "FMCSA".
+        for (const [key, val] of Object.entries(found)) {
           if (val && !formData[key]) {
             updates[key] = val;
             tagged[key] = true;
           }
-        };
-
-        fillIfEmpty("businessName", d.legalName);
-        fillIfEmpty("generalBusinessName", d.legalName);
-        fillIfEmpty("dba", d.dba);
-        fillIfEmpty("mcNumber", d.mc);
-        fillIfEmpty("mailingStreet", d.street);
-        fillIfEmpty("mailingCity", d.city);
-        fillIfEmpty("mailingState", d.state);
-        fillIfEmpty("mailingZip", d.zip);
-        fillIfEmpty("phone", d.phone);
-        fillIfEmpty("commodities", d.commodities);
-        fillIfEmpty("hazmat", d.hazmat);
-        fillIfEmpty("annualMileage", d.mileage);
-        fillIfEmpty("estimatedMileage", d.mileage);
-        fillIfEmpty("totalPowerUnits", d.powerUnits);
-        fillIfEmpty("unitsInsured", d.powerUnits);
+        }
 
         setFormData((prev) => ({ ...prev, ...updates }));
         setFmcsaTagged((prev) => ({ ...prev, ...tagged }));
 
         const filledCount = Object.keys(updates).length;
+        const ins = d.insurance || {};
+        const insParts = [
+          ins.bipdOnFile ? `BI&PD on file ${ins.bipdOnFile}` : "",
+          ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
+          ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
+        ].filter(Boolean);
         setFmcsaStatus({
           type: "success",
-          message: `FMCSA data loaded for ${d.legalName || "carrier"} (DOT #${
+          message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
             d.dotNumber
           }). ${filledCount} field${
             filledCount === 1 ? "" : "s"
-          } pre-filled and tagged "FMCSA". All fields remain editable.`,
+          } pre-filled and tagged "FMCSA"${
+            insParts.length ? `. ${insParts.join(" · ")}` : ""
+          }. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
         });
       }
     } catch {

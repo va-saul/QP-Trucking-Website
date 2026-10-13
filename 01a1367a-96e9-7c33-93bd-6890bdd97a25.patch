@@ -1,0 +1,1790 @@
+diff --git a/01a1364c-1036-7dd7-8c58-3fdfd816c6c0.patch b/01a1364c-1036-7dd7-8c58-3fdfd816c6c0.patch
+deleted file mode 100644
+index 9119624..0000000
+--- a/01a1364c-1036-7dd7-8c58-3fdfd816c6c0.patch
++++ /dev/null
+@@ -1,537 +0,0 @@
+-diff --git a/.env.example b/.env.example
+-index a491ff7..d69a001 100644
+---- a/.env.example
+-+++ b/.env.example
+-@@ -1,4 +1,5 @@
+--# FMCSA SAFER Company Snapshot API key (request free webKey from safer.fmcsa.dot.gov)
+-+# FMCSA QCMobile API WebKey (free; create at https://mobile.fmcsa.dot.gov/QCDevsite/ > My WebKeys).
+-+# Set in Vercel > Project > Settings > Environment Variables, then REDEPLOY (env changes don't apply to existing builds).
+- FMCSA_API_KEY=
+- 
+- # Lead delivery - configure at least one (both recommended)
+-diff --git a/src/app/api/fmcsa/route.ts b/src/app/api/fmcsa/route.ts
+-index be2a771..8c82273 100644
+---- a/src/app/api/fmcsa/route.ts
+-+++ b/src/app/api/fmcsa/route.ts
+-@@ -1,128 +1,368 @@
+- import { NextResponse } from "next/server";
+- 
+-+/**
+-+ * DOT pre-fill lookup.
+-+ *
+-+ * Sources (all public FMCSA data):
+-+ *  - QCMobile API (needs FMCSA_API_KEY): carrier record, cargo carried,
+-+ *    MC docket number.
+-+ *  - Motus open datasets on data.transportation.gov (no key):
+-+ *    Motus Carrier (authority + BI&PD/cargo/bond on file),
+-+ *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies).
+-+ *
+-+ * Returns `fields`: a map of intake form field ids -> values. The client only
+-+ * fills empty fields and tags them "FMCSA". Personal data (SSN, DOB, driver
+-+ * license, MVR) is intentionally never looked up or returned.
+-+ */
+-+
+-+const QC_BASE = "https://mobile.fmcsa.dot.gov/qc/services";
+-+const SOCRATA_BASE = "https://data.transportation.gov/resource";
+-+const MOTUS_CARRIER = "inys-ebih"; // Motus Carrier - All With History
+-+const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History
+-+const MOTUS_INSHIST = "xe5s-wca7"; // Motus InsHist - All With History
+-+
+-+const TIMEOUT_MS = 10000;
+-+const POLICY_SLOTS = 5;
+-+
+-+type Row = Record<string, any>;
+-+
+-+function errorResponse(status: number, error: string, code: string) {
+-+  return NextResponse.json({ ok: false, error, code }, { status });
+-+}
+-+
+-+/* ----------------------------- QCMobile helpers ----------------------------- */
+-+
+-+async function qcFetch(path: string, apiKey: string) {
+-+  return fetch(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
+-+    headers: { Accept: "application/json" },
+-+    next: { revalidate: 3600 },
+-+    signal: AbortSignal.timeout(TIMEOUT_MS),
+-+  });
+-+}
+-+
+-+/** Unwrap QCMobile list responses: `{content: [...]}`, `{content: {...}}` or a bare array. */
+-+function listFrom(json: any): Row[] {
+-+  if (Array.isArray(json)) return json;
+-+  if (Array.isArray(json?.content)) return json.content;
+-+  if (json?.content && typeof json.content === "object") return [json.content];
+-+  return [];
+-+}
+-+
+-+async function qcList(path: string, apiKey: string): Promise<Row[]> {
+-+  const res = await qcFetch(path, apiKey);
+-+  if (!res.ok) throw new Error(`QCMobile ${path} responded ${res.status}`);
+-+  return listFrom(await res.json());
+-+}
+-+
+-+/* ------------------------------- Motus helpers ------------------------------ */
+-+
+-+async function motusRows(dataset: string, dot: string): Promise<Row[]> {
+-+  const url = `${SOCRATA_BASE}/${dataset}.json?usdot_number=${encodeURIComponent(
+-+    dot
+-+  )}&$limit=500`;
+-+  const res = await fetch(url, {
+-+    headers: { Accept: "application/json" },
+-+    next: { revalidate: 3600 },
+-+    signal: AbortSignal.timeout(TIMEOUT_MS),
+-+  });
+-+  if (!res.ok) throw new Error(`Motus ${dataset} responded ${res.status}`);
+-+  const json = await res.json();
+-+  return Array.isArray(json) ? json : [];
+-+}
+-+
+-+/* ------------------------------ value helpers ------------------------------- */
+-+
+-+const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
+-+
+-+function yesNo(v: unknown): string | undefined {
+-+  if (v === true) return "Yes";
+-+  if (v === false) return "No";
+-+  const s = str(v);
+-+  if (/^(y|yes|true)$/i.test(s)) return "Yes";
+-+  if (/^(n|no|false)$/i.test(s)) return "No";
+-+  return undefined;
+-+}
+-+
+-+const isActiveStatus = (v: unknown) => /^active$/i.test(str(v));
+-+
+-+function usd(thousands: unknown): string {
+-+  const n = Number(thousands);
+-+  if (!n || Number.isNaN(n)) return "";
+-+  return `$${(n * 1000).toLocaleString("en-US")}`;
+-+}
+-+
+-+/** Motus/Socrata dates are text; ISO dates are shown as MM/DD/YYYY to match the form. */
+-+function fmtDate(s: unknown): string {
+-+  const v = str(s);
+-+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-+  return iso ? `${iso[2]}/${iso[3]}/${iso[1]}` : v;
+-+}
+-+
+-+function parseDate(s: unknown): Date | null {
+-+  const v = str(s);
+-+  if (!v) return null;
+-+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-+  const d = iso ? new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])) : new Date(v);
+-+  return Number.isNaN(d.getTime()) ? null : d;
+-+}
+-+
+-+const uniq = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
+-+
+-+const LOB_BY_TYPE: Record<string, string> = {
+-+  "1": "BI&PD",
+-+  "2": "Cargo",
+-+  "3": "Bond",
+-+  "4": "Trust fund",
+-+};
+-+const LOB_CLASS: Record<string, string> = { P: "Primary", E: "Excess" };
+-+
+-+/* ---------------------------------- GET ------------------------------------ */
+-+
+- export async function GET(request: Request) {
+--  const apiKey = process.env.FMCSA_API_KEY;
+-+  // Trim: a key pasted into Vercel with a trailing space/newline is rejected upstream.
+-+  const apiKey = process.env.FMCSA_API_KEY?.trim();
+- 
+-   if (!apiKey) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "FMCSA API key not configured",
+--        code: "not_configured",
+--      },
+--      { status: 503 }
+--    );
+-+    return errorResponse(503, "FMCSA API key not configured", "not_configured");
+-   }
+- 
+-   const { searchParams } = new URL(request.url);
+-   const dotParam = searchParams.get("dot");
+-   if (!dotParam) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "DOT number is required",
+--        code: "missing_dot",
+--      },
+--      { status: 400 }
+--    );
+-+    return errorResponse(400, "DOT number is required", "missing_dot");
+-   }
+- 
+-   const dot = dotParam.replace(/\D/g, "");
+-   if (!dot) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "Invalid DOT number",
+--        code: "invalid_dot",
+--      },
+--      { status: 400 }
+--    );
+-+    return errorResponse(400, "Invalid DOT number", "invalid_dot");
+-   }
+- 
+-   try {
+--    const fmcsaUrl = `https://mobile.fmcsa.dot.gov/qc/services/carriers/${encodeURIComponent(
+--      dot
+--    )}?webKey=${encodeURIComponent(apiKey)}`;
+--
+--    const response = await fetch(fmcsaUrl, {
+--      headers: {
+--        Accept: "application/json",
+--      },
+--      next: { revalidate: 3600 },
+--    });
+-+    /* 1. Core carrier record (required). */
+-+    const carrierRes = await qcFetch(`/carriers/${encodeURIComponent(dot)}`, apiKey);
+- 
+--    if (!response.ok) {
+--      if (response.status === 404) {
+--        return NextResponse.json(
+--          {
+--            ok: false,
+--            error: "Carrier not found for this DOT number",
+--            code: "not_found",
+--          },
+--          { status: 404 }
+-+    if (!carrierRes.ok) {
+-+      console.error(`[fmcsa] QCMobile responded ${carrierRes.status} for DOT ${dot}`);
+-+      if (carrierRes.status === 401 || carrierRes.status === 403) {
+-+        return errorResponse(
+-+          502,
+-+          "FMCSA rejected the web key. Check that FMCSA_API_KEY in Vercel is the exact WebKey from the FMCSA QCMobile developer portal, then redeploy.",
+-+          "invalid_key"
+-         );
+-       }
+--      return NextResponse.json(
+--        {
+--          ok: false,
+--          error: `FMCSA upstream responded with status ${response.status}`,
+--          code: "upstream_error",
+--        },
+--        { status: 502 }
+-+      if (carrierRes.status === 404) {
+-+        return errorResponse(404, "Carrier not found for this DOT number", "not_found");
+-+      }
+-+      return errorResponse(
+-+        502,
+-+        `FMCSA upstream responded with status ${carrierRes.status}`,
+-+        "upstream_error"
+-       );
+-     }
+- 
+--    const json = await response.json();
+--    const carrier = json?.content?.carrier ?? json?.carrier ?? json;
+-+    const json = await carrierRes.json();
+-+    const carrier: Row | undefined = json?.content?.carrier ?? json?.carrier ?? json;
+- 
+-     if (!carrier || (!carrier.dotNumber && !carrier.legalName)) {
+--      return NextResponse.json(
+--        {
+--          ok: false,
+--          error: "Carrier not found for this DOT number",
+--          code: "not_found",
+--        },
+--        { status: 404 }
+--      );
+-+      return errorResponse(404, "Carrier not found for this DOT number", "not_found");
+-     }
+- 
+--    // Format commodities
+--    let commodities = "";
+--    if (Array.isArray(carrier.cargoCarried)) {
+--      commodities = carrier.cargoCarried
+--        .map((c: any) => (typeof c === "string" ? c : c?.cargoName || c?.desc || ""))
+--        .filter(Boolean)
+--        .join(", ");
+--    } else if (typeof carrier.cargoCarried === "string") {
+--      commodities = carrier.cargoCarried;
+--    }
+-+    /* 2. Supplemental sources. Each one is optional: a failure only drops its fields. */
+-+    const [cargoR, docketR, carrierMotusR, insurMotusR, histMotusR] =
+-+      await Promise.allSettled([
+-+        qcList(`/carriers/${dot}/cargo-carried`, apiKey),
+-+        qcList(`/carriers/${dot}/docket-numbers`, apiKey),
+-+        motusRows(MOTUS_CARRIER, dot),
+-+        motusRows(MOTUS_INSUR, dot),
+-+        motusRows(MOTUS_INSHIST, dot),
+-+      ]);
+-+
+-+    const settle = <T,>(r: PromiseSettledResult<T[]>): T[] => {
+-+      if (r.status === "fulfilled") return r.value;
+-+      console.warn("[fmcsa] supplemental source unavailable:", r.reason?.message ?? r.reason);
+-+      return [];
+-+    };
+-+
+-+    const cargoRows = settle(cargoR);
+-+    const docketRows = settle(docketR);
+-+    const carrierMotus = settle(carrierMotusR);
+-+    const insurMotus = settle(insurMotusR);
+-+    const histMotus = settle(histMotusR);
+-+
+-+    /* 3. Derive values. */
+-+    const legalName = str(carrier.legalName);
+-+    const dbaName = str(carrier.dbaName) || str(carrierMotus.find((r) => r.dba_name)?.dba_name);
+-+
+-+    const docket = docketRows
+-+      .map((d) => d?.docket ?? d)
+-+      .find((d) => str(d?.prefix).toUpperCase() === "MC");
+-+    const mc = docket
+-+      ? `MC${str(docket.docketNumber)}`
+-+      : str(carrier.docketNumber || carrier.mcNumber);
+-+
+-+    const cargo = uniq(
+-+      cargoRows.map((c) => str(c?.cargoClassDesc ?? c?.cargoClass?.cargoClassDesc))
+-+    );
+-+
+-+    const carrierOperation = str(
+-+      carrier.carrierOperation?.carrierOperationDesc ?? carrier.carrierOperation
+-+    );
+-+    const isInterstate = /interstate/i.test(carrierOperation) && !/intrastate/i.test(carrierOperation);
+-+    const isIntrastate = /intrastate/i.test(carrierOperation);
+-+
+-+    const common = isActiveStatus(carrier.commonAuthorityStatus);
+-+    const contract = isActiveStatus(carrier.contractAuthorityStatus);
+-+    const carrierType = common && contract
+-+      ? "Common & contract carrier"
+-+      : common
+-+      ? "Common carrier"
+-+      : contract
+-+      ? "Contract hauler"
+-+      : "";
+-+
+-+    const brokerStatus = str(carrier.brokerAuthorityStatus);
+-+    const brokerage = brokerStatus ? (isActiveStatus(brokerStatus) ? "Yes" : "No") : "";
+-+
+-+    const einDigits = str(carrier.ein).replace(/\D/g, "");
+-+    const ein = einDigits && Number(einDigits) > 0 ? einDigits.padStart(9, "0") : "";
+-+
+-+    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag);
+-+    const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
+-+    const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
+-+
+-+    // Motus carrier row: amounts on file (thousands of dollars) and authority status.
+-+    const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
+-+    const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
+-+    const cargoOnFile =
+-+      yesNo(carrierMotus.find((r) => yesNo(r.cargo_file) === "Yes")?.cargo_file) ??
+-+      yesNo(carrier.cargoInsuranceOnFile);
+-+    const bondOnFile =
+-+      yesNo(carrierMotus.find((r) => yesNo(r.bond_file) === "Yes")?.bond_file) ??
+-+      yesNo(carrier.bondInsuranceOnFile);
+-+    const bipdOnFile = motusBipd ? usd(motusBipd) : yesNo(carrier.bipdInsuranceOnFile) ?? "";
+-+    const bipdRequired = motusMinBipd ? usd(motusMinBipd) : str(carrier.bipdRequiredAmount);
+-+
+-+    // Current policies (Motus Insur): one row per filing, BI&PD primary first.
+-+    const seenPolicies = new Set<string>();
+-+    const policies = insurMotus
+-+      .filter((r) => {
+-+        const key = `${str(r.policy_no)}|${str(r.ins_type_code)}`;
+-+        if (!str(r.policy_no) || seenPolicies.has(key)) return false;
+-+        seenPolicies.add(key);
+-+        return true;
+-+      })
+-+      .sort((a, b) => Number(a.ins_type_code || 9) - Number(b.ins_type_code || 9))
+-+      .slice(0, POLICY_SLOTS)
+-+      .map((r) => ({
+-+        number: str(r.policy_no),
+-+        carrier: str(r.insurance_company_name),
+-+        lob: LOB_BY_TYPE[str(r.ins_type_code)] ?? "",
+-+        lobClass: LOB_CLASS[str(r.ins_class_code)] ?? "",
+-+        effectiveDate: fmtDate(r.effective_date),
+-+      }));
+-+
+-+    // Prior and cancelled policies (Motus InsHist).
+-+    const priorCompanies = uniq([
+-+      ...histMotus.map((r) => str(r.insurance_company_name)),
+-+      ...insurMotus.map((r) => str(r.insurance_company_name)),
+-+    ]);
+-+    const cancelled = histMotus.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
+-+    const cancelledText = cancelled.length
+-+      ? `Yes — cancelled${cancelled
+-+          .map((r) => (r.cancl_effective_date ? ` ${fmtDate(r.cancl_effective_date)}` : ""))
+-+          .join(",")}`
+-+      : histMotus.length
+-+      ? "No"
+-+      : "";
+-+    const priorTypes = uniq(histMotus.map((r) => str(r.ins_type_desc)));
+-+    const earliest = [...histMotus, ...insurMotus]
+-+      .map((r) => parseDate(r.effective_date))
+-+      .filter((d): d is Date => d !== null)
+-+      .sort((a, b) => a.getTime() - b.getTime())[0];
+-+    const yearsPrior = earliest
+-+      ? String(Math.floor((Date.now() - earliest.getTime()) / (365.25 * 24 * 3600 * 1000)))
+-+      : "";
+-+
+-+    /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
+-+    const fields: Record<string, string> = {};
+-+    const set = (id: string, value: unknown) => {
+-+      const v = str(value);
+-+      if (v) fields[id] = v;
+-+    };
+-+
+-+    // Section 01 - Contact
+-+    set("businessName", legalName);
+-+    set("mcNumber", mc);
+-+    set("phone", carrier.telephone);
+-+
+-+    // Section 03 - General info
+-+    set("generalBusinessName", legalName);
+-+    set("dba", dbaName);
+-+    set("ein", ein);
+-+    set("mailingStreet", carrier.mailingStreet || carrier.phyStreet);
+-+    set("mailingCity", carrier.mailingCity || carrier.phyCity);
+-+    set("mailingState", str(carrier.mailingState || carrier.phyState).toUpperCase());
+-+    set("mailingZip", carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode);
+-+    set("commodities", cargo.join(", "));
+-+    set("hazmat", hazmat);
+-+    set("multiStateOperation", isInterstate ? "Yes" : isIntrastate ? "No" : "");
+-+    set("totalPowerUnits", powerUnits);
+-+
+-+    // Section 04 - Operation
+-+    set("carrierType", carrierType);
+-+    set("brokerageAuthority", brokerage);
+-+    set("rangeOfTransport", isInterstate ? "Interstate" : isIntrastate ? "Intrastate" : "");
+-+    set("estimatedMileage", mileage);
+-+
+-+    // Section 05 - Renewal / prior insurance
+-+    set("unitsInsured", powerUnits);
+-+    set("annualMileage", mileage);
+-+    set("priorInsuranceCompany", priorCompanies.join(", "));
+-+    set("cancelledOrNonRenewed", cancelledText);
+-+    set("yearsPriorInsurance", yearsPrior);
+-+    set("priorCoverType", priorTypes.join(", "));
+-+
+-+    // Section 08 - Existing policies
+-+    policies.forEach((p, i) => {
+-+      const n = i + 1;
+-+      set(`policy_${n}_number`, p.number);
+-+      set(`policy_${n}_carrier`, p.carrier);
+-+      set(`policy_${n}_lob`, p.lob);
+-+      set(`policy_${n}_lobClass`, p.lobClass);
+-+      set(`policy_${n}_effectiveDate`, p.effectiveDate);
+-+    });
+- 
+-     const data = {
+-       dotNumber: String(carrier.dotNumber || dot),
+--      legalName: String(carrier.legalName || "").trim(),
+--      dba: String(carrier.dbaName || "").trim(),
+--      mc: String(carrier.docketNumber || carrier.mcNumber || "").trim(),
+--      street: String(carrier.phyStreet || carrier.mailingStreet || "").trim(),
+--      city: String(carrier.phyCity || carrier.mailingCity || "").trim(),
+--      state: String(carrier.phyState || carrier.mailingState || "").trim().toUpperCase(),
+--      zip: String(carrier.phyZipcode || carrier.mailingZipcode || "").trim(),
+--      phone: String(carrier.telephone || "").trim(),
+--      commodities,
+--      hazmat: carrier.hazmat === "Y" || carrier.hazmat === true ? "Yes" : "No",
+--      mileage: carrier.carrierMileage || carrier.mcs150Mileage ? String(carrier.carrierMileage || carrier.mcs150Mileage) : "",
+--      powerUnits: carrier.totalPowerUnits ? String(carrier.totalPowerUnits) : "",
+-+      legalName,
+-+      dba: dbaName,
+-+      mc,
+-+      street: str(carrier.phyStreet),
+-+      city: str(carrier.phyCity),
+-+      state: str(carrier.phyState).toUpperCase(),
+-+      zip: str(carrier.phyZip || carrier.phyZipcode),
+-+      phone: str(carrier.telephone),
+-+      commodities: cargo.join(", "),
+-+      hazmat: hazmat ?? "",
+-+      mileage,
+-+      powerUnits,
+-+      authorityStatus: str(carrier.statusCode),
+-+      insurance: {
+-+        bipdOnFile,
+-+        bipdRequired,
+-+        cargoOnFile: cargoOnFile ?? "",
+-+        bondOnFile: bondOnFile ?? "",
+-+      },
+-+      policyCount: policies.length,
+-     };
+- 
+--    return NextResponse.json({ ok: true, data });
+-+    return NextResponse.json({ ok: true, data, fields });
+-   } catch (err: any) {
+-     console.error("[fmcsa] lookup error:", err);
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "Failed to connect to FMCSA SAFER service",
+--        code: "upstream_failure",
+--      },
+--      { status: 502 }
+-+    return errorResponse(
+-+      502,
+-+      "Failed to connect to FMCSA service",
+-+      "upstream_failure"
+-     );
+-   }
+- }
+-diff --git a/src/components/InsuranceIntakeDetails.tsx b/src/components/InsuranceIntakeDetails.tsx
+-index f281fce..8e3cb28 100644
+---- a/src/components/InsuranceIntakeDetails.tsx
+-+++ b/src/components/InsuranceIntakeDetails.tsx
+-@@ -86,43 +86,37 @@ export function InsuranceIntakeDetails() {
+- 
+-       if (json.ok && json.data) {
+-         const d = json.data;
+-+        const found: Record<string, string> = json.fields || {};
+-         const updates: Record<string, string> = {};
+-         const tagged: Record<string, boolean> = {};
+- 
+--        const fillIfEmpty = (key: string, val: string | undefined) => {
+-+        // Only fill fields the user has not typed into yet; every filled field is tagged "FMCSA".
+-+        for (const [key, val] of Object.entries(found)) {
+-           if (val && !formData[key]) {
+-             updates[key] = val;
+-             tagged[key] = true;
+-           }
+--        };
+--
+--        fillIfEmpty("businessName", d.legalName);
+--        fillIfEmpty("generalBusinessName", d.legalName);
+--        fillIfEmpty("dba", d.dba);
+--        fillIfEmpty("mcNumber", d.mc);
+--        fillIfEmpty("mailingStreet", d.street);
+--        fillIfEmpty("mailingCity", d.city);
+--        fillIfEmpty("mailingState", d.state);
+--        fillIfEmpty("mailingZip", d.zip);
+--        fillIfEmpty("phone", d.phone);
+--        fillIfEmpty("commodities", d.commodities);
+--        fillIfEmpty("hazmat", d.hazmat);
+--        fillIfEmpty("annualMileage", d.mileage);
+--        fillIfEmpty("estimatedMileage", d.mileage);
+--        fillIfEmpty("totalPowerUnits", d.powerUnits);
+--        fillIfEmpty("unitsInsured", d.powerUnits);
+-+        }
+- 
+-         setFormData((prev) => ({ ...prev, ...updates }));
+-         setFmcsaTagged((prev) => ({ ...prev, ...tagged }));
+- 
+-         const filledCount = Object.keys(updates).length;
+-+        const ins = d.insurance || {};
+-+        const insParts = [
+-+          ins.bipdOnFile ? `BI&PD on file ${ins.bipdOnFile}` : "",
+-+          ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
+-+          ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
+-+        ].filter(Boolean);
+-         setFmcsaStatus({
+-           type: "success",
+--          message: `FMCSA data loaded for ${d.legalName || "carrier"} (DOT #${
+-+          message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
+-             d.dotNumber
+-           }). ${filledCount} field${
+-             filledCount === 1 ? "" : "s"
+--          } pre-filled and tagged "FMCSA". All fields remain editable.`,
+-+          } pre-filled and tagged "FMCSA"${
+-+            insParts.length ? `. ${insParts.join(" · ")}` : ""
+-+          }. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+-         });
+-       }
+-     } catch {
+diff --git a/01a1365a-d877-7d8f-8633-e844eb848fe4.patch b/01a1365a-d877-7d8f-8633-e844eb848fe4.patch
+deleted file mode 100644
+index d2849ad..0000000
+--- a/01a1365a-d877-7d8f-8633-e844eb848fe4.patch
++++ /dev/null
+@@ -1,664 +0,0 @@
+-diff --git a/src/app/api/fmcsa/route.ts b/src/app/api/fmcsa/route.ts
+-index b226d13..080a010 100644
+---- a/src/app/api/fmcsa/route.ts
+-+++ b/src/app/api/fmcsa/route.ts
+-@@ -1,143 +1,476 @@
+- import { NextResponse } from "next/server";
+- 
+-+/**
+-+ * DOT pre-fill lookup.
+-+ *
+-+ * Sources (all public FMCSA data):
+-+ *  - QCMobile API (needs FMCSA_API_KEY): carrier record, cargo carried,
+-+ *    MC docket number.
+-+ *  - Motus open datasets on data.transportation.gov (no key):
+-+ *    Motus Carrier (authority + BI&PD/cargo/bond on file),
+-+ *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies),
+-+ *    Motus AuthHist (operating-authority history).
+-+ *
+-+ * Returns `fields`: a map of intake form field ids -> values, and `sources`:
+-+ * a per-source diagnostic ({status, rows, error}) so it is visible which
+-+ * upstream answered and which did not. Pass ?debug=1 to also get one raw
+-+ * sample row per source. The client only fills empty fields and tags them
+-+ * "FMCSA". Personal data (SSN, DOB, driver license, MVR) is intentionally
+-+ * never looked up or returned.
+-+ */
+-+
+-+const QC_BASE = "https://mobile.fmcsa.dot.gov/qc/services";
+-+const SOCRATA_BASE = "https://data.transportation.gov/resource";
+-+const MOTUS_CARRIER = "inys-ebih"; // Motus Carrier - All With History
+-+const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History
+-+const MOTUS_INSHIST = "xe5s-wca7"; // Motus InsHist - All With History
+-+const MOTUS_AUTHHIST = "yu5v-wbh6"; // Motus AuthHist - All With History
+-+
+-+const TIMEOUT_MS = 8000;
+-+const RETRY_DELAY_MS = 1200;
+-+const POLICY_SLOTS = 5;
+-+
+-+type Row = Record<string, any>;
+-+
+-+type SourceStatus = {
+-+  status: "ok" | "empty" | "error";
+-+  rows?: number;
+-+  error?: string;
+-+  via?: string;
+-+};
+-+
+-+function errorResponse(status: number, error: string, code: string) {
+-+  return NextResponse.json({ ok: false, error, code }, { status });
+-+}
+-+
+-+/* ----------------------------- fetch helpers ------------------------------- */
+-+
+-+/** One retry on 429/5xx: Socrata throttles untokened traffic from shared IPs. */
+-+async function fetchWithRetry(url: string, opts: RequestInit): Promise<Response> {
+-+  const attempt = () => fetch(url, { ...opts, signal: AbortSignal.timeout(TIMEOUT_MS) });
+-+  let res = await attempt();
+-+  if (res.status === 429 || res.status >= 500) {
+-+    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+-+    res = await attempt();
+-+  }
+-+  return res;
+-+}
+-+
+-+/* ----------------------------- QCMobile helpers ----------------------------- */
+-+
+-+async function qcFetch(path: string, apiKey: string) {
+-+  return fetchWithRetry(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
+-+    headers: { Accept: "application/json" },
+-+    next: { revalidate: 3600 },
+-+  } as RequestInit);
+-+}
+-+
+-+/** First array found anywhere in the payload (handles {content:[...]}, {content:{x:[...]}} and bare arrays). */
+-+function firstArray(v: any, depth = 0): Row[] | null {
+-+  if (Array.isArray(v)) return v as Row[];
+-+  if (depth > 3 || !v || typeof v !== "object") return null;
+-+  for (const key of Object.keys(v)) {
+-+    const found = firstArray(v[key], depth + 1);
+-+    if (found) return found;
+-+  }
+-+  return null;
+-+}
+-+
+-+function listFrom(json: any): Row[] {
+-+  return firstArray(json?.content ?? json) ?? [];
+-+}
+-+
+-+async function qcList(path: string, apiKey: string): Promise<Row[]> {
+-+  const res = await qcFetch(path, apiKey);
+-+  if (!res.ok) throw new Error(`QCMobile ${path} responded ${res.status}`);
+-+  return listFrom(await res.json());
+-+}
+-+
+-+/* ------------------------------- Motus helpers ------------------------------ */
+-+
+-+const sqlStr = (s: string) => `'${s.replace(/'/g, "")}'`;
+-+
+-+/** DOT numbers appear padded or unpadded depending on the dataset vintage. */
+-+function dotWhere(dot: string): string {
+-+  const variants = uniq([dot, dot.padStart(6, "0"), dot.padStart(7, "0"), dot.padStart(8, "0")]);
+-+  return `usdot_number IN (${variants.map(sqlStr).join(",")})`;
+-+}
+-+
+-+/** Motus keys many insurance rows by docket ("MC" + 10 digits), not DOT. */
+-+function docketWhere(prefix: string, docketDigits: string): string {
+-+  const variants = uniq([docketDigits, docketDigits.padStart(10, "0")]);
+-+  return `docket_number IN (${variants.map((v) => sqlStr(`${prefix}${v}`)).join(",")})`;
+-+}
+-+
+-+async function motusRows(dataset: string, where: string): Promise<Row[]> {
+-+  const url = `${SOCRATA_BASE}/${dataset}.json?$where=${encodeURIComponent(where)}&$limit=500`;
+-+  const res = await fetchWithRetry(url, {
+-+    headers: { Accept: "application/json" },
+-+    next: { revalidate: 3600 },
+-+  } as RequestInit);
+-+  if (!res.ok) throw new Error(`Motus ${dataset} responded ${res.status}`);
+-+  const json = await res.json();
+-+  return Array.isArray(json) ? json : [];
+-+}
+-+
+-+/* ------------------------------ value helpers ------------------------------- */
+-+
+-+const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
+-+
+-+function yesNo(v: unknown): string | undefined {
+-+  if (v === true) return "Yes";
+-+  if (v === false) return "No";
+-+  const s = str(v);
+-+  if (/^(y|yes|true)$/i.test(s)) return "Yes";
+-+  if (/^(n|no|false)$/i.test(s)) return "No";
+-+  return undefined;
+-+}
+-+
+-+const isActiveStatus = (v: unknown) => /^active$/i.test(str(v));
+-+
+-+function usd(thousands: unknown): string {
+-+  const n = Number(thousands);
+-+  if (!n || Number.isNaN(n)) return "";
+-+  return `$${(n * 1000).toLocaleString("en-US")}`;
+-+}
+-+
+-+/** Motus/Socrata dates are text; ISO dates are shown as MM/DD/YYYY to match the form. */
+-+function fmtDate(s: unknown): string {
+-+  const v = str(s);
+-+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-+  return iso ? `${iso[2]}/${iso[3]}/${iso[1]}` : v;
+-+}
+-+
+-+function parseDate(s: unknown): Date | null {
+-+  const v = str(s);
+-+  if (!v) return null;
+-+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-+  const d = iso ? new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])) : new Date(v);
+-+  return Number.isNaN(d.getTime()) ? null : d;
+-+}
+-+
+-+function uniq(items: string[]) {
+-+  return Array.from(new Set(items.filter(Boolean)));
+-+}
+-+
+-+const LOB_BY_TYPE: Record<string, string> = {
+-+  "1": "BI&PD",
+-+  "2": "Cargo",
+-+  "3": "Bond",
+-+  "4": "Trust fund",
+-+};
+-+const LOB_CLASS: Record<string, string> = { P: "Primary", E: "Excess" };
+-+
+-+/* ---------------------------------- GET ------------------------------------ */
+-+
+- export async function GET(request: Request) {
+-   // Trim: a key pasted into Vercel with a trailing space/newline is rejected upstream.
+-   const apiKey = process.env.FMCSA_API_KEY?.trim();
+- 
+-   if (!apiKey) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "FMCSA API key not configured",
+--        code: "not_configured",
+--      },
+--      { status: 503 }
+--    );
+-+    return errorResponse(503, "FMCSA API key not configured", "not_configured");
+-   }
+- 
+-   const { searchParams } = new URL(request.url);
+-   const dotParam = searchParams.get("dot");
+-   if (!dotParam) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "DOT number is required",
+--        code: "missing_dot",
+--      },
+--      { status: 400 }
+--    );
+-+    return errorResponse(400, "DOT number is required", "missing_dot");
+-   }
+- 
+-   const dot = dotParam.replace(/\D/g, "");
+-   if (!dot) {
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "Invalid DOT number",
+--        code: "invalid_dot",
+--      },
+--      { status: 400 }
+--    );
+-+    return errorResponse(400, "Invalid DOT number", "invalid_dot");
+-   }
+-+  const debug = searchParams.get("debug") === "1";
+- 
+--  try {
+--    const fmcsaUrl = `https://mobile.fmcsa.dot.gov/qc/services/carriers/${encodeURIComponent(
+--      dot
+--    )}?webKey=${encodeURIComponent(apiKey)}`;
+-+  const sources: Record<string, SourceStatus> = {};
+-+  const debugSample: Record<string, Row | null> = {};
+- 
+--    const response = await fetch(fmcsaUrl, {
+--      headers: {
+--        Accept: "application/json",
+--      },
+--      next: { revalidate: 3600 },
+--    });
+-+  /** Run a supplemental fetch, record its outcome in `sources`, never throw. */
+-+  async function guarded(name: string, p: Promise<Row[]>): Promise<Row[]> {
+-+    try {
+-+      const rows = await p;
+-+      sources[name] = { status: rows.length ? "ok" : "empty", rows: rows.length };
+-+      debugSample[name] = rows[0] ?? null;
+-+      return rows;
+-+    } catch (err: any) {
+-+      sources[name] = { status: "error", error: String(err?.message ?? err).slice(0, 160) };
+-+      debugSample[name] = null;
+-+      console.warn(`[fmcsa] ${name} unavailable:`, err?.message ?? err);
+-+      return [];
+-+    }
+-+  }
+-+
+-+  try {
+-+    /* 1. Core carrier record (required). */
+-+    const carrierRes = await qcFetch(`/carriers/${encodeURIComponent(dot)}`, apiKey);
+- 
+--    if (!response.ok) {
+--      console.error(`[fmcsa] upstream responded ${response.status} for DOT ${dot}`);
+--      if (response.status === 401 || response.status === 403) {
+--        return NextResponse.json(
+--          {
+--            ok: false,
+--            error:
+--              "FMCSA rejected the web key. Check that FMCSA_API_KEY in Vercel is the exact WebKey from the FMCSA QCMobile developer portal, then redeploy.",
+--            code: "invalid_key",
+--          },
+--          { status: 502 }
+-+    if (!carrierRes.ok) {
+-+      console.error(`[fmcsa] QCMobile responded ${carrierRes.status} for DOT ${dot}`);
+-+      if (carrierRes.status === 401 || carrierRes.status === 403) {
+-+        return errorResponse(
+-+          502,
+-+          "FMCSA rejected the web key. Check that FMCSA_API_KEY in Vercel is the exact WebKey from the FMCSA QCMobile developer portal, then redeploy.",
+-+          "invalid_key"
+-         );
+-       }
+--      if (response.status === 404) {
+--        return NextResponse.json(
+--          {
+--            ok: false,
+--            error: "Carrier not found for this DOT number",
+--            code: "not_found",
+--          },
+--          { status: 404 }
+--        );
+-+      if (carrierRes.status === 404) {
+-+        return errorResponse(404, "Carrier not found for this DOT number", "not_found");
+-       }
+--      return NextResponse.json(
+--        {
+--          ok: false,
+--          error: `FMCSA upstream responded with status ${response.status}`,
+--          code: "upstream_error",
+--        },
+--        { status: 502 }
+-+      return errorResponse(
+-+        502,
+-+        `FMCSA upstream responded with status ${carrierRes.status}`,
+-+        "upstream_error"
+-       );
+-     }
+- 
+--    const json = await response.json();
+--    const carrier = json?.content?.carrier ?? json?.carrier ?? json;
+-+    const json = await carrierRes.json();
+-+    const carrier: Row | undefined = json?.content?.carrier ?? json?.carrier ?? json;
+- 
+-     if (!carrier || (!carrier.dotNumber && !carrier.legalName)) {
+--      return NextResponse.json(
+--        {
+--          ok: false,
+--          error: "Carrier not found for this DOT number",
+--          code: "not_found",
+--        },
+--        { status: 404 }
+--      );
+-+      return errorResponse(404, "Carrier not found for this DOT number", "not_found");
+-     }
+-+    sources.qcmobileCarrier = { status: "ok", rows: 1 };
+-+    if (debug) debugSample.qcmobileCarrier = carrier;
+-+
+-+    /* 2. Supplemental sources. Each one is optional: a failure only drops its fields. */
+-+    const dotW = dotWhere(dot);
+-+    const [cargoRows, docketRows, carrierMotus, insurMotus, histMotus, authMotus] =
+-+      await Promise.all([
+-+        guarded("qcmobileCargo", qcList(`/carriers/${dot}/cargo-carried`, apiKey)),
+-+        guarded("qcmobileDockets", qcList(`/carriers/${dot}/docket-numbers`, apiKey)),
+-+        guarded("motusCarrier", motusRows(MOTUS_CARRIER, dotW)),
+-+        guarded("motusInsur", motusRows(MOTUS_INSUR, dotW)),
+-+        guarded("motusInsHist", motusRows(MOTUS_INSHIST, dotW)),
+-+        guarded("motusAuthHist", motusRows(MOTUS_AUTHHIST, dotW)),
+-+      ]);
+-+
+-+    /* 3. Derive values. */
+-+    const legalName = str(carrier.legalName);
+-+    const dbaName = str(carrier.dbaName) || str(carrierMotus.find((r) => r.dba_name)?.dba_name);
+-+
+-+    const docket = docketRows
+-+      .map((d) => d?.docket ?? d)
+-+      .find((d) => str(d?.prefix).toUpperCase().replace(/[^A-Z]/g, "") === "MC");
+-+    const rawMc = str(carrier.docketNumber || carrier.mcNumber);
+-+    const docketDigits = str(docket?.docketNumber).replace(/\D/g, "");
+-+    const rawMcLetters = (/^([a-z]+)/i.exec(rawMc)?.[1] ?? "").toUpperCase();
+-+    // Digits come from the MC docket endpoint when present, else from an
+-+    // "MC0545087"-style value on the carrier record itself.
+-+    const mcDocketDigits = docketDigits || (rawMcLetters ? rawMc.replace(/\D/g, "") : "");
+-+    const mcPrefix = docketDigits ? "MC" : rawMcLetters || "MC";
+-+    const mc = mcDocketDigits ? `${mcPrefix}${mcDocketDigits}` : rawMc ? `MC${rawMc}` : "";
+- 
+--    // Format commodities
+--    let commodities = "";
+--    if (Array.isArray(carrier.cargoCarried)) {
+--      commodities = carrier.cargoCarried
+--        .map((c: any) => (typeof c === "string" ? c : c?.cargoName || c?.desc || ""))
+--        .filter(Boolean)
+--        .join(", ");
+--    } else if (typeof carrier.cargoCarried === "string") {
+--      commodities = carrier.cargoCarried;
+-+    /* 3b. Motus insurance rows are often keyed by MC docket, not DOT.
+-+       If the DOT query came back empty and we know the docket, retry by docket. */
+-+    async function docketFallback(name: string, dataset: string, rows: Row[]): Promise<Row[]> {
+-+      if (rows.length || !mcDocketDigits) return rows;
+-+      try {
+-+        const byDocket = await motusRows(dataset, docketWhere(mcPrefix, mcDocketDigits));
+-+        if (byDocket.length) {
+-+          sources[name] = { status: "ok", rows: byDocket.length, via: "docket" };
+-+          debugSample[name] = byDocket[0] ?? null;
+-+        }
+-+        return byDocket;
+-+      } catch {
+-+        return rows; // keep the original (empty) result and its diagnostic
+-+      }
+-     }
+-+    const insurRows = await docketFallback("motusInsur", MOTUS_INSUR, insurMotus);
+-+    const histRows = await docketFallback("motusInsHist", MOTUS_INSHIST, histMotus);
+-+    const authRows = await docketFallback("motusAuthHist", MOTUS_AUTHHIST, authMotus);
+-+
+-+    const cargo = uniq(
+-+      cargoRows.map((c) => str(c?.cargoClassDesc ?? c?.cargoClass?.cargoClassDesc))
+-+    );
+-+
+-+    const carrierOperation = str(
+-+      carrier.carrierOperation?.carrierOperationDesc ?? carrier.carrierOperation
+-+    );
+-+    const isInterstate = /interstate/i.test(carrierOperation) && !/intrastate/i.test(carrierOperation);
+-+    const isIntrastate = /intrastate/i.test(carrierOperation);
+-+
+-+    const common = isActiveStatus(carrier.commonAuthorityStatus);
+-+    const contract = isActiveStatus(carrier.contractAuthorityStatus);
+-+    const carrierType = common && contract
+-+      ? "Common & contract carrier"
+-+      : common
+-+      ? "Common carrier"
+-+      : contract
+-+      ? "Contract hauler"
+-+      : "";
+-+
+-+    const brokerStatus = str(carrier.brokerAuthorityStatus);
+-+    const brokerage = brokerStatus ? (isActiveStatus(brokerStatus) ? "Yes" : "No") : "";
+-+
+-+    const einDigits = str(carrier.ein).replace(/\D/g, "");
+-+    const ein = einDigits && Number(einDigits) > 0 ? einDigits.padStart(9, "0") : "";
+-+
+-+    const businessStructure = str(carrier.censusTypeId?.censusTypeDesc ?? carrier.censusTypeId);
+-+
+-+    // QCMobile's carrier record has no hazmat flag; absence of one means non-hazmat filing.
+-+    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag) ?? "No";
+-+    const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
+-+    const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
+-+
+-+    // Motus carrier rows: amounts on file (thousands of dollars) and authority status.
+-+    const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
+-+    const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
+-+    const cargoOnFile =
+-+      yesNo(carrierMotus.find((r) => yesNo(r.cargo_file) === "Yes")?.cargo_file) ??
+-+      yesNo(carrier.cargoInsuranceOnFile);
+-+    const bondOnFile =
+-+      yesNo(carrierMotus.find((r) => yesNo(r.bond_file) === "Yes")?.bond_file) ??
+-+      yesNo(carrier.bondInsuranceOnFile);
+-+    const bipdOnFile = motusBipd ? usd(motusBipd) : yesNo(carrier.bipdInsuranceOnFile) ?? "";
+-+    const bipdRequired = motusMinBipd ? usd(motusMinBipd) : str(carrier.bipdRequiredAmount);
+-+
+-+    // Current policies (Motus Insur): one row per filing, BI&PD primary first.
+-+    const seenPolicies = new Set<string>();
+-+    const policies = insurRows
+-+      .filter((r) => {
+-+        const key = `${str(r.policy_no)}|${str(r.ins_type_code)}`;
+-+        if (!str(r.policy_no) || seenPolicies.has(key)) return false;
+-+        seenPolicies.add(key);
+-+        return true;
+-+      })
+-+      .sort((a, b) => Number(a.ins_type_code || 9) - Number(b.ins_type_code || 9))
+-+      .slice(0, POLICY_SLOTS)
+-+      .map((r) => ({
+-+        number: str(r.policy_no),
+-+        carrier: str(r.insurance_company_name),
+-+        lob: LOB_BY_TYPE[str(r.ins_type_code)] ?? "",
+-+        lobClass: LOB_CLASS[str(r.ins_class_code)] ?? "",
+-+        effectiveDate: fmtDate(r.effective_date),
+-+      }));
+-+
+-+    // Prior and cancelled policies (Motus InsHist).
+-+    const priorCompanies = uniq([
+-+      ...histRows.map((r) => str(r.insurance_company_name)),
+-+      ...insurRows.map((r) => str(r.insurance_company_name)),
+-+    ]);
+-+    const cancelled = histRows.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
+-+    const cancelledText = cancelled.length
+-+      ? `Yes — cancelled${cancelled
+-+          .map((r) => (r.cancl_effective_date ? ` ${fmtDate(r.cancl_effective_date)}` : ""))
+-+          .join(",")}`
+-+      : histRows.length
+-+      ? "No"
+-+      : "";
+-+    const priorTypes = uniq(histRows.map((r) => str(r.ins_type_desc)));
+-+    const earliest = [...histRows, ...insurRows]
+-+      .map((r) => parseDate(r.effective_date))
+-+      .filter((d): d is Date => d !== null)
+-+      .sort((a, b) => a.getTime() - b.getTime())[0];
+-+    const yearsPrior = earliest
+-+      ? String(Math.floor((Date.now() - earliest.getTime()) / (365.25 * 24 * 3600 * 1000)))
+-+      : "";
+-+
+-+    // Operating-authority history (Motus AuthHist).
+-+    const threeYearsAgo = Date.now() - 3 * 365.25 * 24 * 3600 * 1000;
+-+    const recentChanges = authRows.filter((r) => {
+-+      const d = parseDate(r.status_change_date);
+-+      return d !== null && d.getTime() >= threeYearsAgo;
+-+    });
+-+    const authChanges = !authRows.length
+-+      ? ""
+-+      : recentChanges.length
+-+      ? `Yes — ${recentChanges.length} change${recentChanges.length === 1 ? "" : "s"} in the last 3 years`
+-+      : "No";
+-+    const adverse = authRows.filter((r) =>
+-+      /revok|suspend|probation|withdraw/i.test(`${str(r.op_auth_status)} ${str(r.reason)}`)
+-+    );
+-+    const authAdverse = !authRows.length
+-+      ? ""
+-+      : adverse.length
+-+      ? `Yes — ${uniq(adverse.map((r) => str(r.op_auth_status) || str(r.reason))).join(", ")}`
+-+      : "No";
+-+
+-+    /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
+-+    const fields: Record<string, string> = {};
+-+    const set = (id: string, value: unknown) => {
+-+      const v = str(value);
+-+      if (v) fields[id] = v;
+-+    };
+-+
+-+    // Section 01 - Contact
+-+    set("businessName", legalName);
+-+    set("mcNumber", mc);
+-+    set("phone", carrier.telephone);
+-+
+-+    // Section 03 - General info
+-+    set("generalBusinessName", legalName);
+-+    set("dba", dbaName);
+-+    set("ein", ein);
+-+    set("businessStructure", businessStructure);
+-+    set("mailingStreet", carrier.mailingStreet || carrier.phyStreet);
+-+    set("mailingCity", carrier.mailingCity || carrier.phyCity);
+-+    set("mailingState", str(carrier.mailingState || carrier.phyState).toUpperCase());
+-+    set("mailingZip", carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode);
+-+    set("commodities", cargo.join(", "));
+-+    set("hazmat", hazmat);
+-+    set("multiStateOperation", isInterstate ? "Yes" : isIntrastate ? "No" : "");
+-+    set("totalPowerUnits", powerUnits);
+-+
+-+    // Section 04 - Operation
+-+    set("carrierType", carrierType);
+-+    set("brokerageAuthority", brokerage);
+-+    set("rangeOfTransport", isInterstate ? "Interstate" : isIntrastate ? "Intrastate" : "");
+-+    set("estimatedMileage", mileage);
+-+    set("authorityChangesPast3Years", authChanges);
+-+    set("authorityWithdrawnOrProbation", authAdverse);
+-+
+-+    // Section 05 - Renewal / prior insurance
+-+    set("unitsInsured", powerUnits);
+-+    set("annualMileage", mileage);
+-+    set("priorInsuranceCompany", priorCompanies.join(", "));
+-+    set("cancelledOrNonRenewed", cancelledText);
+-+    set("yearsPriorInsurance", yearsPrior);
+-+    set("priorCoverType", priorTypes.join(", "));
+-+
+-+    // Section 08 - Existing policies
+-+    policies.forEach((p, i) => {
+-+      const n = i + 1;
+-+      set(`policy_${n}_number`, p.number);
+-+      set(`policy_${n}_carrier`, p.carrier);
+-+      set(`policy_${n}_lob`, p.lob);
+-+      set(`policy_${n}_lobClass`, p.lobClass);
+-+      set(`policy_${n}_effectiveDate`, p.effectiveDate);
+-+    });
+- 
+-     const data = {
+-       dotNumber: String(carrier.dotNumber || dot),
+--      legalName: String(carrier.legalName || "").trim(),
+--      dba: String(carrier.dbaName || "").trim(),
+--      mc: String(carrier.docketNumber || carrier.mcNumber || "").trim(),
+--      street: String(carrier.phyStreet || carrier.mailingStreet || "").trim(),
+--      city: String(carrier.phyCity || carrier.mailingCity || "").trim(),
+--      state: String(carrier.phyState || carrier.mailingState || "").trim().toUpperCase(),
+--      zip: String(
+--        carrier.phyZip || carrier.phyZipcode || carrier.mailingZipcode || ""
+--      ).trim(),
+--      phone: String(carrier.telephone || "").trim(),
+--      commodities,
+--      hazmat: carrier.hazmat === "Y" || carrier.hazmat === true ? "Yes" : "No",
+--      mileage: carrier.carrierMileage || carrier.mcs150Mileage ? String(carrier.carrierMileage || carrier.mcs150Mileage) : "",
+--      powerUnits: carrier.totalPowerUnits ? String(carrier.totalPowerUnits) : "",
+-+      legalName,
+-+      dba: dbaName,
+-+      mc,
+-+      street: str(carrier.phyStreet),
+-+      city: str(carrier.phyCity),
+-+      state: str(carrier.phyState).toUpperCase(),
+-+      zip: str(carrier.phyZip || carrier.phyZipcode),
+-+      phone: str(carrier.telephone),
+-+      commodities: cargo.join(", "),
+-+      hazmat,
+-+      mileage,
+-+      powerUnits,
+-+      authorityStatus: str(carrier.statusCode),
+-+      insurance: {
+-+        bipdOnFile,
+-+        bipdRequired,
+-+        cargoOnFile: cargoOnFile ?? "",
+-+        bondOnFile: bondOnFile ?? "",
+-+      },
+-+      policyCount: policies.length,
+-     };
+- 
+--    return NextResponse.json({ ok: true, data });
+-+    return NextResponse.json(
+-+      debug ? { ok: true, data, fields, sources, debug: debugSample } : { ok: true, data, fields, sources }
+-+    );
+-   } catch (err: any) {
+-     console.error("[fmcsa] lookup error:", err);
+--    return NextResponse.json(
+--      {
+--        ok: false,
+--        error: "Failed to connect to FMCSA SAFER service",
+--        code: "upstream_failure",
+--      },
+--      { status: 502 }
+-+    return errorResponse(
+-+      502,
+-+      "Failed to connect to FMCSA service",
+-+      "upstream_failure"
+-     );
+-   }
+- }
+-diff --git a/src/components/InsuranceIntakeDetails.tsx b/src/components/InsuranceIntakeDetails.tsx
+-index f281fce..ef0cdc9 100644
+---- a/src/components/InsuranceIntakeDetails.tsx
+-+++ b/src/components/InsuranceIntakeDetails.tsx
+-@@ -86,43 +86,56 @@ export function InsuranceIntakeDetails() {
+- 
+-       if (json.ok && json.data) {
+-         const d = json.data;
+-+        const found: Record<string, string> = json.fields || {};
+-         const updates: Record<string, string> = {};
+-         const tagged: Record<string, boolean> = {};
+- 
+--        const fillIfEmpty = (key: string, val: string | undefined) => {
+-+        // Only fill fields the user has not typed into yet; every filled field is tagged "FMCSA".
+-+        for (const [key, val] of Object.entries(found)) {
+-           if (val && !formData[key]) {
+-             updates[key] = val;
+-             tagged[key] = true;
+-           }
+--        };
+--
+--        fillIfEmpty("businessName", d.legalName);
+--        fillIfEmpty("generalBusinessName", d.legalName);
+--        fillIfEmpty("dba", d.dba);
+--        fillIfEmpty("mcNumber", d.mc);
+--        fillIfEmpty("mailingStreet", d.street);
+--        fillIfEmpty("mailingCity", d.city);
+--        fillIfEmpty("mailingState", d.state);
+--        fillIfEmpty("mailingZip", d.zip);
+--        fillIfEmpty("phone", d.phone);
+--        fillIfEmpty("commodities", d.commodities);
+--        fillIfEmpty("hazmat", d.hazmat);
+--        fillIfEmpty("annualMileage", d.mileage);
+--        fillIfEmpty("estimatedMileage", d.mileage);
+--        fillIfEmpty("totalPowerUnits", d.powerUnits);
+--        fillIfEmpty("unitsInsured", d.powerUnits);
+-+        }
+- 
+-         setFormData((prev) => ({ ...prev, ...updates }));
+-         setFmcsaTagged((prev) => ({ ...prev, ...tagged }));
+- 
+-         const filledCount = Object.keys(updates).length;
+-+        const ins = d.insurance || {};
+-+        const insParts = [
+-+          ins.bipdOnFile ? `BI&PD on file ${ins.bipdOnFile}` : "",
+-+          ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
+-+          ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
+-+        ].filter(Boolean);
+-+
+-+        // Per-source row counts (0 = upstream answered but had no rows for this
+-+        // DOT, ✗ = the source failed) so it is visible what Motus returned.
+-+        const src = json.sources || {};
+-+        const srcFmt = (s: any) =>
+-+          !s ? "?" : s.status === "error" ? "✗" : String(s.rows ?? 0);
+-+        const srcSummary = Object.keys(src).length
+-+          ? ` Sources — cargo ${srcFmt(src.qcmobileCargo)}, dockets ${srcFmt(
+-+              src.qcmobileDockets
+-+            )}, Motus: carrier ${srcFmt(src.motusCarrier)}, policies ${srcFmt(
+-+              src.motusInsur
+-+            )}, history ${srcFmt(src.motusInsHist)}, authority ${srcFmt(
+-+              src.motusAuthHist
+-+            )}`
+-+          : "";
+-+        if (json.debug) {
+-+          console.info("[fmcsa] debug sample rows:", json.debug);
+-+        }
+-+
+-         setFmcsaStatus({
+-           type: "success",
+--          message: `FMCSA data loaded for ${d.legalName || "carrier"} (DOT #${
+-+          message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
+-             d.dotNumber
+-           }). ${filledCount} field${
+-             filledCount === 1 ? "" : "s"
+--          } pre-filled and tagged "FMCSA". All fields remain editable.`,
+-+          } pre-filled and tagged "FMCSA"${
+-+            insParts.length ? `. ${insParts.join(" · ")}` : ""
+-+          }.${srcSummary}. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+-         });
+-       }
+-     } catch {
+diff --git a/src/app/api/fmcsa/route.ts b/src/app/api/fmcsa/route.ts
+index 8c82273..23a4229 100644
+--- a/src/app/api/fmcsa/route.ts
++++ b/src/app/api/fmcsa/route.ts
+@@ -8,11 +8,15 @@ import { NextResponse } from "next/server";
+  *    MC docket number.
+  *  - Motus open datasets on data.transportation.gov (no key):
+  *    Motus Carrier (authority + BI&PD/cargo/bond on file),
+- *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies).
++ *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies),
++ *    Motus AuthHist (operating-authority history).
+  *
+- * Returns `fields`: a map of intake form field ids -> values. The client only
+- * fills empty fields and tags them "FMCSA". Personal data (SSN, DOB, driver
+- * license, MVR) is intentionally never looked up or returned.
++ * Returns `fields`: a map of intake form field ids -> values, and `sources`:
++ * a per-source diagnostic ({status, rows, error}) so it is visible which
++ * upstream answered and which did not. Pass ?debug=1 to also get one raw
++ * sample row per source. The client only fills empty fields and tags them
++ * "FMCSA". Personal data (SSN, DOB, driver license, MVR) is intentionally
++ * never looked up or returned.
+  */
+ 
+ const QC_BASE = "https://mobile.fmcsa.dot.gov/qc/services";
+@@ -20,32 +24,63 @@ const SOCRATA_BASE = "https://data.transportation.gov/resource";
+ const MOTUS_CARRIER = "inys-ebih"; // Motus Carrier - All With History
+ const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History
+ const MOTUS_INSHIST = "xe5s-wca7"; // Motus InsHist - All With History
++const MOTUS_AUTHHIST = "yu5v-wbh6"; // Motus AuthHist - All With History
+ 
+-const TIMEOUT_MS = 10000;
++const TIMEOUT_MS = 8000;
++const RETRY_DELAY_MS = 1200;
+ const POLICY_SLOTS = 5;
+ 
+ type Row = Record<string, any>;
+ 
++type SourceStatus = {
++  status: "ok" | "empty" | "error";
++  rows?: number;
++  error?: string;
++  /** "docket" when the rows came from the MC-docket retry rather than the DOT query. */
++  via?: string;
++  /** True when the DOT query was empty and the docket retry ran but found nothing. */
++  docketTried?: boolean;
++};
++
+ function errorResponse(status: number, error: string, code: string) {
+   return NextResponse.json({ ok: false, error, code }, { status });
+ }
+ 
++/* ----------------------------- fetch helpers ------------------------------- */
++
++/** One retry on 429/5xx: Socrata throttles untokened traffic from shared IPs. */
++async function fetchWithRetry(url: string, opts: RequestInit): Promise<Response> {
++  const attempt = () => fetch(url, { ...opts, signal: AbortSignal.timeout(TIMEOUT_MS) });
++  let res = await attempt();
++  if (res.status === 429 || res.status >= 500) {
++    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
++    res = await attempt();
++  }
++  return res;
++}
++
+ /* ----------------------------- QCMobile helpers ----------------------------- */
+ 
+ async function qcFetch(path: string, apiKey: string) {
+-  return fetch(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
++  return fetchWithRetry(`${QC_BASE}${path}?webKey=${encodeURIComponent(apiKey)}`, {
+     headers: { Accept: "application/json" },
+     next: { revalidate: 3600 },
+-    signal: AbortSignal.timeout(TIMEOUT_MS),
+-  });
++  } as RequestInit);
++}
++
++/** First array found anywhere in the payload (handles {content:[...]}, {content:{x:[...]}} and bare arrays). */
++function firstArray(v: any, depth = 0): Row[] | null {
++  if (Array.isArray(v)) return v as Row[];
++  if (depth > 3 || !v || typeof v !== "object") return null;
++  for (const key of Object.keys(v)) {
++    const found = firstArray(v[key], depth + 1);
++    if (found) return found;
++  }
++  return null;
+ }
+ 
+-/** Unwrap QCMobile list responses: `{content: [...]}`, `{content: {...}}` or a bare array. */
+ function listFrom(json: any): Row[] {
+-  if (Array.isArray(json)) return json;
+-  if (Array.isArray(json?.content)) return json.content;
+-  if (json?.content && typeof json.content === "object") return [json.content];
+-  return [];
++  return firstArray(json?.content ?? json) ?? [];
+ }
+ 
+ async function qcList(path: string, apiKey: string): Promise<Row[]> {
+@@ -56,15 +91,26 @@ async function qcList(path: string, apiKey: string): Promise<Row[]> {
+ 
+ /* ------------------------------- Motus helpers ------------------------------ */
+ 
+-async function motusRows(dataset: string, dot: string): Promise<Row[]> {
+-  const url = `${SOCRATA_BASE}/${dataset}.json?usdot_number=${encodeURIComponent(
+-    dot
+-  )}&$limit=500`;
+-  const res = await fetch(url, {
++const sqlStr = (s: string) => `'${s.replace(/'/g, "")}'`;
++
++/** DOT numbers appear padded or unpadded depending on the dataset vintage. */
++function dotWhere(dot: string): string {
++  const variants = uniq([dot, dot.padStart(6, "0"), dot.padStart(7, "0"), dot.padStart(8, "0")]);
++  return `usdot_number IN (${variants.map(sqlStr).join(",")})`;
++}
++
++/** Motus keys many insurance rows by docket ("MC" + 10 digits), not DOT. */
++function docketWhere(prefix: string, docketDigits: string): string {
++  const variants = uniq([docketDigits, docketDigits.padStart(10, "0")]);
++  return `docket_number IN (${variants.map((v) => sqlStr(`${prefix}${v}`)).join(",")})`;
++}
++
++async function motusRows(dataset: string, where: string): Promise<Row[]> {
++  const url = `${SOCRATA_BASE}/${dataset}.json?$where=${encodeURIComponent(where)}&$limit=500`;
++  const res = await fetchWithRetry(url, {
+     headers: { Accept: "application/json" },
+     next: { revalidate: 3600 },
+-    signal: AbortSignal.timeout(TIMEOUT_MS),
+-  });
++  } as RequestInit);
+   if (!res.ok) throw new Error(`Motus ${dataset} responded ${res.status}`);
+   const json = await res.json();
+   return Array.isArray(json) ? json : [];
+@@ -85,28 +131,52 @@ function yesNo(v: unknown): string | undefined {
+ 
+ const isActiveStatus = (v: unknown) => /^active$/i.test(str(v));
+ 
+-function usd(thousands: unknown): string {
+-  const n = Number(thousands);
++/** QCMobile reports its required BI&PD amount in thousands (750 = $750,000). */
++function qcAmount(v: unknown): string {
++  const n = Number(v);
++  if (!n || Number.isNaN(n)) return str(v);
++  // Anything at or above $100k cannot be a thousands figure — treat it as dollars.
++  const dollars = n >= 100000 ? n : n * 1000;
++  return `$${Math.round(dollars).toLocaleString("en-US")}`;
++}
++
++/** Motus amounts are already whole dollars (min_cov_amount 750000 = $750,000). */
++function usdDollars(v: unknown): string {
++  const n = Number(v);
+   if (!n || Number.isNaN(n)) return "";
+-  return `$${(n * 1000).toLocaleString("en-US")}`;
++  return `$${Math.round(n).toLocaleString("en-US")}`;
+ }
+ 
+-/** Motus/Socrata dates are text; ISO dates are shown as MM/DD/YYYY to match the form. */
+-function fmtDate(s: unknown): string {
++/**
++ * Motus/Socrata dates are text and come in two shapes: ISO ("2026-10-12T00:00:00",
++ * "2026-10-12") and compact YYYYMMDD ("20261012"). Everything the form shows is
++ * MM/DD/YYYY, so the parts are normalized first.
++ */
++function dateParts(s: unknown): [string, string, string] | null {
+   const v = str(s);
+   const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-  return iso ? `${iso[2]}/${iso[3]}/${iso[1]}` : v;
++  if (iso) return [iso[1], iso[2], iso[3]];
++  const compact = /^(\d{4})(\d{2})(\d{2})$/.exec(v);
++  if (compact) return [compact[1], compact[2], compact[3]];
++  return null;
++}
++
++function fmtDate(s: unknown): string {
++  const p = dateParts(s);
++  return p ? `${p[1]}/${p[2]}/${p[0]}` : str(s);
+ }
+ 
+ function parseDate(s: unknown): Date | null {
+   const v = str(s);
+   if (!v) return null;
+-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+-  const d = iso ? new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])) : new Date(v);
++  const p = dateParts(v);
++  const d = p ? new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])) : new Date(v);
+   return Number.isNaN(d.getTime()) ? null : d;
+ }
+ 
+-const uniq = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
++function uniq(items: string[]) {
++  return Array.from(new Set(items.filter(Boolean)));
++}
+ 
+ const LOB_BY_TYPE: Record<string, string> = {
+   "1": "BI&PD",
+@@ -136,6 +206,25 @@ export async function GET(request: Request) {
+   if (!dot) {
+     return errorResponse(400, "Invalid DOT number", "invalid_dot");
+   }
++  const debug = searchParams.get("debug") === "1";
++
++  const sources: Record<string, SourceStatus> = {};
++  const debugSample: Record<string, Row | null> = {};
++
++  /** Run a supplemental fetch, record its outcome in `sources`, never throw. */
++  async function guarded(name: string, p: Promise<Row[]>): Promise<Row[]> {
++    try {
++      const rows = await p;
++      sources[name] = { status: rows.length ? "ok" : "empty", rows: rows.length };
++      debugSample[name] = rows[0] ?? null;
++      return rows;
++    } catch (err: any) {
++      sources[name] = { status: "error", error: String(err?.message ?? err).slice(0, 160) };
++      debugSample[name] = null;
++      console.warn(`[fmcsa] ${name} unavailable:`, err?.message ?? err);
++      return [];
++    }
++  }
+ 
+   try {
+     /* 1. Core carrier record (required). */
+@@ -166,39 +255,97 @@ export async function GET(request: Request) {
+     if (!carrier || (!carrier.dotNumber && !carrier.legalName)) {
+       return errorResponse(404, "Carrier not found for this DOT number", "not_found");
+     }
++    sources.qcmobileCarrier = { status: "ok", rows: 1 };
++    if (debug) debugSample.qcmobileCarrier = carrier;
+ 
+     /* 2. Supplemental sources. Each one is optional: a failure only drops its fields. */
+-    const [cargoR, docketR, carrierMotusR, insurMotusR, histMotusR] =
+-      await Promise.allSettled([
+-        qcList(`/carriers/${dot}/cargo-carried`, apiKey),
+-        qcList(`/carriers/${dot}/docket-numbers`, apiKey),
+-        motusRows(MOTUS_CARRIER, dot),
+-        motusRows(MOTUS_INSUR, dot),
+-        motusRows(MOTUS_INSHIST, dot),
++    const dotW = dotWhere(dot);
++    const [cargoRows, docketRows, carrierMotus, insurMotus, histMotus, authMotus] =
++      await Promise.all([
++        guarded("qcmobileCargo", qcList(`/carriers/${dot}/cargo-carried`, apiKey)),
++        guarded("qcmobileDockets", qcList(`/carriers/${dot}/docket-numbers`, apiKey)),
++        guarded("motusCarrier", motusRows(MOTUS_CARRIER, dotW)),
++        guarded("motusInsur", motusRows(MOTUS_INSUR, dotW)),
++        guarded("motusInsHist", motusRows(MOTUS_INSHIST, dotW)),
++        guarded("motusAuthHist", motusRows(MOTUS_AUTHHIST, dotW)),
+       ]);
+ 
+-    const settle = <T,>(r: PromiseSettledResult<T[]>): T[] => {
+-      if (r.status === "fulfilled") return r.value;
+-      console.warn("[fmcsa] supplemental source unavailable:", r.reason?.message ?? r.reason);
+-      return [];
+-    };
+-
+-    const cargoRows = settle(cargoR);
+-    const docketRows = settle(docketR);
+-    const carrierMotus = settle(carrierMotusR);
+-    const insurMotus = settle(insurMotusR);
+-    const histMotus = settle(histMotusR);
+-
+     /* 3. Derive values. */
+-    const legalName = str(carrier.legalName);
++    const motusCarrierRow: Row = carrierMotus[0] ?? {};
++    const legalName = str(carrier.legalName) || str(motusCarrierRow.legal_name);
+     const dbaName = str(carrier.dbaName) || str(carrierMotus.find((r) => r.dba_name)?.dba_name);
+ 
++    // QCMobile leaves phone/address blank for some carriers (mid-registration ones
++    // especially); the Motus carrier row carries the same FMCSA record.
++    const phone = str(carrier.telephone) || str(motusCarrierRow.bus_telno);
++    const mailingStreet =
++      str(carrier.mailingStreet || carrier.phyStreet) ||
++      str(motusCarrierRow.mail_street_po || motusCarrierRow.bus_street_po);
++    const mailingCity =
++      str(carrier.mailingCity || carrier.phyCity) ||
++      str(motusCarrierRow.mail_city || motusCarrierRow.bus_city);
++    const mailingState = (
++      str(carrier.mailingState || carrier.phyState) ||
++      str(motusCarrierRow.mail_state_code || motusCarrierRow.bus_state_code)
++    ).toUpperCase();
++    const mailingZip =
++      str(carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode) ||
++      str(motusCarrierRow.mail_zip_code || motusCarrierRow.bus_zip_code);
++    const mailUndeliverable =
++      yesNo(motusCarrierRow.mail_undeliverable_mail ?? motusCarrierRow.bus_undeliverable_mail) === "Yes";
++
+     const docket = docketRows
+       .map((d) => d?.docket ?? d)
+-      .find((d) => str(d?.prefix).toUpperCase() === "MC");
+-    const mc = docket
+-      ? `MC${str(docket.docketNumber)}`
+-      : str(carrier.docketNumber || carrier.mcNumber);
++      .find((d) => str(d?.prefix).toUpperCase().replace(/[^A-Z]/g, "") === "MC");
++    const rawMc = str(carrier.docketNumber || carrier.mcNumber);
++    const docketDigits = str(docket?.docketNumber).replace(/\D/g, "");
++    const rawMcLetters = (/^([a-z]+)/i.exec(rawMc)?.[1] ?? "").toUpperCase();
++    // Digits come from the MC docket endpoint when present, else from an
++    // "MC0545087"-style value on the carrier record itself.
++    const carrierMcDigits = docketDigits || (rawMcLetters ? rawMc.replace(/\D/g, "") : "");
++
++    // QCMobile has no docket at all for carriers that are mid-registration, but every
++    // Motus row carries the docket number ("MC47730539") — that is also the key the
++    // insurance rows are filed under, so it doubles as the docket-fallback handle.
++    const motusDocket =
++      uniq(
++        [...carrierMotus, ...insurMotus, ...histMotus, ...authMotus]
++          .map((r) => str(r.docket_number).toUpperCase().replace(/[^A-Z0-9]/g, ""))
++          .filter((d) => /^[A-Z]{0,3}\d{3,}$/.test(d))
++      ).sort((a, b) => Number(b.startsWith("MC")) - Number(a.startsWith("MC")))[0] ?? "";
++    const motusMcDigits = motusDocket.replace(/\D/g, "");
++    const motusMcLetters = (/^([a-z]+)/i.exec(motusDocket)?.[1] ?? "").toUpperCase();
++
++    const mcDocketDigits = carrierMcDigits || motusMcDigits;
++    const mcPrefix = carrierMcDigits
++      ? docketDigits
++        ? "MC"
++        : rawMcLetters || "MC"
++      : motusMcLetters || "MC";
++    const mc = mcDocketDigits ? `${mcPrefix}${mcDocketDigits}` : rawMc ? `MC${rawMc}` : "";
++    const mcSource = carrierMcDigits ? "qcmobile" : motusMcDigits ? "motus" : "";
++
++    /* 3b. Motus insurance rows are often keyed by MC docket, not DOT.
++       If the DOT query came back empty and we know the docket, retry by docket. */
++    async function docketFallback(name: string, dataset: string, rows: Row[]): Promise<Row[]> {
++      if (rows.length || !mcDocketDigits) return rows;
++      try {
++        const byDocket = await motusRows(dataset, docketWhere(mcPrefix, mcDocketDigits));
++        if (byDocket.length) {
++          sources[name] = { status: "ok", rows: byDocket.length, via: "docket" };
++          debugSample[name] = byDocket[0] ?? null;
++        } else {
++          // Keep the DOT result's diagnostic but record that the docket retry ran.
++          sources[name] = { ...sources[name], docketTried: true };
++        }
++        return byDocket;
++      } catch {
++        return rows; // keep the original (empty) result and its diagnostic
++      }
++    }
++    const insurRows = await docketFallback("motusInsur", MOTUS_INSUR, insurMotus);
++    const histRows = await docketFallback("motusInsHist", MOTUS_INSHIST, histMotus);
++    const authRows = await docketFallback("motusAuthHist", MOTUS_AUTHHIST, authMotus);
+ 
+     const cargo = uniq(
+       cargoRows.map((c) => str(c?.cargoClassDesc ?? c?.cargoClass?.cargoClassDesc))
+@@ -226,25 +373,31 @@ export async function GET(request: Request) {
+     const einDigits = str(carrier.ein).replace(/\D/g, "");
+     const ein = einDigits && Number(einDigits) > 0 ? einDigits.padStart(9, "0") : "";
+ 
+-    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag);
++    const businessStructure = str(carrier.censusTypeId?.censusTypeDesc ?? carrier.censusTypeId);
++
++    // QCMobile's carrier record has no hazmat flag; absence of one means non-hazmat filing.
++    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag) ?? "No";
+     const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
+     const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
+ 
+-    // Motus carrier row: amounts on file (thousands of dollars) and authority status.
++    // Motus carrier rows: filing flags are "Y"/"N" and amounts are already dollars.
++    // Motus is the FMCSA licensing & insurance system, so it wins over QCMobile there;
++    // a filing in any row wins, and an all-"N" row set means "No on file" (not blank).
+     const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
+     const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
+-    const cargoOnFile =
+-      yesNo(carrierMotus.find((r) => yesNo(r.cargo_file) === "Yes")?.cargo_file) ??
+-      yesNo(carrier.cargoInsuranceOnFile);
+-    const bondOnFile =
+-      yesNo(carrierMotus.find((r) => yesNo(r.bond_file) === "Yes")?.bond_file) ??
+-      yesNo(carrier.bondInsuranceOnFile);
+-    const bipdOnFile = motusBipd ? usd(motusBipd) : yesNo(carrier.bipdInsuranceOnFile) ?? "";
+-    const bipdRequired = motusMinBipd ? usd(motusMinBipd) : str(carrier.bipdRequiredAmount);
++    const motusFlag = (field: string, qc: unknown) => {
++      const values = carrierMotus.map((r) => yesNo(r[field])).filter(Boolean) as string[];
++      if (values.includes("Yes")) return "Yes";
++      return values.length ? "No" : yesNo(qc);
++    };
++    const cargoOnFile = motusFlag("cargo_file", carrier.cargoInsuranceOnFile);
++    const bondOnFile = motusFlag("bond_file", carrier.bondInsuranceOnFile);
++    const bipdOnFile = motusBipd ? usdDollars(motusBipd) : yesNo(carrier.bipdInsuranceOnFile) ?? "";
++    const bipdRequired = motusMinBipd ? usdDollars(motusMinBipd) : qcAmount(carrier.bipdRequiredAmount);
+ 
+     // Current policies (Motus Insur): one row per filing, BI&PD primary first.
+     const seenPolicies = new Set<string>();
+-    const policies = insurMotus
++    const policies = insurRows
+       .filter((r) => {
+         const key = `${str(r.policy_no)}|${str(r.ins_type_code)}`;
+         if (!str(r.policy_no) || seenPolicies.has(key)) return false;
+@@ -263,19 +416,19 @@ export async function GET(request: Request) {
+ 
+     // Prior and cancelled policies (Motus InsHist).
+     const priorCompanies = uniq([
+-      ...histMotus.map((r) => str(r.insurance_company_name)),
+-      ...insurMotus.map((r) => str(r.insurance_company_name)),
++      ...histRows.map((r) => str(r.insurance_company_name)),
++      ...insurRows.map((r) => str(r.insurance_company_name)),
+     ]);
+-    const cancelled = histMotus.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
++    const cancelled = histRows.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
+     const cancelledText = cancelled.length
+       ? `Yes — cancelled${cancelled
+           .map((r) => (r.cancl_effective_date ? ` ${fmtDate(r.cancl_effective_date)}` : ""))
+           .join(",")}`
+-      : histMotus.length
++      : histRows.length
+       ? "No"
+       : "";
+-    const priorTypes = uniq(histMotus.map((r) => str(r.ins_type_desc)));
+-    const earliest = [...histMotus, ...insurMotus]
++    const priorTypes = uniq(histRows.map((r) => str(r.ins_type_desc)));
++    const earliest = [...histRows, ...insurRows]
+       .map((r) => parseDate(r.effective_date))
+       .filter((d): d is Date => d !== null)
+       .sort((a, b) => a.getTime() - b.getTime())[0];
+@@ -283,6 +436,50 @@ export async function GET(request: Request) {
+       ? String(Math.floor((Date.now() - earliest.getTime()) / (365.25 * 24 * 3600 * 1000)))
+       : "";
+ 
++    // Operating-authority history (Motus AuthHist). Dates there are compact
++    // ("20261012"), and the rows for a carrier still applying are all part of the
++    // initial application ("Initial Status", "Published to FMCSA Register") — those
++    // are not "changes" to an existing authority.
++    const threeYearsAgo = Date.now() - 3 * 365.25 * 24 * 3600 * 1000;
++    const isInitialEvent = (r: Row) =>
++      /initial status|published to fmcsa register/i.test(str(r.reason));
++    const recentChanges = authRows.filter((r) => {
++      if (isInitialEvent(r)) return false;
++      const d = parseDate(r.status_change_date);
++      return d !== null && d.getTime() >= threeYearsAgo;
++    });
++    const authChanges = !authRows.length
++      ? ""
++      : recentChanges.length
++      ? `Yes — ${recentChanges.length} change${recentChanges.length === 1 ? "" : "s"} in the last 3 years`
++      : "No";
++    const adverse = authRows.filter((r) =>
++      /revok|suspend|probation|withdraw/i.test(`${str(r.op_auth_status)} ${str(r.reason)}`)
++    );
++    const authAdverse = !authRows.length
++      ? ""
++      : adverse.length
++      ? `Yes — ${uniq(adverse.map((r) => str(r.op_auth_status) || str(r.reason))).join(", ")}`
++      : "No";
++
++    // Most recent authority row, for the summary the client shows in the status line.
++    const latestAuth = [...authRows].sort(
++      (a, b) =>
++        (parseDate(b.status_change_date)?.getTime() ?? 0) -
++        (parseDate(a.status_change_date)?.getTime() ?? 0)
++    )[0];
++    const authority = latestAuth?.op_auth_status || latestAuth?.op_auth_type
++      ? {
++          status: str(latestAuth.op_auth_status),
++          type: str(latestAuth.op_auth_type),
++          reason: str(latestAuth.reason),
++          date: fmtDate(latestAuth.status_change_date),
++        }
++      : null;
++    // A docket read out of Motus for a carrier whose authority is still pending is an
++    // application docket, not a granted MC.
++    const mcPending = mcSource === "motus" && /pending|inactive|not authorized/i.test(authority?.status ?? "");
++
+     /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
+     const fields: Record<string, string> = {};
+     const set = (id: string, value: unknown) => {
+@@ -293,16 +490,17 @@ export async function GET(request: Request) {
+     // Section 01 - Contact
+     set("businessName", legalName);
+     set("mcNumber", mc);
+-    set("phone", carrier.telephone);
++    set("phone", phone);
+ 
+     // Section 03 - General info
+     set("generalBusinessName", legalName);
+     set("dba", dbaName);
+     set("ein", ein);
+-    set("mailingStreet", carrier.mailingStreet || carrier.phyStreet);
+-    set("mailingCity", carrier.mailingCity || carrier.phyCity);
+-    set("mailingState", str(carrier.mailingState || carrier.phyState).toUpperCase());
+-    set("mailingZip", carrier.mailingZipcode || carrier.mailingZip || carrier.phyZip || carrier.phyZipcode);
++    set("businessStructure", businessStructure);
++    set("mailingStreet", mailingStreet);
++    set("mailingCity", mailingCity);
++    set("mailingState", mailingState);
++    set("mailingZip", mailingZip);
+     set("commodities", cargo.join(", "));
+     set("hazmat", hazmat);
+     set("multiStateOperation", isInterstate ? "Yes" : isIntrastate ? "No" : "");
+@@ -313,6 +511,8 @@ export async function GET(request: Request) {
+     set("brokerageAuthority", brokerage);
+     set("rangeOfTransport", isInterstate ? "Interstate" : isIntrastate ? "Intrastate" : "");
+     set("estimatedMileage", mileage);
++    set("authorityChangesPast3Years", authChanges);
++    set("authorityWithdrawnOrProbation", authAdverse);
+ 
+     // Section 05 - Renewal / prior insurance
+     set("unitsInsured", powerUnits);
+@@ -341,12 +541,19 @@ export async function GET(request: Request) {
+       city: str(carrier.phyCity),
+       state: str(carrier.phyState).toUpperCase(),
+       zip: str(carrier.phyZip || carrier.phyZipcode),
+-      phone: str(carrier.telephone),
++      phone,
+       commodities: cargo.join(", "),
+-      hazmat: hazmat ?? "",
++      hazmat,
+       mileage,
+       powerUnits,
+       authorityStatus: str(carrier.statusCode),
++      // Extra context the client shows in its status line: the FMCSA/Motus authority
++      // record (a pending application docket is not a granted MC), where the MC came
++      // from, and whether FMCSA flags the mailing address as undeliverable.
++      authority,
++      mcSource,
++      mcPending,
++      mailUndeliverable,
+       insurance: {
+         bipdOnFile,
+         bipdRequired,
+@@ -356,7 +563,9 @@ export async function GET(request: Request) {
+       policyCount: policies.length,
+     };
+ 
+-    return NextResponse.json({ ok: true, data, fields });
++    return NextResponse.json(
++      debug ? { ok: true, data, fields, sources, debug: debugSample } : { ok: true, data, fields, sources }
++    );
+   } catch (err: any) {
+     console.error("[fmcsa] lookup error:", err);
+     return errorResponse(
+diff --git a/src/components/InsuranceIntakeDetails.tsx b/src/components/InsuranceIntakeDetails.tsx
+index 8e3cb28..cb95a42 100644
+--- a/src/components/InsuranceIntakeDetails.tsx
++++ b/src/components/InsuranceIntakeDetails.tsx
+@@ -108,6 +108,37 @@ export function InsuranceIntakeDetails() {
+           ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
+           ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
+         ].filter(Boolean);
++
++        // Per-source row counts (0 = upstream answered but had no rows for this
++        // DOT, ✗ = the source failed) so it is visible what Motus returned.
++        const src = json.sources || {};
++        const srcFmt = (s: any) =>
++          !s ? "?" : s.status === "error" ? "✗" : String(s.rows ?? 0);
++        const srcSummary = Object.keys(src).length
++          ? ` Sources — cargo ${srcFmt(src.qcmobileCargo)}, dockets ${srcFmt(
++              src.qcmobileDockets
++            )}, Motus: carrier ${srcFmt(src.motusCarrier)}, policies ${srcFmt(
++              src.motusInsur
++            )}, history ${srcFmt(src.motusInsHist)}, authority ${srcFmt(
++              src.motusAuthHist
++            )}`
++          : "";
++        if (json.debug) {
++          console.info("[fmcsa] debug sample rows:", json.debug);
++        }
++
++        // Authority state from the Motus AuthHist row: a pending application docket is
++        // not a granted MC, and FMCSA sometimes flags the mailing address undeliverable.
++        const auth = d.authority || {};
++        const authNote = auth.status
++          ? ` Authority: ${auth.status}${auth.reason ? ` — ${auth.reason}` : ""}${
++              auth.date ? ` (${auth.date})` : ""
++            }.${d.mcPending ? " The MC shown is the pending application docket." : ""}`
++          : "";
++        const mailNote = d.mailUndeliverable
++          ? " ⚠ FMCSA marks this mailing address undeliverable — confirm it with the applicant."
++          : "";
++
+         setFmcsaStatus({
+           type: "success",
+           message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
+@@ -116,7 +147,7 @@ export function InsuranceIntakeDetails() {
+             filledCount === 1 ? "" : "s"
+           } pre-filled and tagged "FMCSA"${
+             insParts.length ? `. ${insParts.join(" · ")}` : ""
+-          }. Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
++          }.${authNote}${srcSummary}.${mailNote} Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+         });
+       }
+     } catch {

@@ -121,6 +121,7 @@ export function MobileBottomNav() {
                 { label: "QP Fuel Card", href: "/programs/fuel-card" },
                 { label: "Equipment Finance", href: "/programs/equipment-finance" },
                 { label: "About QP & Leadership", href: "/about" },
+                { label: "Industry Recognition", href: "/industry-recognition" },
                 { label: "Insights", href: "/insights" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Contact", href: "/contact" },

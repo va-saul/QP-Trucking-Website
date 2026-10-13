@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { createElement } from "react";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import "@fontsource-variable/bitter/wght.css";
 import "@fontsource-variable/inter/wght.css";
 import "@fontsource/ibm-plex-mono/400.css";
@@ -105,6 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* spacer so the sticky mobile bar never covers the end of the page */}
         <div aria-hidden="true" className="h-[68px] lg:hidden" />
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
+        <Analytics />
       </body>
     </html>
   );

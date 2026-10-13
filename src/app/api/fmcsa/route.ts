@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
-  const apiKey = process.env.FMCSA_API_KEY;
+  // Trim: a key pasted into Vercel with a trailing space/newline is rejected upstream.
+  const apiKey = process.env.FMCSA_API_KEY?.trim();
 
   if (!apiKey) {
     return NextResponse.json(
@@ -52,6 +53,18 @@ export async function GET(request: Request) {
     });
 
     if (!response.ok) {
+      console.error(`[fmcsa] upstream responded ${response.status} for DOT ${dot}`);
+      if (response.status === 401 || response.status === 403) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error:
+              "FMCSA rejected the web key. Check that FMCSA_API_KEY in Vercel is the exact WebKey from the FMCSA QCMobile developer portal, then redeploy.",
+            code: "invalid_key",
+          },
+          { status: 502 }
+        );
+      }
       if (response.status === 404) {
         return NextResponse.json(
           {
@@ -105,7 +118,9 @@ export async function GET(request: Request) {
       street: String(carrier.phyStreet || carrier.mailingStreet || "").trim(),
       city: String(carrier.phyCity || carrier.mailingCity || "").trim(),
       state: String(carrier.phyState || carrier.mailingState || "").trim().toUpperCase(),
-      zip: String(carrier.phyZipcode || carrier.mailingZipcode || "").trim(),
+      zip: String(
+        carrier.phyZip || carrier.phyZipcode || carrier.mailingZipcode || ""
+      ).trim(),
       phone: String(carrier.telephone || "").trim(),
       commodities,
       hazmat: carrier.hazmat === "Y" || carrier.hazmat === true ? "Yes" : "No",

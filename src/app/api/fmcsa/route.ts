@@ -5,30 +5,37 @@ import { NextResponse } from "next/server";
  *
  * Sources (all public FMCSA data):
  *  - QCMobile API (needs FMCSA_API_KEY): carrier record, cargo carried,
- *    MC docket number.
+ *    MC docket number, and driver/power-unit COUNTS.
  *  - Motus open datasets on data.transportation.gov (no key):
  *    Motus Carrier (authority + BI&PD/cargo/bond on file),
- *    Motus Insur (current policies), Motus InsHist (prior/cancelled policies),
+ *    Motus Insur (current/pending insurance filings),
+ *    Motus InsHist (prior/cancelled filings),
  *    Motus AuthHist (operating-authority history).
  *
- * Returns `fields`: a map of intake form field ids -> values, and `sources`:
- * a per-source diagnostic ({status, rows, error}) so it is visible which
- * upstream answered and which did not. Pass ?debug=1 to also get one raw
- * sample row per source. The client only fills empty fields and tags them
- * "FMCSA". Personal data (SSN, DOB, driver license, MVR) is intentionally
- * never looked up or returned.
+ * What is NOT returned: individual vehicles (VIN, year/make/model) and drivers
+ * (names, DOB, license numbers, MVR). FMCSA publishes totals only. Motus
+ * insurance rows are regulatory filings (BMC-91/91X/34/35/84...), not declarations
+ * pages, so they never supply premium, agent or term dates.
+ *
+ * Returns `fields` (scalar intake field ids -> values), `data.policies` (one entry
+ * per current filing), and `sources` (a per-source diagnostic: status, rows, error).
+ * Pass ?debug=1 to also get one raw sample row per source. Personal data (SSN,
+ * DOB, driver license, MVR) is never looked up or returned.
  */
 
 const QC_BASE = "https://mobile.fmcsa.dot.gov/qc/services";
 const SOCRATA_BASE = "https://data.transportation.gov/resource";
 const MOTUS_CARRIER = "inys-ebih"; // Motus Carrier - All With History
-const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History
-const MOTUS_INSHIST = "xe5s-wca7"; // Motus InsHist - All With History
+const MOTUS_INSUR = "c5y8-a4uz"; // Motus Insur - All With History (active or pending filings)
+// Motus InsHist - All With History. Note: xe5s-wca7 is the "Motus InsHist" DAILY
+// DIFFERENCE feed (about 92 rows), not the full history, so it must not be used here.
+const MOTUS_INSHIST = "3uet-3z4i";
 const MOTUS_AUTHHIST = "yu5v-wbh6"; // Motus AuthHist - All With History
 
 const TIMEOUT_MS = 8000;
 const RETRY_DELAY_MS = 1200;
-const POLICY_SLOTS = 5;
+const SOCRATA_LIMIT = 2000;
+const MAX_POLICIES = 10;
 
 type Row = Record<string, any>;
 
@@ -98,14 +105,14 @@ function dotWhere(dot: string): string {
   return `usdot_number IN (${variants.map(sqlStr).join(",")})`;
 }
 
-/** Motus keys many insurance rows by docket ("MC" + 10 digits), not DOT. */
+/** Motus keys many insurance rows by docket ("MC" + digits), not DOT. */
 function docketWhere(prefix: string, docketDigits: string): string {
   const variants = uniq([docketDigits, docketDigits.padStart(10, "0")]);
   return `docket_number IN (${variants.map((v) => sqlStr(`${prefix}${v}`)).join(",")})`;
 }
 
 async function motusRows(dataset: string, where: string): Promise<Row[]> {
-  const url = `${SOCRATA_BASE}/${dataset}.json?$where=${encodeURIComponent(where)}&$limit=500`;
+  const url = `${SOCRATA_BASE}/${dataset}.json?$where=${encodeURIComponent(where)}&$limit=${SOCRATA_LIMIT}`;
   const res = await fetchWithRetry(url, {
     headers: { Accept: "application/json" },
     next: { revalidate: 3600 },
@@ -351,12 +358,16 @@ export async function GET(request: Request) {
 
     const businessStructure = str(carrier.censusTypeId?.censusTypeDesc ?? carrier.censusTypeId);
 
-    // QCMobile's carrier record has no hazmat flag; absence of one means non-hazmat filing.
-    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag) ?? "No";
+    // Hazmat is left blank unless a source states it. Absence in QCMobile is not a "No".
+    const hazmat = yesNo(carrier.hazmat ?? carrier.hmFlag) ?? "";
     const mileage = str(carrier.carrierMileage || carrier.mcs150Mileage);
-    const powerUnits = Number(carrier.totalPowerUnits) > 0 ? String(carrier.totalPowerUnits) : "";
+    const powerUnitCount = Number(carrier.totalPowerUnits) > 0 ? Number(carrier.totalPowerUnits) : null;
+    const powerUnits = powerUnitCount ? String(powerUnitCount) : "";
+    // QCMobile publishes a driver COUNT only. Individual drivers are never listed publicly.
+    const driverCount = Number(carrier.totalDrivers) > 0 ? Number(carrier.totalDrivers) : null;
 
-    // Motus filing flags are Y/N, and coverage amounts are already whole dollars.
+    // Motus filing flags are Y/N, and coverage amounts are whole dollars.
+    // Verified against live rows: bipd_file "1000000.00" means $1,000,000 (the dataset dictionary says thousands).
     const motusBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.bipd_file) || 0));
     const motusMinBipd = Math.max(0, ...carrierMotus.map((r) => Number(r.min_cov_amount) || 0));
     const motusFlag = (field: string, qc: unknown) => {
@@ -370,37 +381,41 @@ export async function GET(request: Request) {
       motusFlag("bipd_file", carrier.bipdInsuranceOnFile) ?? "";
     const bipdRequired = motusMinBipd ? usdDollars(motusMinBipd) : qcAmount(carrier.bipdRequiredAmount);
 
-    // Current policies (Motus Insur): one row per filing, BI&PD primary first.
+    // Current/pending insurance filings (Motus Insur). One entry per filing, BI&PD first.
     const seenPolicies = new Set<string>();
-    const policies = insurRows
+    const filings = insurRows
       .filter((r) => {
         const key = `${str(r.policy_no)}|${str(r.ins_type_code)}`;
         if (!str(r.policy_no) || seenPolicies.has(key)) return false;
         seenPolicies.add(key);
         return true;
       })
-      .sort((a, b) => Number(a.ins_type_code || 9) - Number(b.ins_type_code || 9))
-      .slice(0, POLICY_SLOTS)
-      .map((r) => ({
-        number: str(r.policy_no),
-        carrier: str(r.insurance_company_name),
-        lob: LOB_BY_TYPE[str(r.ins_type_code)] ?? "",
-        lobClass: LOB_CLASS[str(r.ins_class_code)] ?? "",
-        effectiveDate: fmtDate(r.effective_date),
-      }));
+      .sort((a, b) => Number(a.ins_type_code || 9) - Number(b.ins_type_code || 9));
+    const policies = filings.slice(0, MAX_POLICIES).map((r) => ({
+      number: str(r.policy_no),
+      carrier: str(r.insurance_company_name),
+      lob: LOB_BY_TYPE[str(r.ins_type_code)] ?? "",
+      lobClass: LOB_CLASS[str(r.ins_class_code)] ?? "",
+      // Limit is whole dollars in the live rows (for example "1000000.00").
+      limit: usdDollars(r.max_cov_amount),
+      effectiveDate: fmtDate(r.effective_date),
+      // Motus Insur holds active or pending filings only (dataset description).
+      status: "Active or pending (FMCSA)",
+    }));
 
-    // Prior and cancelled policies (Motus InsHist).
+    // Prior and cancelled filings (Motus InsHist).
     const priorCompanies = uniq([
       ...histRows.map((r) => str(r.insurance_company_name)),
       ...insurRows.map((r) => str(r.insurance_company_name)),
     ]);
     const cancelled = histRows.filter((r) => /cancel/i.test(str(r.filing_status_reason)));
+    const replaced = histRows.filter((r) => !/cancel/i.test(str(r.filing_status_reason)) && str(r.filing_status_reason));
     const cancelledText = cancelled.length
       ? `Yes — cancelled${cancelled
           .map((r) => (r.cancl_effective_date ? ` ${fmtDate(r.cancl_effective_date)}` : ""))
           .join(",")}`
       : histRows.length
-      ? "No"
+      ? `No cancellations on file${replaced.length ? ` (${replaced.length} replaced or terminated)` : ""}`
       : "";
     const priorTypes = uniq(histRows.map((r) => str(r.ins_type_desc)));
     const earliest = [...histRows, ...insurRows]
@@ -444,7 +459,8 @@ export async function GET(request: Request) {
     // A Motus docket may identify an application rather than granted authority.
     const mcPending = mcSource === "motus" && /pending|inactive|not authorized/i.test(authority?.status ?? "");
 
-    /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). */
+    /* 4. Form field map (ids match InsuranceIntakeDetails.tsx). Scalars only:
+       repeatable policy records are returned in `data.policies`. */
     const fields: Record<string, string> = {};
     const set = (id: string, value: unknown) => {
       const v = str(value);
@@ -486,16 +502,6 @@ export async function GET(request: Request) {
     set("yearsPriorInsurance", yearsPrior);
     set("priorCoverType", priorTypes.join(", "));
 
-    // Section 08 - Existing policies
-    policies.forEach((p, i) => {
-      const n = i + 1;
-      set(`policy_${n}_number`, p.number);
-      set(`policy_${n}_carrier`, p.carrier);
-      set(`policy_${n}_lob`, p.lob);
-      set(`policy_${n}_lobClass`, p.lobClass);
-      set(`policy_${n}_effectiveDate`, p.effectiveDate);
-    });
-
     const data = {
       dotNumber: String(carrier.dotNumber || dot),
       legalName,
@@ -510,6 +516,9 @@ export async function GET(request: Request) {
       hazmat,
       mileage,
       powerUnits,
+      // Counts only. These are NOT vehicle or driver records.
+      powerUnitCount,
+      driverCount,
       authorityStatus: str(carrier.statusCode),
       authority,
       mcSource,
@@ -521,7 +530,11 @@ export async function GET(request: Request) {
         cargoOnFile: cargoOnFile ?? "",
         bondOnFile: bondOnFile ?? "",
       },
-      policyCount: policies.length,
+      // One entry per current/pending filing, BI&PD first. The lead keeps every entry; the form caps at MAX_POLICIES.
+      policies,
+      policyCount: filings.length,
+      policiesOmitted: Math.max(0, filings.length - policies.length),
+      priorFilings: { total: histRows.length, cancelled: cancelled.length },
     };
 
     return NextResponse.json(

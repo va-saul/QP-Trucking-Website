@@ -71,7 +71,7 @@ test('derives a missing MC from Motus, retries insurance by docket, and normaliz
     'inys-ebih': () => [{ docket_number: 'MC47730539' }],
     'c5y8-a4uz': (where) => where.startsWith('docket_number') ? [{ policy_no: 'P123',
       insurance_company_name: 'Example Insurer', ins_type_code: '1', effective_date: '20261012' }] : [],
-    'xe5s-wca7': (where) => where.startsWith('docket_number') ? [{ insurance_company_name: 'Prior Insurer',
+    '3uet-3z4i': (where) => where.startsWith('docket_number') ? [{ insurance_company_name: 'Prior Insurer',
       filing_status_reason: 'Cancelled', cancl_effective_date: '20251012', effective_date: '20201012' }] : [],
     'yu5v-wbh6': (where) => where.startsWith('docket_number') ? [
       { op_auth_status: 'Active', status_change_date: '20201012' },
@@ -84,7 +84,7 @@ test('derives a missing MC from Motus, retries insurance by docket, and normaliz
   assert.equal(result.data.mcPending, true);
   assert.equal(result.data.authority.status, 'Pending');
   assert.equal(result.data.authority.date, '10/12/2026');
-  assert.equal(result.fields.policy_1_effectiveDate, '10/12/2026');
+  assert.equal(result.data.policies[0].effectiveDate, '10/12/2026');
   assert.match(result.fields.cancelledOrNonRenewed, /10\/12\/2025/);
   assert.ok(Number(result.fields.yearsPriorInsurance) >= 5);
   assert.equal(result.sources.motusInsur.via, 'docket');
@@ -119,7 +119,8 @@ test('empty and failed docket retries remain distinguishable without failing cor
   assert.match(result.sources.motusInsur.docketError, /400/);
   assert.equal(result.sources.motusInsHist.docketTried, true);
   assert.equal(result.sources.motusInsHist.docketError, undefined);
-  assert.equal(result.fields.policy_1_number, undefined);
+  assert.deepEqual(result.data.policies, []);
+  assert.equal(result.data.policyCount, 0);
 });
 
 test('does not fabricate MC authority from FF/MX dockets', async () => {
@@ -156,4 +157,106 @@ test('retries a throttled supplemental source once and preserves the core record
   assert.equal(attempts, 2);
   assert.equal(result.fields.commodities, 'Machinery');
   assert.equal(result.sources.qcmobileCargo.status, 'ok');
+});
+
+test('reads the full Motus InsHist dataset (3uet-3z4i), never the daily-difference feed', async () => {
+  const calls = mock({ motus: {
+    '3uet-3z4i': () => [{ insurance_company_name: 'Old Carrier Mutual', filing_status_reason: 'CANCEL',
+      cancl_effective_date: '20240301', effective_date: '20230301', ins_type_desc: 'BIPD' }],
+  } });
+  const result = await lookup();
+  const histCalls = calls.filter((url) => url.host === 'data.transportation.gov');
+  assert.ok(histCalls.some((url) => url.pathname === '/resource/3uet-3z4i.json'));
+  assert.ok(!histCalls.some((url) => url.pathname.includes('xe5s-wca7')));
+  assert.equal(result.fields.priorInsuranceCompany, 'Old Carrier Mutual');
+  assert.match(result.fields.cancelledOrNonRenewed, /03\/01\/2024/);
+});
+
+test('maps live-shaped Motus Insur rows: dollar limits, YYYYMMDD dates, primary and excess', async () => {
+  mock({ motus: {
+    'c5y8-a4uz': () => [
+      { docket_number: 'MC1409700', usdot_number: '3262418', ins_form_code: 'BMC-91X', ins_type_code: '1',
+        ins_class_code: 'E', max_cov_amount: '1000000.00', underl_lim_amount: '1000000.00',
+        policy_no: 'GRT41448A', effective_date: '20250522', insurance_company_name: 'Great West Casualty Co' },
+      { docket_number: 'MC1409700', ins_form_code: 'BMC-34', ins_type_code: '2', ins_class_code: 'P',
+        max_cov_amount: '5000.00', policy_no: 'IMP 1353069', effective_date: '20100501',
+        insurance_company_name: 'Great American Insurance Company of New York' },
+    ],
+  } });
+  const result = await lookup();
+  assert.equal(result.data.policyCount, 2);
+  const [bipd, cargo] = result.data.policies;
+  assert.equal(bipd.number, 'GRT41448A');
+  assert.equal(bipd.lob, 'BI&PD');
+  assert.equal(bipd.lobClass, 'Excess');
+  assert.equal(bipd.limit, '$1,000,000');
+  assert.equal(bipd.effectiveDate, '05/22/2025');
+  assert.equal(bipd.status, 'Active or pending (FMCSA)');
+  assert.equal(cargo.lob, 'Cargo');
+  assert.equal(cargo.limit, '$5,000');
+});
+
+test('keeps every current filing (no fixed slot cap) and reports how many were omitted', async () => {
+  const rows = Array.from({ length: 12 }, (_, i) => ({
+    docket_number: 'MC1409700', ins_type_code: i === 11 ? '1' : '2', ins_class_code: 'P',
+    policy_no: `POL-${String(i + 1).padStart(2, '0')}`, effective_date: '20250101',
+    insurance_company_name: 'Insurer', max_cov_amount: '5000.00',
+  }));
+  mock({ motus: { 'c5y8-a4uz': () => rows } });
+  const result = await lookup();
+  assert.equal(result.data.policyCount, 12);
+  assert.equal(result.data.policies.length, 10);
+  assert.equal(result.data.policiesOmitted, 2);
+  // BI&PD filings sort first, so the one BI&PD filing must be the first record.
+  assert.equal(result.data.policies[0].number, 'POL-12');
+  assert.equal(result.fields.policy_1_number, undefined, 'policies are returned as data, not scalar fields');
+});
+
+test('reports fleet and driver COUNTS only and never invents vehicle or driver records', async () => {
+  mock({ carrier: { totalDrivers: 14, totalPowerUnits: 9 } });
+  const result = await lookup();
+  assert.equal(result.data.driverCount, 14);
+  assert.equal(result.data.powerUnitCount, 9);
+  assert.equal(result.fields.totalPowerUnits, '9');
+  assert.equal(result.fields.unitsInsured, '9');
+  assert.ok(!Object.keys(result.fields).some((k) => /^(driver|vehicle)_/.test(k)));
+  assert.equal(result.data.drivers, undefined);
+  assert.equal(result.data.vehicles, undefined);
+});
+
+test('hazmat stays blank when no source states it instead of defaulting to "No"', async () => {
+  mock({});
+  const result = await lookup();
+  assert.equal(result.fields.hazmat, undefined);
+  assert.equal(result.data.hazmat, '');
+});
+
+test('an Insur outage is reported as an error without dropping the core carrier record', async () => {
+  mock({ dockets: [{ prefix: 'MC', docketNumber: '47730539' }], onFetch: (url) =>
+    url.host === 'data.transportation.gov' && url.pathname.endsWith('/c5y8-a4uz.json')
+      ? new Response('Bad request', { status: 400 }) : null });
+  const result = await lookup();
+  assert.equal(result.ok, true);
+  assert.equal(result.fields.businessName, 'Test Carrier');
+  assert.equal(result.sources.motusInsur.status, 'error');
+  assert.match(result.sources.motusInsur.error, /400/);
+  assert.match(result.sources.motusInsur.docketError, /400/);
+  assert.deepEqual(result.data.policies, []);
+});
+
+test('an empty Insur result is "empty" (not "error") and yields no invented policies', async () => {
+  mock({});
+  const result = await lookup();
+  assert.equal(result.sources.motusInsur.status, 'empty');
+  assert.equal(result.sources.motusInsur.error, undefined);
+  assert.equal(result.data.policyCount, 0);
+});
+
+test('InsHist "TERM/REPL" rows are reported as replaced, not as cancelled', async () => {
+  mock({ motus: { '3uet-3z4i': () => [{ insurance_company_name: 'Prior Co', filing_status_reason: 'TERM/REPL',
+    effective_date: '20230101', ins_type_desc: 'BIPD' }] } });
+  const result = await lookup();
+  assert.equal(result.fields.cancelledOrNonRenewed, 'No cancellations on file (1 replaced or terminated)');
+  assert.equal(result.data.priorFilings.cancelled, 0);
+  assert.equal(result.data.priorFilings.total, 1);
 });

@@ -14,7 +14,7 @@ npm run dev      # http://localhost:3000
 npm run build    # production build (38 routes, all statically prerendered)
 npm start        # serve the production build
 npm run lint     # typecheck (tsc --noEmit)
-npm test         # FMCSA route regression tests (mocked upstream responses)
+npm test         # FMCSA route, insurance-intake helper and lead route tests (mocked upstream and delivery)
 ```
 
 > Don't run `npm run build` while `npm run dev` is serving the preview — both write to `.next` and
@@ -87,6 +87,7 @@ convert public/images/brand/qp-logo.png -background "#061a38" -alpha remove -alp
 ## Configuration for launch
 
 1. **Lead routing** — set `LEAD_WEBHOOK_URL` (and optionally `LEAD_WEBHOOK_TOKEN`) to forward form submissions to your CRM/Zapier/Slack. Without it, submissions are logged server-side.
+   **Insurance document uploads** (Section 08 declarations or fleet schedules) are emailed to agents through Resend, so they need `RESEND_API_KEY`, `LEAD_NOTIFY_EMAIL` and `LEAD_FROM_EMAIL`. Without `RESEND_API_KEY`, the intake refuses submissions that include files (503) so an applicant never believes an unsent document was received. Files are held only in memory for the request and are not written to disk, the repo or public folders.
 2. **Domain** — `SITE_URL` in `src/content/site.ts` is used for canonicals, JSON-LD, sitemap and OG URLs.
 3. **Analytics** — add your tag in `src/app/layout.tsx`; the site ships with zero third-party scripts by default (fast Core Web Vitals).
 4. **Payments** — the original site's cart links pointed at `https://qpfactoring.com/cart/?ec_action=addtocart&model_number=…`. The redesign routes orders through `/get-started?service=…` (a human confirms every order) and keeps the loan-application link (`deciphercredit.net`) intact on the factoring and get-started pages.
@@ -108,6 +109,26 @@ source counts, docket fallback outcomes, pending application dockets, and
 undeliverable-mail flags; an application docket is not proof of granted authority.
 Only empty fields are filled, including when the applicant types during the lookup.
 A result for a DOT number changed during lookup is ignored.
+
+**What loads where**
+
+- Carrier identity, address, authority, cargo, BI&PD/cargo/bond on file, and prior-insurance
+  history fill the Section 01 fields and are tagged "FMCSA". Edited values lose the tag.
+- Current and pending insurance filings (Motus Insur `c5y8-a4uz`, with the docket fallback)
+  load as policy cards in Section 08: carrier, policy number, BI&PD/cargo, limit and effective
+  date. Prior cancelled or replaced filings come from Motus InsHist `3uet-3z4i` and are
+  summarized, not loaded as cards. An FMCSA filing is **not** a declarations page, so premium,
+  agent and term dates are never filled from it. Up to 10 filings are returned.
+- FMCSA publishes only **counts** of drivers and power units (QCMobile `totalDrivers` and
+  `totalPowerUnits`). Individual vehicles (VIN, year, make, model, value) and drivers (name,
+  date of birth, license number, MVR) are not in public records, so Sections 06 and 07 are
+  manual card entry. Nothing is invented from counts.
+- Re-running the lookup never overwrites cards the applicant typed or duplicates a filing already
+  on a card. Every card on screen is submitted; blank cards are dropped.
+
+The lead payload carries `drivers`, `vehicles`, and `existingPolicies` arrays plus their counts.
+The email and CRM webhook receive all of them. Uploads are sent as email attachments for manual
+agent review; nothing is parsed automatically.
 
 `npm test` runs deterministic route tests without credentials or live network calls.
 These tests are **not live upstream verification**. After deploying, verify with

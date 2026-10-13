@@ -2,6 +2,21 @@
 
 import { useRef, useState } from "react";
 import { INSURED_STATES } from "@/components/InsuranceCoverageMap";
+import {
+  INITIAL_RECORD_COUNTS,
+  RECORD_FIELDS,
+  RECORD_LIMITS,
+  addRecordCount,
+  collectRecords,
+  mergeFmcsaFields,
+  mergeFmcsaPolicies,
+  pruneRecordValues,
+  removeRecordAt,
+  type FieldValues,
+  type RecordCounts,
+  type RecordKind,
+  type TaggedFields,
+} from "@/lib/insurance-intake";
 
 type FieldDef = {
   id: string;
@@ -21,21 +36,176 @@ type GroupDef = {
   fields: FieldDef[];
 };
 
+type FmcsaSourceRow = {
+  status: "ok" | "empty" | "error";
+  rows?: number;
+  via?: string;
+  docketTried?: boolean;
+  docketError?: string;
+};
+
+type FmcsaReport = {
+  legalName: string;
+  dotNumber: string;
+  filled: number;
+  sources: Record<string, FmcsaSourceRow>;
+  insurance: { bipdOnFile?: string; bipdRequired?: string; cargoOnFile?: string; bondOnFile?: string };
+  policies: { found: number; loaded: number; duplicates: number; overflow: number; omitted: number; skippedNote: string };
+  priorFilings: { total: number; cancelled: number };
+  authority: string;
+  driverCount: number | null;
+  powerUnitCount: number | null;
+};
+
+const MAX_ATTACHMENTS = 3;
+const MAX_ATTACHMENT_BYTES = 2 * 1024 * 1024;
+const MAX_TOTAL_ATTACHMENT_BYTES = 3.5 * 1024 * 1024;
+const ATTACHMENT_NAME = /\.(pdf|jpe?g|png)$/i;
+const ATTACHMENT_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+
+const formatBytes = (n: number) =>
+  n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+
+const RECORD_NOUN: Record<RecordKind, string> = { driver: "Driver", vehicle: "Vehicle", policy: "Policy" };
+
+/** Lookup outcome per category. Each row says what loaded and what still needs the applicant. */
+function FmcsaReportPanel({ report }: { report: FmcsaReport }) {
+  const src = (name: string) => report.sources[name];
+  const ins = report.insurance;
+  const p = report.policies;
+  type Tone = "ok" | "warn" | "error" | "manual";
+  const rows: Array<{ label: string; tone: Tone; text: string }> = [];
+
+  rows.push({
+    label: "Carrier & contact",
+    tone: report.filled > 0 ? "ok" : "warn",
+    text: report.filled > 0
+      ? `${report.filled} field${report.filled === 1 ? "" : "s"} filled from FMCSA and Motus, each tagged FMCSA. Blank fields were not on record.`
+      : "No new fields were available. Fields you already typed were kept.",
+  });
+
+  const carrierSrc = src("motusCarrier");
+  if (!carrierSrc || carrierSrc.status === "error") {
+    rows.push({ label: "Insurance on file", tone: "error", text: "Motus carrier data is unavailable. Retry the lookup or enter coverage manually." });
+  } else if (carrierSrc.status === "empty") {
+    rows.push({ label: "Insurance on file", tone: "warn", text: "No insurance-on-file record for this DOT. Confirm coverage with the applicant." });
+  } else {
+    rows.push({
+      label: "Insurance on file",
+      tone: "ok",
+      text: `BI&PD ${ins.bipdOnFile || "not reported"}${ins.bipdRequired ? ` (required ${ins.bipdRequired})` : ""} · Cargo on file ${ins.cargoOnFile || "not reported"} · Bond on file ${ins.bondOnFile || "not reported"}.`,
+    });
+  }
+
+  const insurSrc = src("motusInsur");
+  if (!insurSrc || insurSrc.status === "error") {
+    rows.push({ label: "Existing policies", tone: "error", text: "The Motus insurance source is unavailable, so no filings loaded. Retry the lookup or enter policies manually." });
+  } else if (p.found === 0) {
+    rows.push({
+      label: "Existing policies",
+      tone: "warn",
+      text: `No current or pending insurance filings found for this DOT or MC docket${insurSrc.docketError ? ", and the MC docket retry failed, so the result may be incomplete" : ""}. Enter policies manually from the applicant's declarations.`,
+    });
+  } else if (p.loaded === 0) {
+    rows.push({ label: "Existing policies", tone: "ok", text: `All ${p.found} current filing${p.found === 1 ? " is" : "s are"} already on policy cards.` });
+  } else {
+    rows.push({
+      label: "Existing policies",
+      tone: p.skippedNote ? "warn" : "ok",
+      text: `${p.loaded} current filing${p.loaded === 1 ? "" : "s"} loaded as policy card${p.loaded === 1 ? "" : "s"}${p.duplicates ? `; ${p.duplicates} already on a card` : ""}.${p.overflow + p.omitted ? ` ${p.overflow + p.omitted} more filing${p.overflow + p.omitted === 1 ? "" : "s"} not shown (limit ${RECORD_LIMITS.policy} policy cards).` : ""} A filing shows carrier, policy number, limit and effective date only. Premium, agent and term dates come from the policy document.${p.skippedNote ? ` ${p.skippedNote}` : ""}`,
+    });
+  }
+
+  const histSrc = src("motusInsHist");
+  if (!histSrc || histSrc.status === "error") {
+    rows.push({ label: "Prior insurance", tone: "error", text: "The prior-filings source is unavailable. Enter prior insurance manually." });
+  } else if (histSrc.status === "empty") {
+    rows.push({ label: "Prior insurance", tone: "ok", text: "No prior or cancelled filings on record." });
+  } else {
+    rows.push({
+      label: "Prior insurance",
+      tone: "ok",
+      text: `${report.priorFilings.total} prior filing${report.priorFilings.total === 1 ? "" : "s"} on record, ${report.priorFilings.cancelled} cancelled. Filled into Section 05.`,
+    });
+  }
+
+  const authSrc = src("motusAuthHist");
+  if (!authSrc || authSrc.status === "error") {
+    rows.push({ label: "Authority history", tone: "error", text: "The authority-history source is unavailable." });
+  } else if (authSrc.status === "empty") {
+    rows.push({ label: "Authority history", tone: "warn", text: "No operating-authority history found for this DOT or docket." });
+  } else {
+    rows.push({ label: "Authority history", tone: "ok", text: report.authority || "Authority history loaded." });
+  }
+
+  rows.push({
+    label: "Drivers",
+    tone: "manual",
+    text: `Not in public FMCSA records; individual drivers are not published. ${report.driverCount != null ? `FMCSA reports ${report.driverCount} driver${report.driverCount === 1 ? "" : "s"} as a count only.` : "FMCSA reports no driver count."} Add one card per driver in Section 06.`,
+  });
+  rows.push({
+    label: "Vehicles",
+    tone: "manual",
+    text: `Not in public FMCSA records; no VINs or unit details are published. ${report.powerUnitCount != null ? `FMCSA reports ${report.powerUnitCount} power unit${report.powerUnitCount === 1 ? "" : "s"} as a count only.` : ""} Add one card per vehicle in Section 07.`,
+  });
+  rows.push({
+    label: "Declarations & fleet schedule",
+    tone: "manual",
+    text: "Optional upload in Section 08 for agent review. Nothing is read or parsed automatically.",
+  });
+
+  const TONE: Record<Tone, { label: string; className: string }> = {
+    ok: { label: "Loaded", className: "bg-emerald-100 text-emerald-800" },
+    warn: { label: "Check", className: "bg-amber-100 text-amber-800" },
+    error: { label: "Unavailable", className: "bg-rose-100 text-rose-800" },
+    manual: { label: "Manual entry", className: "bg-navy-900 text-white" },
+  };
+
+  return (
+    <div className="mt-3 rounded-[0.8rem] border border-steel-200 bg-white p-3.5 sm:p-4">
+      <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-500">
+        Lookup report — what loaded and what still needs you
+      </p>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        {rows.map((row) => (
+          <li
+            key={row.label}
+            className="flex gap-2.5 rounded-[0.6rem] border border-steel-200 bg-bone px-3 py-2.5 text-[0.8rem] leading-relaxed text-steel-700"
+          >
+            <span
+              className={`mt-0.5 h-fit shrink-0 rounded-full px-2 py-0.5 font-mono text-[0.56rem] font-bold uppercase tracking-wider ${TONE[row.tone].className}`}
+            >
+              {TONE[row.tone].label}
+            </span>
+            <span>
+              <strong className="text-navy-900">{row.label}.</strong> {row.text}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function InsuranceIntakeDetails() {
   const [formData, setFormData] = useState<Record<string, string>>({
     mailingCountry: "United States",
   });
   const latestFormData = useRef(formData);
   const [fmcsaTagged, setFmcsaTagged] = useState<Record<string, boolean>>({});
+  const latestTagged = useRef<TaggedFields>({});
+  const [recordCounts, setRecordCounts] = useState<RecordCounts>(INITIAL_RECORD_COUNTS);
+  const latestCounts = useRef<RecordCounts>(INITIAL_RECORD_COUNTS);
+  // Bumped on every add/remove so an in-flight lookup never places policies onto shifted cards.
+  const recordsVersion = useRef(0);
   const [fmcsaLoading, setFmcsaLoading] = useState(false);
   const [fmcsaStatus, setFmcsaStatus] = useState<{
     type: "idle" | "success" | "error" | "info";
     message: string;
   }>({ type: "idle", message: "" });
+  const [fmcsaReport, setFmcsaReport] = useState<FmcsaReport | null>(null);
+  const [recordNotice, setRecordNotice] = useState<{ kind: RecordKind; text: string } | null>(null);
 
-  const [activeDriver, setActiveDriver] = useState(1);
-  const [activeVehicle, setActiveVehicle] = useState(1);
-  const [activePolicy, setActivePolicy] = useState(1);
   const [mvrAuthorized, setMvrAuthorized] = useState(false);
 
   const [expandAll, setExpandAll] = useState(false);
@@ -44,17 +214,55 @@ export function InsuranceIntakeDetails() {
     type: "idle" | "success" | "error";
     message: string;
   }>({ type: "idle", message: "" });
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [attachmentError, setAttachmentError] = useState("");
+
+  /** Single write path: keeps the ref (read by async work) and the rendered state in step. */
+  const commit = (values: FieldValues, tagged: TaggedFields) => {
+    latestFormData.current = values;
+    latestTagged.current = tagged;
+    setFormData(values);
+    setFmcsaTagged(tagged);
+  };
 
   const handleChange = (id: string, value: string) => {
-    latestFormData.current = { ...latestFormData.current, [id]: value };
-    setFormData(latestFormData.current);
     // An edited value is no longer the value verified by the lookup.
-    setFmcsaTagged((prev) => ({ ...prev, [id]: false }));
+    commit({ ...latestFormData.current, [id]: value }, { ...latestTagged.current, [id]: false });
+  };
+
+  const addRecord = (kind: RecordKind) => {
+    const before = latestCounts.current[kind];
+    const after = addRecordCount(before, kind);
+    if (after === before) {
+      setRecordNotice({ kind, text: `Limit of ${RECORD_LIMITS[kind]} reached. For larger fleets, upload a schedule in Section 08 or call our desk.` });
+      return;
+    }
+    setRecordNotice(null);
+    latestCounts.current = { ...latestCounts.current, [kind]: after };
+    recordsVersion.current++;
+    setRecordCounts(latestCounts.current);
+  };
+
+  const removeRecord = (kind: RecordKind, index: number) => {
+    const count = latestCounts.current[kind];
+    const values = latestFormData.current;
+    const hasEntries = RECORD_FIELDS[kind].some((f) => {
+      const v = values[`${kind}_${index}_${f.key}`];
+      return typeof v === "string" && v.trim() !== "";
+    });
+    if (hasEntries && !window.confirm(`Remove ${RECORD_NOUN[kind].toLowerCase()} ${index}? Its entered values will be deleted.`)) {
+      return;
+    }
+    const result = removeRecordAt(values, latestTagged.current, kind, index, count);
+    commit(result.values, result.tagged);
+    setRecordNotice(null);
+    latestCounts.current = { ...latestCounts.current, [kind]: result.count };
+    recordsVersion.current++;
+    setRecordCounts(latestCounts.current);
   };
 
   const handleFmcsaLookup = async () => {
-    const rawDot = formData["dotNumber"] || "";
-    const cleanDot = rawDot.replace(/\D/g, "");
+    const cleanDot = (latestFormData.current["dotNumber"] || "").replace(/\D/g, "");
 
     if (!cleanDot) {
       setFmcsaStatus({
@@ -64,8 +272,10 @@ export function InsuranceIntakeDetails() {
       return;
     }
 
+    const recordsAtStart = recordsVersion.current;
     setFmcsaLoading(true);
     setFmcsaStatus({ type: "idle", message: "" });
+    setFmcsaReport(null);
 
     try {
       const res = await fetch(`/api/fmcsa?dot=${encodeURIComponent(cleanDot)}`);
@@ -96,71 +306,66 @@ export function InsuranceIntakeDetails() {
 
       if (json.ok && json.data) {
         const d = json.data;
-        const found: Record<string, string> = json.fields || {};
-        const updates: Record<string, string> = {};
-        const tagged: Record<string, boolean> = {};
+        const src: Record<string, FmcsaSourceRow> = json.sources || {};
 
-        // Only fill fields the user has not typed into yet; every filled field is tagged "FMCSA".
-        for (const [key, val] of Object.entries(found)) {
-          if (val && !latestFormData.current[key]) {
-            updates[key] = val;
-            tagged[key] = true;
+        // Scalar fields: fill only empty ones; anything the applicant typed stays.
+        const scalar = mergeFmcsaFields(latestFormData.current, latestTagged.current, json.fields || {});
+        let values = scalar.values;
+        let tagged = scalar.tagged;
+
+        let policyLoaded = 0;
+        let policyStats = { found: Number(d.policyCount) || 0, loaded: 0, duplicates: 0, overflow: 0, skippedNote: "" };
+        if (recordsVersion.current === recordsAtStart) {
+          const merged = mergeFmcsaPolicies(values, tagged, latestCounts.current.policy, d.policies || []);
+          values = merged.values;
+          tagged = merged.tagged;
+          policyLoaded = merged.loaded;
+          policyStats = { ...policyStats, loaded: merged.loaded, duplicates: merged.duplicates, overflow: merged.overflow };
+          if (merged.count !== latestCounts.current.policy) {
+            latestCounts.current = { ...latestCounts.current, policy: merged.count };
+            setRecordCounts(latestCounts.current);
           }
+        } else {
+          policyStats.skippedNote = "Policy cards changed during the lookup, so the FMCSA filings were not placed. Run the lookup again to load them.";
         }
 
-        latestFormData.current = { ...latestFormData.current, ...updates };
-        setFormData(latestFormData.current);
-        setFmcsaTagged((prev) => ({ ...prev, ...tagged }));
+        commit(values, tagged);
 
-        const filledCount = Object.keys(updates).length;
         const ins = d.insurance || {};
-        const insParts = [
-          ins.bipdOnFile ? `BI&PD on file ${ins.bipdOnFile}` : "",
-          ins.cargoOnFile ? `Cargo on file: ${ins.cargoOnFile}` : "",
-          ins.bondOnFile ? `Bond on file: ${ins.bondOnFile}` : "",
-        ].filter(Boolean);
-
-        // Per-source row counts (0 = upstream answered but had no rows for this
-        // DOT, ✗ = the source failed) so it is visible what Motus returned.
-        const src = json.sources || {};
-        const srcFmt = (s: any) =>
-          !s ? "?" : `${s.status === "error" ? "✗" : String(s.rows ?? 0)}${
-            s.via === "docket" ? " (docket)" : s.docketError ? " (docket failed)" :
-            s.docketTried ? " (docket empty)" : ""
-          }`;
-        const srcSummary = Object.keys(src).length
-          ? ` Sources — cargo ${srcFmt(src.qcmobileCargo)}, dockets ${srcFmt(
-              src.qcmobileDockets
-            )}, Motus: carrier ${srcFmt(src.motusCarrier)}, policies ${srcFmt(
-              src.motusInsur
-            )}, history ${srcFmt(src.motusInsHist)}, authority ${srcFmt(
-              src.motusAuthHist
-            )}`
-          : "";
-        if (json.debug) {
-          console.info("[fmcsa] debug sample rows:", json.debug);
-        }
-
         const auth = d.authority || {};
-        const authNote = auth.status
-          ? ` Authority: ${auth.status}${auth.reason ? ` — ${auth.reason}` : ""}${auth.date ? ` (${auth.date})` : ""}.`
-          : "";
+        const report: FmcsaReport = {
+          legalName: d.legalName || "",
+          dotNumber: String(d.dotNumber || cleanDot),
+          filled: scalar.filled.length,
+          sources: src,
+          insurance: {
+            bipdOnFile: ins.bipdOnFile,
+            bipdRequired: ins.bipdRequired,
+            cargoOnFile: ins.cargoOnFile,
+            bondOnFile: ins.bondOnFile,
+          },
+          policies: { ...policyStats, omitted: Number(d.policiesOmitted) || 0 },
+          priorFilings: {
+            total: Number(d.priorFilings?.total) || 0,
+            cancelled: Number(d.priorFilings?.cancelled) || 0,
+          },
+          authority: auth.status
+            ? `Authority ${auth.status}${auth.type ? ` (${auth.type})` : ""}${auth.reason ? ` — ${auth.reason}` : ""}${auth.date ? `, as of ${auth.date}` : ""}.`
+            : "",
+          driverCount: typeof d.driverCount === "number" ? d.driverCount : null,
+          powerUnitCount: typeof d.powerUnitCount === "number" ? d.powerUnitCount : null,
+        };
+        setFmcsaReport(report);
+
         const docketNote = d.mcPending
           ? " The MC shown is an application docket, not granted authority."
           : "";
         const mailNote = d.mailUndeliverable
           ? " FMCSA marks the mailing address undeliverable — confirm it with the applicant."
           : "";
-
         setFmcsaStatus({
           type: "success",
-          message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${
-            d.dotNumber
-          }). ${filledCount} field${
-            filledCount === 1 ? "" : "s"
-          } pre-filled and tagged "FMCSA"${
-            insParts.length ? `. ${insParts.join(" · ")}` : ""
-          }.${authNote}${docketNote}${srcSummary}.${mailNote} Driver, vehicle, MVR and personal details are not public records, so complete those manually. All fields remain editable.`,
+          message: `FMCSA + Motus data loaded for ${d.legalName || "carrier"} (DOT #${d.dotNumber}). ${scalar.filled.length} field${scalar.filled.length === 1 ? "" : "s"} pre-filled and tagged "FMCSA"${policyLoaded ? ` and ${policyLoaded} insurance filing${policyLoaded === 1 ? "" : "s"} placed on policy cards` : ""}.${docketNote}${mailNote} Vehicles and drivers are not in public FMCSA records, so enter them manually. All fields remain editable.`,
         });
       }
     } catch {
@@ -174,13 +379,33 @@ export function InsuranceIntakeDetails() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    const next = [...attachments, ...picked];
+    const total = next.reduce((sum, f) => sum + f.size, 0);
+    const problem =
+      next.length > MAX_ATTACHMENTS ? `Attach no more than ${MAX_ATTACHMENTS} files.`
+      : next.some((f) => !ATTACHMENT_NAME.test(f.name) || (f.type && !ATTACHMENT_TYPES.includes(f.type)))
+        ? "Only PDF, JPG or PNG files can be attached."
+      : next.some((f) => f.size > MAX_ATTACHMENT_BYTES) ? "Each file must be 2 MB or smaller."
+      : total > MAX_TOTAL_ATTACHMENT_BYTES ? "Attached files total more than 3.5 MB. Remove a file or email it to us."
+      : "";
+    if (problem) {
+      setAttachmentError(problem);
+      return;
+    }
+    setAttachmentError("");
+    setAttachments(next);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitStatus({ type: "idle", message: "" });
 
-    const firstName = (formData["firstName"] || "").trim();
-    const phone = (formData["phone"] || "").trim();
-    const email = (formData["email"] || "").trim();
+    const firstName = (latestFormData.current["firstName"] || "").trim();
+    const phone = (latestFormData.current["phone"] || "").trim();
+    const email = (latestFormData.current["email"] || "").trim();
 
     if (!firstName || !phone || !email) {
       const missing: string[] = [];
@@ -205,36 +430,63 @@ export function InsuranceIntakeDetails() {
 
     setIsSubmitting(true);
     try {
+      const counts = latestCounts.current;
+      const tagged = latestTagged.current;
+      // Every card on screen is sent, in order. Blank cards are dropped, and so are stale values past the visible count.
+      const values = pruneRecordValues(latestFormData.current, counts);
+      const drivers = collectRecords(values, tagged, "driver", counts.driver);
+      const vehicles = collectRecords(values, tagged, "vehicle", counts.vehicle);
+      const existingPolicies = collectRecords(values, tagged, "policy", counts.policy);
+      const lastName = values["lastName"] || "";
+
       const payload = {
         formType: "insurance-intake",
-        name:
-          [firstName, formData["lastName"]].filter(Boolean).join(" ") ||
-          firstName,
+        name: [firstName, lastName].filter(Boolean).join(" ") || firstName,
         firstName,
-        lastName: formData["lastName"] || "",
+        lastName,
         phone,
         email,
-        dotNumber: formData["dotNumber"] || "",
+        dotNumber: values["dotNumber"] || "",
+        driverCount: drivers.length,
+        vehicleCount: vehicles.length,
+        existingPolicyCount: existingPolicies.length,
+        drivers,
+        vehicles,
+        existingPolicies,
+        // Scalar fields still carrying an unedited FMCSA value (provenance for the CRM).
+        fmcsaFilledFields: Object.keys(tagged).filter((k) => tagged[k] && (values[k] || "").trim() !== ""),
         formData: {
-          ...formData,
+          ...values,
           mvrAuthorized,
         },
       };
 
-      const res = await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const withDocuments = attachments.length > 0;
+      const res = withDocuments
+        ? await fetch("/api/lead", {
+            method: "POST",
+            body: (() => {
+              const form = new FormData();
+              form.append("payload", JSON.stringify(payload));
+              attachments.forEach((file) => form.append("files", file, file.name));
+              return form;
+            })(),
+          })
+        : await fetch("/api/lead", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-      const json = await res.json();
+      const json = await res.json().catch(() => ({} as { ok?: boolean; error?: string }));
       if (!res.ok || !json.ok) {
         throw new Error(json.error || `Server responded ${res.status}`);
       }
 
+      setAttachments([]);
       setSubmitStatus({
         type: "success",
-        message: `Intake submitted successfully! A licensed agent has received your information and will begin quoting your policy immediately. We will contact you at ${phone} or ${email}.`,
+        message: `Intake submitted successfully!${withDocuments ? ` ${attachments.length} document${attachments.length === 1 ? " was" : "s were"} sent to our agents for manual review.` : ""} A licensed agent has received your information and will begin quoting your policy immediately. We will contact you at ${phone} or ${email}.`,
       });
     } catch (err: any) {
       setSubmitStatus({
@@ -433,65 +685,86 @@ export function InsuranceIntakeDetails() {
     { id: "numberOfLosses", label: "# of losses", placeholder: "— —" },
   ];
 
-  const driverFieldTemplates = [
-    { key: "name", label: "Driver Name" },
-    { key: "dob", label: "Date of Birth" },
-    { key: "dlNumber", label: "DL#" },
-    { key: "dlState", label: "Driver License State", type: "state-select" },
-    { key: "email", label: "Email (for MVR permission)" },
-    { key: "phone", label: "Phone # (For MVR Permission)" },
-    { key: "cdlClass", label: "CDL Class (A,B,C)" },
-    { key: "expYears", label: "# of years exp with CDL Class" },
-    { key: "hireDate", label: "Date of Hire" },
-    { key: "violations", label: "# of Violations" },
-    { key: "accidents", label: "# of Accidents" },
-    { key: "accidentDetails", label: "Details of Accidents?" },
-    { key: "ownerOperator", label: "Owner Operator?" },
-  ];
+  /** Repeatable record cards (drivers, vehicles, policies) with add and remove controls. */
+  const renderRecords = (kind: RecordKind) => {
+    const count = recordCounts[kind];
+    const noun = RECORD_NOUN[kind];
+    const fields = RECORD_FIELDS[kind];
+    const notice = recordNotice?.kind === kind ? recordNotice.text : "";
+    return (
+      <div className="grid gap-4">
+        {Array.from({ length: count }, (_, i) => i + 1).map((index) => {
+          const autoFilled = fields.some((f) => fmcsaTagged[`${kind}_${index}_${f.key}`]);
+          return (
+            <div key={`${kind}-${index}`} className="rounded-[1rem] border border-steel-200 bg-bone p-4 sm:p-5">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-display text-[0.98rem] font-bold text-navy-900">
+                    {noun} {index}
+                  </span>
+                  {autoFilled ? (
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 font-mono text-[0.58rem] font-bold tracking-wider text-emerald-800">
+                      FMCSA filing
+                    </span>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeRecord(kind, index)}
+                  className="rounded-full border border-steel-300 bg-white px-3.5 py-1.5 text-[0.8rem] font-semibold text-steel-700 transition hover:border-rose-400 hover:text-rose-700"
+                >
+                  Remove {noun.toLowerCase()} {index}
+                </button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {fields.map((f) =>
+                  renderFieldInput({
+                    id: `${kind}_${index}_${f.key}`,
+                    label: `${f.label} — ${noun} ${index}`,
+                    placeholder: "— —",
+                    type: f.type,
+                  })
+                )}
+              </div>
+            </div>
+          );
+        })}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => addRecord(kind)}
+            disabled={count >= RECORD_LIMITS[kind]}
+            className="inline-flex items-center gap-2 rounded-full border border-navy-900 bg-white px-5 py-2.5 text-[0.88rem] font-semibold text-navy-900 transition hover:bg-navy-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            + Add {noun.toLowerCase()}
+          </button>
+          <span className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-steel-500">
+            {count} of {RECORD_LIMITS[kind]} cards
+          </span>
+          {notice ? <span className="text-[0.82rem] font-semibold text-amber-800">{notice}</span> : null}
+        </div>
+      </div>
+    );
+  };
 
-  const vehicleFieldTemplates = [
-    { key: "year", label: "Year" },
-    { key: "make", label: "Make" },
-    { key: "model", label: "Model" },
-    { key: "purchaseDate", label: "Date Purchased" },
-    { key: "purchaseCost", label: "Cost When Purchased" },
-    { key: "specialEquipmentValue", label: "Value of Permanently attached special equipment" },
-    { key: "bodyType", label: "Body Type" },
-    { key: "vin", label: "17 digit VIN" },
-    { key: "rearAxles", label: "Number of rear axles" },
-    { key: "abs", label: "Does the vehicle have anti-lock brakes?" },
-    { key: "airbags", label: "Does the vehicle have airbags?" },
-    { key: "gvw", label: "GVW" },
-    { key: "statedValue", label: "Stated Value" },
-    { key: "maxRadius", label: "Max Radius" },
-    { key: "owner", label: "Owner of Vehicle" },
-    { key: "lossPayee", label: "Loss Payee" },
-  ];
-
-  const policyFieldTemplates = [
-    { key: "number", label: "Policy Number" },
-    { key: "status", label: "Status" },
-    { key: "effectiveDate", label: "Effective Date" },
-    { key: "expirationDate", label: "Expiration Date" },
-    { key: "cancellationDate", label: "Cancellation Date" },
-    { key: "agent", label: "Agent" },
-    { key: "csr", label: "CSR" },
-    { key: "lob", label: "Line of Business" },
-    { key: "lobClass", label: "LOB Class" },
-    { key: "carrier", label: "Carrier Name" },
-    { key: "mga", label: "MGA" },
-    { key: "businessType", label: "Business Type" },
-    { key: "commission", label: "Commission" },
-    { key: "totalPremium", label: "Total Premium" },
-    { key: "rwlQt", label: "RWL_Qt" },
-    { key: "rwlPol", label: "RWL_Pol" },
-    { key: "percentChange", label: "Percentage Change" },
-    { key: "premium", label: "Policy Premium" },
-    { key: "referralSource", label: "Referral Source" },
-    { key: "referralContact", label: "Referral Source Contact" },
-    { key: "primaryOffice", label: "Primary Office" },
-    { key: "databaseId", label: "Database ID" },
-  ];
+  const limitsNotice = (
+    <div className="mb-6 rounded-[1rem] border border-steel-200 bg-white p-4 sm:p-5">
+      <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-500">
+        What the FMCSA lookup can and cannot fill
+      </p>
+      <ul className="mt-2.5 list-disc space-y-1.5 pl-5 text-[0.84rem] leading-relaxed text-steel-700">
+        <li>
+          <strong className="text-navy-900">Auto-filled:</strong> legal and DBA name, address, phone, MC docket, operating authority, cargo, BI&amp;PD / cargo / bond on file, current insurance filings and prior-insurance history.
+        </li>
+        <li>
+          <strong className="text-navy-900">Not public:</strong> individual vehicles (VIN, year, make, model, values) and drivers (names, dates of birth, license numbers, MVR). FMCSA publishes totals only, so these are entered by hand in Sections 06 and 07.
+        </li>
+        <li>
+          <strong className="text-navy-900">Not a declarations page:</strong> an FMCSA filing does not show premium, agent or term dates. Upload your declarations or fleet schedule in Section 08 for agent review.
+        </li>
+      </ul>
+    </div>
+  );
 
   return (
     <section
@@ -653,6 +926,13 @@ export function InsuranceIntakeDetails() {
                 ) : null}
               </div>
 
+              {fmcsaReport ? (
+                <div className="mb-6">
+                  <FmcsaReportPanel report={fmcsaReport} />
+                </div>
+              ) : null}
+              {limitsNotice}
+
               {/* Remaining Section 01 fields */}
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {contactFields.map((f) => renderFieldInput(f))}
@@ -788,7 +1068,7 @@ export function InsuranceIntakeDetails() {
             </div>
           </details>
 
-          {/* Section 06: Drivers 1-4 */}
+          {/* Section 06: Drivers. Manual entry: FMCSA publishes a driver COUNT only. */}
           <details
             id="drivers"
             open={expandAll}
@@ -801,33 +1081,15 @@ export function InsuranceIntakeDetails() {
                   Driver — Please list all Drivers including relisting owners
                 </h3>
                 <p className="mt-2 max-w-3xl text-[0.88rem] leading-relaxed text-steel-600">
-                  Repeat for each driver. Driver license state fields use our 44 insured states dropdown.
+                  One card per driver. FMCSA public records do not list individual drivers, so this section is never auto-filled.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[1, 2, 3, 4].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActiveDriver(n);
-                        const el = document.getElementById("drivers") as HTMLDetailsElement | null;
-                        if (el) el.open = true;
-                      }}
-                      className={`rounded-full px-4 py-1.5 text-[0.82rem] font-semibold transition ${
-                        activeDriver === n
-                          ? "bg-navy-900 text-white"
-                          : "border border-steel-300 bg-white text-navy-900 hover:border-navy-900"
-                      }`}
-                    >
-                      Driver {n}
-                    </button>
-                  ))}
-                </div>
+                <span className="mt-3 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-wider text-amber-800">
+                  Manual entry required
+                </span>
               </div>
               <span
                 aria-hidden="true"
-                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45 sm:flex"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45"
               >
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M10 4.5v11M4.5 10h11" strokeLinecap="round" />
@@ -835,26 +1097,18 @@ export function InsuranceIntakeDetails() {
               </span>
             </summary>
             <div className="border-t border-steel-200 px-5 pb-6 pt-5 sm:px-7 sm:pb-7">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-500">
-                  Showing — Driver {activeDriver}
-                </span>
-                <span aria-hidden="true" className="h-px flex-1 bg-steel-200" />
+              <div className="mb-4 rounded-[0.8rem] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[0.82rem] leading-relaxed text-amber-900">
+                {fmcsaReport
+                  ? fmcsaReport.driverCount != null
+                    ? `FMCSA reports ${fmcsaReport.driverCount} driver${fmcsaReport.driverCount === 1 ? "" : "s"} for this carrier. That is a count only: names, license numbers, dates of birth and MVR details must be entered by hand.`
+                    : "FMCSA does not report a driver count for this carrier. Enter each driver's details by hand."
+                  : "Look up your DOT number to see FMCSA's driver count. Names, dates of birth and license numbers are not public, so enter them here."}
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {driverFieldTemplates.map((tpl) =>
-                  renderFieldInput({
-                    id: `driver_${activeDriver}_${tpl.key}`,
-                    label: `${tpl.label} — Driver ${activeDriver}`,
-                    placeholder: "— —",
-                    type: tpl.type,
-                  })
-                )}
-              </div>
+              {renderRecords("driver")}
             </div>
           </details>
 
-          {/* Section 07: Vehicles 1-4 */}
+          {/* Section 07: Vehicles. Manual entry: no VIN or unit list is published. */}
           <details
             id="vehicles"
             open={expandAll}
@@ -867,33 +1121,15 @@ export function InsuranceIntakeDetails() {
                   Vehicle
                 </h3>
                 <p className="mt-2 max-w-3xl text-[0.88rem] leading-relaxed text-steel-600">
-                  Tractor & trailer details for rating — VIN, stated value and safety equipment affect premium.
+                  One card per tractor or trailer to insure. VIN, stated value and safety equipment affect premium. FMCSA publishes no VIN or unit list, so this section is never auto-filled.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[1, 2, 3, 4].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActiveVehicle(n);
-                        const el = document.getElementById("vehicles") as HTMLDetailsElement | null;
-                        if (el) el.open = true;
-                      }}
-                      className={`rounded-full px-4 py-1.5 text-[0.82rem] font-semibold transition ${
-                        activeVehicle === n
-                          ? "bg-navy-900 text-white"
-                          : "border border-steel-300 bg-white text-navy-900 hover:border-navy-900"
-                      }`}
-                    >
-                      Vehicle {n}
-                    </button>
-                  ))}
-                </div>
+                <span className="mt-3 inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-wider text-amber-800">
+                  Manual entry required
+                </span>
               </div>
               <span
                 aria-hidden="true"
-                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45 sm:flex"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45"
               >
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M10 4.5v11M4.5 10h11" strokeLinecap="round" />
@@ -901,25 +1137,16 @@ export function InsuranceIntakeDetails() {
               </span>
             </summary>
             <div className="border-t border-steel-200 px-5 pb-6 pt-5 sm:px-7 sm:pb-7">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-500">
-                  Showing — Vehicle {activeVehicle}
-                </span>
-                <span aria-hidden="true" className="h-px flex-1 bg-steel-200" />
+              <div className="mb-4 rounded-[0.8rem] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[0.82rem] leading-relaxed text-amber-900">
+                {fmcsaReport?.powerUnitCount != null
+                  ? `FMCSA reports ${fmcsaReport.powerUnitCount} power unit${fmcsaReport.powerUnitCount === 1 ? "" : "s"} as a count only. VINs, years, makes, models and values are not public, so enter each vehicle here. The unit count is filled in Section 03 and Section 05.`
+                  : "VINs, years, makes, models and values are not in public FMCSA records. Enter each vehicle here after you look up your DOT number."}
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {vehicleFieldTemplates.map((tpl) =>
-                  renderFieldInput({
-                    id: `vehicle_${activeVehicle}_${tpl.key}`,
-                    label: `${tpl.label} — Vehicle ${activeVehicle}`,
-                    placeholder: "— —",
-                  })
-                )}
-              </div>
+              {renderRecords("vehicle")}
             </div>
           </details>
 
-          {/* Section 08: Existing Policies (renamed from Policies 1–5; old 08–10 removed) */}
+          {/* Section 08: Existing Policies. FMCSA insurance filings load as cards; they are not declarations pages. */}
           <details
             id="existing-policies"
             open={expandAll}
@@ -932,33 +1159,15 @@ export function InsuranceIntakeDetails() {
                   Existing Policies
                 </h3>
                 <p className="mt-2 max-w-3xl text-[0.88rem] leading-relaxed text-steel-600">
-                  Existing and quoted policies — carrier, premium and policy detail. Repeat for each policy.
+                  Current and pending insurance filings from FMCSA load here as cards. A filing shows the carrier, policy number, limit and effective date. It is not a declarations page, so premium, agent and term dates come from the policy document.
                 </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActivePolicy(n);
-                        const el = document.getElementById("existing-policies") as HTMLDetailsElement | null;
-                        if (el) el.open = true;
-                      }}
-                      className={`rounded-full px-4 py-1.5 text-[0.82rem] font-semibold transition ${
-                        activePolicy === n
-                          ? "bg-navy-900 text-white"
-                          : "border border-steel-300 bg-white text-navy-900 hover:border-navy-900"
-                      }`}
-                    >
-                      Policy {n}
-                    </button>
-                  ))}
-                </div>
+                <span className="mt-3 inline-flex items-center rounded-full bg-steel-100 px-2.5 py-1 font-mono text-[0.6rem] font-bold uppercase tracking-wider text-steel-700">
+                  FMCSA filings + manual entry
+                </span>
               </div>
               <span
                 aria-hidden="true"
-                className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45 sm:flex"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-steel-200 bg-bone text-navy-900 transition-transform duration-300 group-open/details:rotate-45"
               >
                 <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M10 4.5v11M4.5 10h11" strokeLinecap="round" />
@@ -966,20 +1175,53 @@ export function InsuranceIntakeDetails() {
               </span>
             </summary>
             <div className="border-t border-steel-200 px-5 pb-6 pt-5 sm:px-7 sm:pb-7">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-steel-500">
-                  Showing — Policy {activePolicy}
-                </span>
-                <span aria-hidden="true" className="h-px flex-1 bg-steel-200" />
+              <div className="mb-4 rounded-[0.8rem] border border-steel-200 bg-bone px-3.5 py-2.5 text-[0.82rem] leading-relaxed text-steel-700">
+                Cards marked <strong>FMCSA filing</strong> came from the public record and can be corrected. Anything you type is kept when the lookup runs again.
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {policyFieldTemplates.map((tpl) =>
-                  renderFieldInput({
-                    id: `policy_${activePolicy}_${tpl.key}`,
-                    label: `${tpl.label} — Policy ${activePolicy}`,
-                    placeholder: "— —",
-                  })
-                )}
+              {renderRecords("policy")}
+
+              {/* Optional documents: held in memory for this request, emailed to agents, never stored on the site. */}
+              <div className="mt-6 rounded-[1rem] border border-dashed border-steel-300 bg-white p-4 sm:p-5">
+                <p className="eyebrow text-brand-500">Optional — documents for agent review</p>
+                <h4 className="mt-1 font-display text-[1rem] font-bold text-navy-900">
+                  Upload your declarations page or fleet schedule
+                </h4>
+                <p className="mt-1.5 text-[0.84rem] leading-relaxed text-steel-600">
+                  Agents review uploads by hand; nothing is read or parsed automatically. Files are emailed to our licensed agents and are not stored on this website. PDF, JPG or PNG · up to {MAX_ATTACHMENTS} files · 3.5 MB total.
+                </p>
+                <input
+                  id="intake-documents"
+                  type="file"
+                  multiple
+                  accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                  disabled={isSubmitting}
+                  className="mt-3 block w-full text-[0.85rem] text-steel-700 file:mr-3 file:rounded-full file:border-0 file:bg-navy-900 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-navy-800"
+                />
+                {attachments.length ? (
+                  <ul className="mt-3 grid gap-2">
+                    {attachments.map((file, i) => (
+                      <li
+                        key={`${file.name}-${i}`}
+                        className="flex items-center justify-between gap-3 rounded-[0.6rem] border border-steel-200 bg-bone px-3 py-2 text-[0.82rem] text-steel-700"
+                      >
+                        <span className="min-w-0 truncate">
+                          {file.name} <span className="text-steel-500">· {formatBytes(file.size)}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAttachments((prev) => prev.filter((_, j) => j !== i))}
+                          className="shrink-0 font-semibold text-steel-700 hover:text-rose-700"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                {attachmentError ? (
+                  <p className="mt-2 text-[0.82rem] font-semibold text-rose-700">{attachmentError}</p>
+                ) : null}
               </div>
             </div>
           </details>

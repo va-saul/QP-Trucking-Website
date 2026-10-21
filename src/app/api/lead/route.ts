@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
+import { normalizeSubmission, sendToMomentumCrm } from "../../../lib/momentum-crm";
 
 /**
  * Lead intake endpoint.
  *
- * Every submission is delivered through up to two channels:
- *  1. CRM webhook  - `LEAD_WEBHOOK_URL` (Momentum / GoHighLevel inbound webhook)
- *  2. Email        - Resend (`RESEND_API_KEY`) to `LEAD_NOTIFY_EMAIL`
- *                    (default marketing@qpfactoring.com)
+ * Every submission is delivered through up to three independent channels:
+ *  1. Momentum CRM API - `GHL_PRIVATE_INTEGRATION_TOKEN` (+ `GHL_LOCATION_ID`)
+ *                        Direct GoHighLevel / LeadConnector v2 Contact upsert,
+ *                        automatic Custom Field + Custom Object mapping, Tags & Note
+ *  2. CRM webhook      - `LEAD_WEBHOOK_URL` (Momentum / GoHighLevel inbound webhook)
+ *  3. Email            - Resend (`RESEND_API_KEY`) to `LEAD_NOTIFY_EMAIL`
+ *                        (default marketing@qpfactoring.com)
  * A lead is accepted if at least one channel succeeds. If none is configured the
  * endpoint returns 503 so a form never reports success for a lost lead.
  *
@@ -148,18 +152,38 @@ export async function POST(request: Request) {
     );
   }
 
+  const documentMeta = attachments.map((a) => ({
+    name: a.filename,
+    type: a.contentType,
+    bytes: a.bytes.byteLength,
+  }));
+
+  const normalized = normalizeSubmission(payload, documentMeta);
+
   const record = {
     ...payload,
     name: derivedName || payload.name || undefined,
     receivedAt: new Date().toISOString(),
     userAgent: request.headers.get("user-agent") ?? undefined,
-    ...(attachments.length
-      ? { documents: attachments.map((a) => ({ name: a.filename, type: a.contentType, bytes: a.bytes.byteLength })) }
-      : {}),
+    ...(attachments.length ? { documents: documentMeta } : {}),
   };
 
-  // Flatten nested intake data so GoHighLevel / Momentum can map every field.
-  const flat: Record<string, unknown> = { ...record };
+  // Flatten nested intake data AND include normalized standard CRM keys so both
+  // GoHighLevel Inbound Webhooks and direct API integrations get clean, consistent fields.
+  const flat: Record<string, unknown> = {
+    firstName: normalized.standardContact.firstName,
+    lastName: normalized.standardContact.lastName,
+    companyName: normalized.standardContact.companyName,
+    address1: normalized.standardContact.address1,
+    city: normalized.standardContact.city,
+    state: normalized.standardContact.state,
+    postalCode: normalized.standardContact.postalCode,
+    country: normalized.standardContact.country,
+    tags: normalized.standardContact.tags,
+    formKind: normalized.formKind,
+    crmNote: normalized.noteBody,
+    ...record,
+  };
   if (payload.formData && typeof payload.formData === "object") {
     Object.assign(flat, payload.formData as Record<string, unknown>);
     delete flat.formData;
@@ -169,9 +193,13 @@ export async function POST(request: Request) {
   const notifyFrom = process.env.LEAD_FROM_EMAIL || "QP Website <leads@qpfactoring.com>";
   const label = String(payload.formType || payload.source || "website form");
   const rows = Object.entries(flat)
-    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .filter(([k, v]) => k !== "crmNote" && v !== undefined && v !== null && v !== "")
     .map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`)
     .join("\n");
+
+  const sendMomentum = async () => {
+    await sendToMomentumCrm(payload, { documents: documentMeta });
+  };
 
   const sendWebhook = async () => {
     const res = await fetch(process.env.LEAD_WEBHOOK_URL as string, {
@@ -226,6 +254,13 @@ export async function POST(request: Request) {
         "Your documents could not be delivered, so the intake was not submitted. Please try again, or call our insurance desk."
       );
     }
+    if (process.env.GHL_PRIVATE_INTEGRATION_TOKEN) {
+      try {
+        await sendMomentum();
+      } catch (err) {
+        console.error("[lead] momentum-crm failed", (err as Error).message);
+      }
+    }
     if (process.env.LEAD_WEBHOOK_URL) {
       try {
         await sendWebhook();
@@ -236,14 +271,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  // Two independent channels: CRM webhook (Momentum / GHL) and direct email.
+  // Up to three independent channels: direct Momentum CRM API, CRM webhook, and email.
   // The lead is accepted if at least one succeeds, so nothing is silently lost.
   const channels: Array<{ name: string; run: () => Promise<void> }> = [];
+  if (process.env.GHL_PRIVATE_INTEGRATION_TOKEN) channels.push({ name: "momentum-crm", run: sendMomentum });
   if (process.env.LEAD_WEBHOOK_URL) channels.push({ name: "crm-webhook", run: sendWebhook });
   if (process.env.RESEND_API_KEY) channels.push({ name: "email", run: sendEmail });
 
   if (channels.length === 0) {
-    console.error("[lead] NO DELIVERY CHANNEL CONFIGURED - set LEAD_WEBHOOK_URL and/or RESEND_API_KEY");
+    console.error(
+      "[lead] NO DELIVERY CHANNEL CONFIGURED - set GHL_PRIVATE_INTEGRATION_TOKEN, LEAD_WEBHOOK_URL, and/or RESEND_API_KEY"
+    );
     return NextResponse.json({ ok: false, error: "Delivery not configured" }, { status: 503 });
   }
 

@@ -30,8 +30,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       // /_next/ must stay crawlable: Google needs its JS/CSS to render pages (blocking it triggers
       // "resources blocked" issues in Search Console). Only the API routes are off-limits.
-      { userAgent: "*", allow: "/", disallow: ["/api/"] },
-      ...aiAgents.map((ua) => ({ userAgent: ua, allow: "/", disallow: ["/api/"] })),
+      { userAgent: "*", allow: "/", disallow: ["/api/", "/crm-setup"] },
+      ...aiAgents.map((ua) => ({ userAgent: ua, allow: "/", disallow: ["/api/", "/crm-setup"] })),
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

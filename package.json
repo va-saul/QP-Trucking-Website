@@ -9,7 +9,9 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "crm:sync": "node scripts/sync-momentum-crm.mjs",
+    "crm:webhook-sample": "node scripts/sync-momentum-crm.mjs --webhook-sample"
   },
   "dependencies": {
     "@fontsource-variable/bitter": "^5.0.0",

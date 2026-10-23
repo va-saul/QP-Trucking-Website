@@ -163,27 +163,105 @@ export function howToSchema({
   };
 }
 
-export function articleSchema(post: {
+/**
+ * The organization as a resolvable entity. Validators reject an Article whose
+ * `author` / `publisher` carries only an `@id` pointer, so every article item
+ * embeds the full object *and* the `@id`, which keeps it in the entity graph
+ * while satisfying the property checks (name + logo).
+ */
+function organizationEntity() {
+  return {
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: org.name,
+    legalName: org.legalName,
+    url: SITE_URL,
+    logo: { "@type": "ImageObject", url: org.logo, width: 512, height: 512 },
+  };
+}
+
+/** Editorial type per insights category — Google trusts a precise type. */
+const ARTICLE_TYPE: Record<string, "NewsArticle" | "BlogPosting" | "Article"> = {
+  "Industry news": "NewsArticle",
+  "Money & cash flow": "BlogPosting",
+  Compliance: "BlogPosting",
+  Glossary: "Article",
+};
+
+/**
+ * Article markup for an insights post: headline, byline and both dates in
+ * machine-readable form, which is what search engines and AI answer tools read
+ * when judging how fresh and how attributable the page is.
+ */
+function articleNode(post: ArticleInput) {
+  const url = `${SITE_URL}/insights/${post.slug}`;
+  const image = `${SITE_URL}${post.image ?? "/images/hero/factoring.jpg"}`;
+  const authorName = post.author?.trim() || org.name;
+  const isCompanyByline = authorName.toLowerCase().includes("qp ");
+
+  return {
+    "@type": ARTICLE_TYPE[post.category ?? ""] ?? "Article",
+    "@id": `${url}#article`,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url, url },
+    headline: post.title.slice(0, 110),
+    description: post.description,
+    image: { "@type": "ImageObject", "@id": `${url}#image`, url: image, caption: post.title, inLanguage: "en-US" },
+    author: isCompanyByline
+      ? { ...organizationEntity(), description: `${authorName} editorial team` }
+      : { "@type": "Organization", name: authorName, url: SITE_URL },
+    publisher: organizationEntity(),
+    datePublished: post.date,
+    dateModified: post.updated ?? post.date,
+    articleSection: post.category ?? "Trucking industry",
+    ...(post.keywords?.length ? { keywords: post.keywords.join(", ") } : {}),
+    ...(post.wordCount ? { wordCount: post.wordCount } : {}),
+    inLanguage: "en-US",
+    isPartOf: { "@type": "Blog", "@id": `${SITE_URL}/insights#blog`, name: `${org.name} Insights`, url: `${SITE_URL}/insights` },
+  };
+}
+
+type ArticleInput = {
   slug: string;
   title: string;
   description: string;
   date: string;
   updated?: string;
   image?: string;
-}) {
+  author?: string;
+  category?: string;
+  keywords?: string[];
+  wordCount?: number;
+};
+
+export function articleSchema(post: ArticleInput) {
+  return { "@context": "https://schema.org", ...articleNode(post) };
+}
+
+/** The insights index, as a Blog whose postings carry valid bylines + dates. */
+export function blogSchema(
+  posts: {
+    slug: string;
+    title: string;
+    description: string;
+    date: string;
+    updated?: string;
+    image: string;
+    author: string;
+    category?: string;
+    keywords?: string[];
+  }[],
+) {
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
-    dateModified: post.updated ?? post.date,
-    image: `${SITE_URL}${post.image ?? "/images/hero/factoring.jpg"}`,
-    author: { "@id": `${SITE_URL}/#organization` },
-    publisher: { "@id": `${SITE_URL}/#organization` },
-    mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE_URL}/insights/${post.slug}` },
-    articleSection: "Trucking industry",
+    "@type": "Blog",
+    "@id": `${SITE_URL}/insights#blog`,
+    name: `${org.name} Insights`,
+    description: "Plain-English trucking money, fraud and compliance briefings for owner-operators and fleets.",
+    url: `${SITE_URL}/insights`,
     inLanguage: "en-US",
+    publisher: organizationEntity(),
+    blogPost: posts.map((p) => articleNode(p)),
   };
 }
 

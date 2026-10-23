@@ -17,11 +17,15 @@ import { AHREFS_KEY, GSC_VERIFICATION, SITE_URL, org } from "@/content/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "QP Trucking Solutions | Trucking Factoring, Insurance & FMCSA Compliance",
-    template: "%s | QP Trucking Solutions",
+    // Same string the homepage renders, so a page that forgets its own title can
+    // never emit a second, near-duplicate brand title.
+    default: "QP Trucking Solutions | Factoring, Insurance & Compliance",
+    // `buildMetadata` composes the branded title itself (see src/lib/seo.ts);
+    // this template only covers pages that opt out of the factory.
+    template: "%s | QP Trucking",
   },
   description:
-    "Factoring, trucking insurance, new authority setup and FMCSA compliance services for owner-operators and fleets. Get paid in minutes, with no long-term contract and no hidden fees. Call 833-762-3464.",
+    "Trucking factoring, insurance, authority setup and FMCSA compliance for owner-operators and fleets. Get paid in minutes — no long-term contract. 833-762-3464.",
   keywords: [
     "trucking factoring",
     "freight bill factoring",

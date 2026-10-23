@@ -2,13 +2,13 @@ import Link from "next/link";
 import { PageHero } from "@/components/hero/PageHero";
 import { Btn, Container, CtaBand, Section, SectionHead } from "@/components/ui";
 import { Reveal } from "@/components/motion";
-import { JsonLd, breadcrumbSchema } from "@/lib/schema";
+import { JsonLd, blogSchema, breadcrumbSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { insights, glossaryTerms } from "@/content/insights";
-import { org, SITE_URL } from "@/content/site";
+import { org } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Trucking Insights | Fraud, Insurance & Industry Data",
+  title: "Trucking Industry Insights & Briefings",
   description:
     "Plain-English briefings for carriers: freight fraud prevention, why insurance premiums move, bottleneck data and a trucking terminology glossary.",
   path: "/insights",
@@ -31,20 +31,9 @@ export default function InsightsPage() {
             { label: "Home", href: "/" },
             { label: "Insights", href: "/insights" },
           ]),
-          {
-            "@context": "https://schema.org",
-            "@type": "Blog",
-            name: "QP Trucking Solutions Insights",
-            url: `${SITE_URL}/insights`,
-            publisher: { "@id": `${SITE_URL}/#organization` },
-            blogPost: insights.map((p) => ({
-              "@type": "BlogPosting",
-              headline: p.title,
-              url: `${SITE_URL}/insights/${p.slug}`,
-              datePublished: p.date,
-              description: p.description,
-            })),
-          },
+          // Every posting in the index carries its own byline + dates, so the
+          // list itself validates as a Blog of BlogPostings.
+          blogSchema(insights),
         ]}
       />
 

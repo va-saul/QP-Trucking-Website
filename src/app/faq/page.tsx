@@ -9,7 +9,7 @@ import { servicesBySlug, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "Trucking Factoring, Insurance & FMCSA Compliance FAQ",
+  title: "Trucking Factoring & Compliance FAQ",
   description:
     "Answers to common trucking questions: factoring costs, funding speed, new authority steps, BOC-3, 2290, IRP, IFTA, UCR and insurance minimums.",
   path: "/faq",

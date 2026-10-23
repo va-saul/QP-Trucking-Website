@@ -129,7 +129,7 @@ export const services: Service[] = [
       "non-recourse factoring",
       "owner operator factoring",
     ],
-    metaTitle: "Transportation Factoring for Trucking | QP Trucking",
+    metaTitle: "Transportation Factoring for Carriers",
     metaDescription:
       "Non-recourse, recourse and Pure Non-Recourse™ factoring for trucking companies. Get paid in minutes with no hidden fees or long-term contract.",
   },
@@ -239,7 +239,7 @@ export const services: Service[] = [
       "debt free working capital trucking",
       "broker bankruptcy protection factoring",
     ],
-    metaTitle: "Pure Non-Recourse™ Factoring | QP Trucking Solutions",
+    metaTitle: "Pure Non-Recourse™ Freight Factoring",
     metaDescription:
       "Pure Non-Recourse™ factoring with no chargeback risk and no 60/90-day window. Submit Pure paperwork, get paid in minutes. Flat fees, no contract.",
   },
@@ -362,9 +362,9 @@ export const services: Service[] = [
       "bobtail insurance",
       "primary auto liability FMCSA",
     ],
-    metaTitle: "Trucking Insurance for Owner-Operators & Fleets | QP Trucking Solutions",
+    metaTitle: "Trucking Insurance for Owner-Operators",
     metaDescription:
-      "Licensed trucking insurance agency for primary liability, cargo, bobtail and physical damage. Fast binding, FMCSA filings handled, and one-stop service with factoring and permits.",
+      "Primary liability, cargo, bobtail and physical damage from licensed trucking agents. Fast binding, FMCSA filings handled, bundled with factoring.",
   },
 
   /* ------------------------------------------------------------------ */
@@ -489,7 +489,7 @@ export const services: Service[] = [
       "USDOT number registration",
       "new authority trucking package",
     ],
-    metaTitle: "New Trucking Authority Setup — $200 | QP Trucking",
+    metaTitle: "New Trucking Authority Setup — $200",
     metaDescription:
       "New authority setup: FMCSA operating authority, USDOT, permits and filings handled for $200 ($100 for factoring clients). Launch faster with QP.",
   },
@@ -607,7 +607,7 @@ export const services: Service[] = [
       "FMCSA BOC-3 filing service",
       "process agent trucking",
     ],
-    metaTitle: "BOC-3 Filing Service — $60 | QP Trucking Solutions",
+    metaTitle: "BOC-3 Filing Service — $60",
     metaDescription:
       "Fast BOC-3 filing with process agents in all 50 states for $60, or $40 for factoring clients. Required before your authority activates.",
   },
@@ -729,7 +729,7 @@ export const services: Service[] = [
       "2290 e-file cost",
       "IRP registration 2290",
     ],
-    metaTitle: "Form 2290 (HVUT) Filing — $60 | QP Trucking Solutions",
+    metaTitle: "Form 2290 (HVUT) Filing — $60",
     metaDescription:
       "E-file Form 2290 Heavy Highway Vehicle Use Tax for $60 ($40 for factoring clients). Get your stamped Schedule 1 fast and plate your trucks.",
   },
@@ -845,7 +845,7 @@ export const services: Service[] = [
       "multi state truck registration",
       "IRP renewal service",
     ],
-    metaTitle: "IRP Truck Registration & Plates — $195 | QP Trucking",
+    metaTitle: "IRP Truck Registration & Plates — $195",
     metaDescription:
       "IRP apportioned registration for interstate fleets: base jurisdiction setup, plates and cab cards. $195 service fee, state fees itemized up front.",
   },
@@ -964,7 +964,7 @@ export const services: Service[] = [
       "international fuel tax agreement trucking",
       "fuel tax reporting carrier",
     ],
-    metaTitle: "IFTA Registration & Quarterly Filing | QP Trucking",
+    metaTitle: "IFTA Registration & Quarterly Filing",
     metaDescription:
       "IFTA account setup ($150), quarterly filings ($60) and annual renewals ($100). Accurate fuel tax reporting with deadline management.",
   },
@@ -1085,7 +1085,7 @@ export const services: Service[] = [
       "UCR fleet size fee",
       "annual UCR filing service",
     ],
-    metaTitle: "UCR Filing for Carriers — $60 | QP Trucking Solutions",
+    metaTitle: "UCR Filing for Carriers — $60",
     metaDescription:
       "UCR registration and renewal for carriers, brokers and forwarders. Correct fleet-size bracket, state fee paid, certificate delivered. $60 ($40 clients).",
   },
@@ -1207,7 +1207,7 @@ export const services: Service[] = [
       "update USDOT number",
       "MCS-150 filing service cost",
     ],
-    metaTitle: "MCS-150 Filing & USDOT Updates — $60 | QP Trucking",
+    metaTitle: "MCS-150 Filing & USDOT Updates — $60",
     metaDescription:
       "MCS-150 filing and biennial updates for motor carriers. Keep your USDOT active and your mileage and power units correct. $60 ($40 for clients).",
   },
@@ -1329,7 +1329,7 @@ export const services: Service[] = [
       "intermodal carrier setup",
       "government freight carrier code",
     ],
-    metaTitle: "SCAC Code Setup for Carriers — $60 | QP Trucking",
+    metaTitle: "SCAC Code Setup for Carriers — $60",
     metaDescription:
       "Get your Standard Carrier Alpha Code (SCAC) fast for $60 ($40 for factoring clients). Unlock intermodal, drayage and large-shipper freight.",
   },
@@ -1448,7 +1448,7 @@ export const services: Service[] = [
       "driver qualification file setup",
       "new authority compliance packet",
     ],
-    metaTitle: "DOT Compliance Binder — From $99 | QP Trucking",
+    metaTitle: "DOT Compliance Binder — From $99",
     metaDescription:
       "Inspection-ready DOT compliance binder with authority, insurance, registration and driver documents in tabbed sections. PDF $99 or printed $139.",
   },
@@ -1566,7 +1566,7 @@ export const services: Service[] = [
       "random drug testing pool carrier",
       "DOT drug consortium enrollment",
     ],
-    metaTitle: "Drug & Alcohol Consortium — $135 | QP Trucking",
+    metaTitle: "Drug & Alcohol Consortium — $135",
     metaDescription:
       "FMCSA-compliant drug and alcohol consortium enrollment: random pooling, pre-employment testing and Clearinghouse queries. $135 ($100 for clients).",
   },
@@ -1679,7 +1679,7 @@ export const services: Service[] = [
       "electronic logging device for owner operator",
       "dashcam insurance credit trucking",
     ],
-    metaTitle: "ELD & Dashcam Savings Program | QP Trucking Solutions",
+    metaTitle: "ELD & Dashcam Savings Program",
     metaDescription:
       "Member pricing on FMCSA-registered ELD and dashcam systems, plus installation guidance, driver training and insurance credits.",
   },

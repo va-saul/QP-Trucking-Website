@@ -6,9 +6,14 @@ import { Btn, Container, CtaBand, Section, SectionHead } from "@/components/ui";
 import { Reveal } from "@/components/motion";
 import { JsonLd, articleSchema, breadcrumbSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
-import { insights, insightsBySlug } from "@/content/insights";
+import { insightWordCount, insights, insightsBySlug } from "@/content/insights";
 import { org } from "@/content/site";
 import { servicesBySlug, servicePath } from "@/content/services";
+
+const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+const longDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 
 export function generateStaticParams() {
   return insights.map((p) => ({ slug: p.slug }));
@@ -19,7 +24,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = insightsBySlug[slug];
   if (!post) return { title: "Article not found" };
   return buildMetadata({
-    title: post.title,
+    // The reader-facing headline stays the H1 + the social card; the `<title>`
+    // gets the short, keyword-led label so it fits the SERP with the brand tail.
+    title: post.seoTitle ?? post.title,
+    ogTitle: post.title,
     description: post.description,
     path: `/insights/${post.slug}`,
     keywords: post.keywords,
@@ -48,6 +56,10 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
             date: post.date,
             updated: post.updated,
             image: post.image,
+            author: post.author,
+            category: post.category,
+            keywords: post.keywords,
+            wordCount: insightWordCount(post),
           }),
           breadcrumbSchema([
             { label: "Home", href: "/" },
@@ -72,9 +84,9 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
         ]}
         stats={[
           { label: "Category", value: post.category },
-          { label: "Published", value: new Date(post.date).toLocaleDateString("en-US", { month: "short", year: "numeric" }) },
+          { label: "Published", value: longDate(post.date) },
+          { label: "Last updated", value: longDate(post.updated ?? post.date) },
           { label: "Reading time", value: `${post.readingMinutes} min` },
-          { label: "Author", value: "QP Trucking Solutions" },
         ]}
         primaryHref="/get-started"
         primaryLabel="Talk to a specialist"
@@ -135,6 +147,23 @@ export default async function InsightPage({ params }: { params: Promise<{ slug: 
 
               <div className="mt-12 rounded-[1.2rem] border border-steel-200 bg-bone p-6">
                 <p className="eyebrow text-brand-500">About the author</p>
+                <p className="mt-3 flex flex-wrap items-center gap-x-2 text-[0.82rem] text-steel-600">
+                  <span>
+                    By <strong className="font-semibold text-navy-900">{post.author}</strong>
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    Published <time dateTime={post.date}>{shortDate(post.date)}</time>
+                  </span>
+                  {post.updated ? (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span>
+                        Updated <time dateTime={post.updated}>{shortDate(post.updated)}</time>
+                      </span>
+                    </>
+                  ) : null}
+                </p>
                 <p className="mt-3 text-[0.98rem] leading-relaxed text-steel-700">
                   <strong className="text-navy-900">QP Trucking Solutions</strong> ({org.legalName}) is a family-owned
                   factoring company, licensed trucking insurance agency and FMCSA compliance partner in Louisville,

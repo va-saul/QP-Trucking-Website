@@ -6,7 +6,14 @@ export type InsightBlock =
 
 export type Insight = {
   slug: string;
+  /** The on-page headline (H1). Also used as the Article `headline`. */
   title: string;
+  /**
+   * Optional SERP title. `title` is written for readers and can run long, so a
+   * post may name a shorter, keyword-led label for Google here — `buildMetadata`
+   * then adds the brand tail and guarantees it fits the 60-character budget.
+   */
+  seoTitle?: string;
   description: string;
   excerpt: string;
   date: string;
@@ -18,6 +25,14 @@ export type Insight = {
   keywords: string[];
   blocks: InsightBlock[];
   glossary?: { term: string; definition: string }[];
+};
+
+/** Body length, used by the Article schema (`wordCount`) and the reading rail. */
+export const insightWordCount = (post: Insight) => {
+  const words = (text: string) => (text ? text.split(/\s+/).length : 0);
+  const body = post.blocks.reduce<number>((total, block) => (block.type === "ul" ? total + words(block.items.join(" ")) : total + words(block.text)), 0);
+  const glossary = (post.glossary ?? []).reduce((total, t) => total + words(`${t.term} ${t.definition}`), 0);
+  return body + glossary;
 };
 
 /**
@@ -107,6 +122,7 @@ export const insights: Insight[] = [
   {
     slug: "new-fines-for-double-brokering",
     title: "New Fines for Double Brokering: What Carriers Should Know",
+    seoTitle: "New Fines for Double Brokering",
     description:
       "Double brokering can put a load with an unauthorized carrier, and federal law allows penalties of up to $10,000 per incident under MAP-21.",
     excerpt:
@@ -147,6 +163,7 @@ export const insights: Insight[] = [
   {
     slug: "get-to-know-your-trucking-terms",
     title: "Get to Know Your Trucking Terms: The Complete Glossary",
+    seoTitle: "Trucking Terms Glossary (80+ Definitions)",
     description:
       "From accessorial charges to white glove logistics: a plain-English glossary of trucking, freight and logistics terms used every day.",
     excerpt:
@@ -264,6 +281,7 @@ export const insights: Insight[] = [
   {
     slug: "carriers-hoping-for-relief-on-insurance-premiums",
     title: "Carriers Hoping for Relief on Insurance Premiums",
+    seoTitle: "Why Trucking Insurance Premiums Keep Rising",
     description:
       "Nuclear verdicts, medical costs and repair rates keep pushing trucking insurance up. See how fleets fight back and what underwriters look at.",
     excerpt:
@@ -314,6 +332,7 @@ export const insights: Insight[] = [
   {
     slug: "rush-hour-times-getting-worse-for-truckers",
     title: "Rush Hour Times Are Getting Worse for Truckers",
+    seoTitle: "Rush Hour Delays at Freight Bottlenecks",
     description:
       "Peak-hour speeds at the top 100 freight bottlenecks fell to 36.3 mph. What that means for detention pay, scheduling and cost per mile.",
     excerpt:
@@ -353,6 +372,7 @@ export const insights: Insight[] = [
   {
     slug: "are-carriers-being-to-hopeful",
     title: "Are Carriers Being Too Hopeful About Freight Recovery?",
+    seoTitle: "Freight Recovery: Are Carriers Too Hopeful?",
     description:
       "Freight sentiment data showed carriers split on near-term profitability but positive long term. What indexes said about rates, investment and hiring.",
     excerpt:
@@ -396,6 +416,7 @@ export const insights: Insight[] = [
   {
     slug: "a-sleeper-cab-with-a-jacuzzi",
     title: "A Sleeper Cab With a Jacuzzi? Driver Comfort Today",
+    seoTitle: "Sleeper Cab Comfort & Driver Retention",
     description:
       "Sleeper cab design keeps moving into hotel-room territory. What drivers actually value on the road and what carriers should weigh before buying.",
     excerpt:

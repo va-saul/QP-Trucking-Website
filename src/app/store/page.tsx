@@ -11,7 +11,7 @@ import type { Faq } from "@/lib/types";
 import { SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Services & Pricing Catalog | QP Trucking Solutions",
+  title: "Trucking Service Catalog & Published Pricing",
   description:
     "Every QP Trucking Solutions service with published pricing: new authority $200, BOC-3 $60, Form 2290 $60, IRP $195 and more. Client rates available.",
   path: "/store",

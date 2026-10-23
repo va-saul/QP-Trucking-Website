@@ -8,9 +8,9 @@ import { certificate, deepDiveBlocks, profileBlocks, type Block } from "@/conten
 const BADGE = "/images/recognition/top-trucking-factoring-solution-2026-badge.png";
 
 export const metadata = buildMetadata({
-  title: "Top Trucking Factoring Solution 2026 | QP Trucking Solutions",
+  title: "Top Trucking Factoring Solution 2026",
   description:
-    "QP Trucking Solutions was named Top Trucking Factoring Solution 2026 by Transportation Review. Read the featured profile, the Deep Dive article and the certificate of recognition.",
+    "QP Trucking Solutions was named Top Trucking Factoring Solution 2026 by Transportation Review. Read the profile, Deep Dive article and certificate.",
   path: "/industry-recognition",
   keywords: [
     "Top Trucking Factoring Solution 2026",

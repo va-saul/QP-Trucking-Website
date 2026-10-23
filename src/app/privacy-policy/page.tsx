@@ -5,7 +5,7 @@ import { buildMetadata } from "@/lib/seo";
 import { org } from "@/content/site";
 
 export const metadata = buildMetadata({
-  title: "Privacy Policy | QP Trucking Solutions",
+  title: "Privacy Policy & Data Practices",
   description:
     "How QP Capital LLC (QP Trucking Solutions) collects, uses and protects personal information on qptrucking.com, and how to exercise your privacy rights.",
   path: "/privacy-policy",

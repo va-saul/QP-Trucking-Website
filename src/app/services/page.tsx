@@ -18,7 +18,7 @@ import { complianceServices, servicePath } from "@/content/services";
 import type { Faq } from "@/lib/types";
 
 export const metadata = buildMetadata({
-  title: "Trucking Authority, Permits & FMCSA Compliance Services",
+  title: "FMCSA Authority, Permits & Compliance",
   description:
     "New authority, BOC-3, Form 2290, IRP, IFTA, UCR, MCS-150, SCAC, DOT binders and ELD programs, filed fast at disclosed prices.",
   path: "/services",

@@ -163,7 +163,7 @@ export const ambassadorProgram = {
       a: "Factoring and hot shot payouts land on the first load factored; fuel card and dispatch payouts on the first active account or dispatched load; the $20 authority completion and the insurance point evaluation are paid per their own schedules. All payout schedules are subject to periodic review.",
     },
   ] as Faq[],
-  metaTitle: "QP Ambassador Referral Program | Earn Up to $700",
+  metaTitle: "Ambassador Referral Program — Earn Up to $700",
   metaDescription:
     "Refer carriers to QP factoring, insurance, fuel cards and authority services. Earn $500–$700 per factoring referral plus bonuses on other services.",
   keywords: [
@@ -293,7 +293,7 @@ export const circleNetworkProgram = {
       a: "Circle members get exclusive access to 50% down payment assistance for semi-truck insurance binding, which lowers the cash needed up front to get a truck insured and on the road.",
     },
   ] as Faq[],
-  metaTitle: "The Circle Network Premium Member Program | QP Trucking",
+  metaTitle: "Circle Network Premium Membership",
   metaDescription:
     "QP's premium member tier: 0% factoring fees, free fuel card setup, free IFTA & IRP processing, insurance down-payment help and a broker directory.",
   keywords: [
@@ -386,7 +386,7 @@ export const fuelCardProgram = {
       a: "POS purchases and customer service are $0. Other transactions are priced plainly: registration draft $3.50, ATM withdrawal $2.50, QP Pay quick funding $5.00, and fuel advance (50% of load, $1K max) $15.00.",
     },
   ] as Faq[],
-  metaTitle: "QP Fuel Card | 48¢/gal Savings at 9,000+ Stations",
+  metaTitle: "QP Fuel Card — 48¢/gal at 9,000+ Stations",
   metaDescription:
     "QP fuel card: 48¢/gal average savings, 9,000+ stations, TA/Petro discounts, zero POS fees and flexible approvals with no traditional credit needed.",
   keywords: [
@@ -461,7 +461,7 @@ export const equipmentFinanceProgram = {
       a: "A specialist reviews every application personally — during business hours (Mon–Fri, 8AM–8PM EST) you will hear back quickly, and you can always call 833-762-3464 to move a deal forward.",
     },
   ] as Faq[],
-  metaTitle: "Equipment Finance for Trucking Companies | QP Trucking",
+  metaTitle: "Equipment Finance for Trucking Companies",
   metaDescription:
     "Finance tractors, trailers and equipment with specialists who know trucking cash flow. One application. Pair with factoring and insurance.",
   keywords: [

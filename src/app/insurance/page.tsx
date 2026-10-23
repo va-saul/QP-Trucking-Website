@@ -22,7 +22,7 @@ import type { Faq } from "@/lib/types";
 const service = servicesBySlug["insurance"];
 
 export const metadata = buildMetadata({
-  title: "Trucking Insurance Quotes | QP Trucking Solutions",
+  title: "Trucking Insurance Quotes",
   description:
     "Licensed trucking insurance agency: primary liability, cargo, bobtail, physical damage and more. Fast binding, FMCSA filings handled.",
   path: "/insurance",

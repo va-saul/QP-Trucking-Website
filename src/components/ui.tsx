@@ -5,6 +5,7 @@ import { BrandLockup } from "@/components/brand";
 import { CountUp, Reveal } from "@/components/motion";
 import { Marquee, RuleDraw } from "@/components/motion-extra";
 import type { Service } from "@/lib/types";
+import { priceBySlug } from "@/content/pricing";
 
 /* ------------------------------------------------------------------ */
 /*  LAYOUT                                                            */
@@ -319,8 +320,9 @@ export function ServiceCard({ service, href, index }: { service: Service; href: 
         </div>
         <div className="mt-5 flex items-center gap-3 text-[0.82rem]">
           <span className="font-mono font-medium text-brand-500">
-            {service.price?.tiers?.[0]?.price ?? "Flat fee"}
-            {service.price?.tiers?.[1] ? ` · ${service.price.tiers[1].price} clients` : ""}
+            {priceBySlug[service.slug]
+              ? `${priceBySlug[service.slug].paid} · free in Circle`
+              : (service.price?.tiers?.[0]?.price ?? "Flat fee")}
           </span>
           <span
             aria-hidden="true"

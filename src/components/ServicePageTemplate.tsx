@@ -14,6 +14,7 @@ import {
   TrustBadges,
 } from "@/components/ui";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { priceBySlug, PRICE_TIER_LABELS } from "@/content/pricing";
 import { Reveal } from "@/components/motion";
 import { JsonLd, breadcrumbSchema, faqSchema, howToSchema, serviceSchema } from "@/lib/schema";
 import { org } from "@/content/site";
@@ -105,7 +106,53 @@ export function ServicePageTemplate({
 
             <Reveal delay={0.1}>
               <aside className="lg:sticky lg:top-28">
-                {service.price ? (
+                {service.price && priceBySlug[service.slug] ? (
+                  <div className="rounded-[1.15rem] border border-steel-200 bg-bone p-6">
+                    <p className="eyebrow text-brand-500">{service.short} pricing</p>
+                    <dl className="mt-4 grid gap-px overflow-hidden rounded-[0.8rem] border border-steel-200 bg-steel-200">
+                      <div className="flex items-baseline justify-between gap-3 bg-paper px-4 py-3">
+                        <dt className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-500">
+                          {PRICE_TIER_LABELS.circle.short}
+                        </dt>
+                        <dd className="font-display text-[1.15rem] font-extrabold text-teal-600">
+                          {priceBySlug[service.slug].circle}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-3 bg-paper px-4 py-3">
+                        <dt className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-500">
+                          {PRICE_TIER_LABELS.paid.short}
+                        </dt>
+                        <dd className="font-display text-[1.15rem] font-extrabold text-navy-900">
+                          {priceBySlug[service.slug].paid}
+                        </dd>
+                      </div>
+                      <div className="flex items-baseline justify-between gap-3 bg-paper px-4 py-3">
+                        <dt className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-500">
+                          {PRICE_TIER_LABELS.ancillary.short}
+                        </dt>
+                        <dd className="font-display text-[1.15rem] font-extrabold text-steel-600">
+                          {priceBySlug[service.slug].ancillary}
+                        </dd>
+                      </div>
+                    </dl>
+                    {priceBySlug[service.slug].note ? (
+                      <p className="mt-3 text-[0.8rem] font-semibold text-gold-600">
+                        {priceBySlug[service.slug].note}
+                      </p>
+                    ) : null}
+                    <div className="mt-5 grid gap-2.5">
+                      <Btn href={`/get-started?service=${service.slug}`} variant="primary" withArrow className="w-full">
+                        {primaryLabel}
+                      </Btn>
+                      <Btn href={`tel:${org.salesPhone}`} variant="outlineDark" className="w-full">
+                        Call {org.salesPhoneDisplay}
+                      </Btn>
+                    </div>
+                    {service.price.fine ? (
+                      <p className="mt-3 text-[0.72rem] leading-snug text-steel-400">{service.price.fine}</p>
+                    ) : null}
+                  </div>
+                ) : service.price ? (
                   <PriceTicket
                     label={`${service.short} pricing`}
                     price={service.price.tiers?.[0]?.price ?? "Flat fee"}

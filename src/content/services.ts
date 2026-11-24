@@ -1,4 +1,5 @@
 import type { Service } from "@/lib/types";
+import { priceBlock } from "@/content/pricing";
 
 /**
  * Single source of truth for every service page.
@@ -372,28 +373,21 @@ export const services: Service[] = [
   /* ------------------------------------------------------------------ */
   {
     slug: "new-authority",
-    name: "New Authority Set-Up",
+    name: "New Authority Application",
     short: "New Authority",
     category: "Authority & Compliance",
     eyebrow: "Authority · Step 01",
     tagline:
       "Permits, licenses and fees handled end to end so your MC number goes active without paperwork slowing you down.",
     answer:
-      "New Authority Set-Up is QP's $200 onboarding service ($100 for factoring clients with promo code) that handles the permits, licenses and filings required to operate under your own FMCSA authority — including the operating authority application, UCR, BOC-3, IRP plates and the compliance documents your first broker will ask for.",
+      "The New Authority Application is QP's onboarding service for the operating authority application, USDOT and MC numbers and the permits required to run under your own FMCSA authority. It is $150 for factoring or insurance clients, $300 on an ancillary-only basis, and free for Circle Network members — with LLC formation and EIN handled as separate line items.",
     heroVariant: "sunrise",
     heroImage: "/images/hero/new-authority.jpg",
     accent: "gold",
-    price: {
-      summary: "$200 — or $100 for factoring clients with promo code",
-      tiers: [
-        { label: "New Authority Set-Up", price: "$200" },
-        { label: "Factoring client rate", price: "$100", note: "With promo code" },
-      ],
-      fine: "Price covers our service; government filing fees are separate and disclosed up front.",
-    },
+    price: priceBlock("authority-application", "Price covers our processing; government filing fees — including the FMCSA authority fee — are separate and disclosed up front."),
     checkoutUrl: "/get-started?service=new-authority",
     heroStats: [
-      { label: "Client rate", value: "$100" },
+      { label: "Client rate", value: "$150" },
       { label: "Carriers set up", value: "1,000s" },
       { label: "Setup time", value: "24 hrs" },
     ],
@@ -434,7 +428,7 @@ export const services: Service[] = [
     ],
     benefits: [
       "One team handles the entire start-up checklist",
-      "Discounted $100 pricing for factoring clients",
+      "Free processing for Circle Network members",
       "Insurance, BOC-3, UCR, IRP and 2290 coordinated together",
       "Compliance binder prepared so you pass a DOT inspection or broker audit",
       "Guidance on rates, dispatching and direct shippers after you activate",
@@ -457,7 +451,7 @@ export const services: Service[] = [
     faqs: [
       {
         q: "How much does new trucking authority setup cost at QP?",
-        a: "QP charges $200 for New Authority Set-Up, or $100 for factoring clients with a promo code. Government fees — such as the FMCSA $300 operating authority fee and state registration costs — are separate and always disclosed before we file.",
+        a: "QP charges $150 for the New Authority Application for factoring or insurance clients, $300 on an ancillary-only basis, and nothing for Circle Network members. LLC formation ($150/$300) and EIN application ($100/$200) are separate line items. Government fees — such as the FMCSA $300 operating authority fee and state registration costs — are separate and always disclosed before we file.",
       },
       {
         q: "How long does it take to get an MC number?",
@@ -489,36 +483,251 @@ export const services: Service[] = [
       "USDOT number registration",
       "new authority trucking package",
     ],
-    metaTitle: "New Trucking Authority Setup — $200",
+    metaTitle: "New Trucking Authority Setup — From $150",
     metaDescription:
-      "New authority setup: FMCSA operating authority, USDOT, permits and filings handled for $200 ($100 for factoring clients). Launch faster with QP.",
+      "New authority application: FMCSA operating authority, USDOT and permits handled for $150 ($300 ancillary only, free for Circle Network). Launch faster with QP.",
+  },
+  {
+    slug: "llc-formation",
+    name: "LLC Formation",
+    short: "LLC Formation",
+    category: "Authority & Compliance",
+    eyebrow: "Authority · Step 02",
+    tagline:
+      "Your trucking company formed as a registered business entity — articles filed with the state, operating documents in hand, ready for your EIN and authority application.",
+    answer:
+      "LLC formation registers your trucking business as a legal entity with your state, giving you the limited liability protection and business bank account brokers and insurers expect. QP files the formation for $150 for factoring or insurance clients, $300 on an ancillary-only basis, and free for Circle Network members — state filing fees are separate.",
+    heroVariant: "paperwork",
+    heroImage: "/images/hero/new-authority.jpg",
+    accent: "blue",
+    price: priceBlock("llc-formation", "State formation fees are separate and vary by state; we itemize them before you pay. Government fees and taxes are additional."),
+    checkoutUrl: "/get-started?service=llc-formation",
+    heroStats: [
+      { label: "Client rate", value: "$150" },
+      { label: "Circle Network", value: "FREE" },
+      { label: "Ancillary only", value: "$300" },
+    ],
+    intro: [
+      "Before a broker will hand you a load, before an insurer will bind a policy and before FMCSA will grant operating authority, you need a business entity that exists on paper. Most owner-operators form a limited liability company — an LLC — because it separates your personal assets from the trucks, the loads and the claims that come with them.",
+      "QP coordinates LLC formation with everything that follows it. The company name you register has to match the name on your EIN, your USDOT number, your insurance certificate and your BOC-3, and mismatches between those documents are one of the most common reasons new authority applications stall.",
+    ],
+    sections: [
+      {
+        h: "What LLC formation covers",
+        bullets: [
+          "Articles of organization prepared and filed with your chosen state",
+          "Registered agent coordination in the state of formation",
+          "Operating agreement template and ownership structure set up correctly",
+          "EIN sequencing so your entity documents and tax records match",
+          "Entity name checked against your intended USDOT and insurance name",
+          "Coordination with authority, BOC-3 and insurance filings happening next",
+        ],
+      },
+      {
+        h: "Why the entity comes first",
+        p: [
+          "Every filing in your start-up stack references your legal business name. If you apply for operating authority under a trade name that does not match the name on your state registration, the FMCSA can reject the application — and a rejection resets the clock while your truck sits.",
+          "Forming the entity first also unlocks the business bank account and EIN that factoring companies, fuel card providers and insurers all ask for during onboarding.",
+        ],
+      },
+      {
+        h: "The benefits of our ancillary services",
+        bullets: [
+          "We help apply for and obtain the documents needed to run your authority",
+          "Saves you time and headache — no state portal guesswork",
+          "Documents prepared accurately the first time",
+          "Keeps you on task, organized and legally compliant",
+          "One team coordinates the entity, the EIN and the authority",
+          "Free processing for Circle Network members",
+        ],
+      },
+    ],
+    benefits: [
+      "Entity documents filed and returned to you",
+      "Name matched across EIN, USDOT, insurance and BOC-3",
+      "Registered agent coordination handled",
+      "Operating agreement template included",
+      "Sequenced with your EIN and authority application",
+      "Free processing for Circle Network members",
+    ],
+    process: [
+      {
+        title: "Choose the state and name",
+        body: "We confirm the state of formation, check the name against your intended trucking brand and make sure it will match the filings that follow.",
+      },
+      {
+        title: "We file the articles",
+        body: "Formation documents go to the state with the registered agent details attached, and we track the approval.",
+      },
+      {
+        title: "Entity documents delivered",
+        body: "You receive the stamped formation records and operating agreement, then we move straight into your EIN and authority application.",
+      },
+    ],
+    faqs: [
+      {
+        q: "How much does LLC formation cost?",
+        a: "QP charges $150 for LLC formation for factoring or insurance clients, $300 on an ancillary-only basis, and nothing for Circle Network members. State formation fees are separate and itemized before you pay.",
+      },
+      {
+        q: "Do I need an LLC to get trucking authority?",
+        a: "You can operate as a sole proprietor, but an LLC separates your personal assets from the business and is what most brokers, insurers and factoring companies expect to see on your documents. It also makes the name-matching across EIN, USDOT and insurance far simpler.",
+      },
+      {
+        q: "Which state should I form my trucking LLC in?",
+        a: "Usually the state where you actually run the business and park the truck. Forming in another state purely for tax reasons often creates registration obligations in both states and is a discussion worth having before you file.",
+      },
+      {
+        q: "Does LLC formation include my EIN?",
+        a: "No — the EIN application is a separate line item at $100 for factoring or insurance clients ($200 ancillary only). The two are sequenced together so your entity name and tax records match exactly.",
+      },
+      {
+        q: "Can you form my LLC and file my authority at the same time?",
+        a: "Yes, and that is the normal path. Formation is filed first because the authority application references the legal entity name, but the paperwork is prepared together so nothing waits in a queue.",
+      },
+    ],
+    related: ["new-authority", "ein-application", "boc-3", "insurance"],
+    keywords: [
+      "trucking LLC formation",
+      "form an LLC for a trucking company",
+      "trucking company entity setup",
+      "registered agent trucking LLC",
+      "LLC before DOT number",
+    ],
+    metaTitle: "LLC Formation for Carriers — From $150",
+    metaDescription:
+      "Form your trucking LLC for $150, free for Circle Network members. Articles filed, registered agent handled and names matched to your DOT and insurance records.",
+  },
+  {
+    slug: "ein-application",
+    name: "EIN Application",
+    short: "EIN Application",
+    category: "Authority & Compliance",
+    eyebrow: "Authority · Step 03",
+    tagline:
+      "Your federal Employer Identification Number obtained and documented — the tax ID every bank, broker, insurer and factoring company asks for.",
+    answer:
+      "An EIN is the federal tax identification number the IRS issues to your business. Every trucking company needs one before it can open a business bank account, register with the FMCSA, apply for operating authority or complete a factoring application. QP files for your EIN at $100 for factoring or insurance clients, $200 on an ancillary-only basis, and free for Circle Network members.",
+    heroVariant: "paperwork",
+    heroImage: "/images/hero/compliance.jpg",
+    accent: "blue",
+    price: priceBlock("ein-application"),
+    checkoutUrl: "/get-started?service=ein-application",
+    heroStats: [
+      { label: "Client rate", value: "$100" },
+      { label: "Circle Network", value: "FREE" },
+      { label: "Ancillary only", value: "$200" },
+    ],
+    intro: [
+      "The Employer Identification Number is the single document that turns your newly formed LLC into a business the rest of the industry can transact with. Banks will not open a business checking account without it, brokers need it to set you up as a carrier, and the FMCSA record ties back to it as your company grows.",
+      "QP prepares the application so the legal name and address on the EIN match your state formation documents exactly — the mismatch that causes the most rework in a new authority setup.",
+    ],
+    sections: [
+      {
+        h: "What the EIN application includes",
+        bullets: [
+          "SS-4 application prepared and submitted to the IRS",
+          "Responsible party details documented correctly",
+          "Legal name and address matched to your state formation records",
+          "EIN confirmation delivered as a document for your binder",
+          "Coordination with your business bank account and factoring onboarding",
+          "Sequenced ahead of your USDOT and operating authority applications",
+        ],
+      },
+      {
+        h: "Why carriers need an EIN",
+        p: [
+          "You can technically operate a sole proprietorship under a Social Security number, but every serious counterparty in trucking expects an EIN. Factoring companies require it to pay you, insurers require it to bind a policy in your company name, and brokers require it to onboard you as a vendor.",
+          "An EIN also keeps your personal Social Security number off the paperwork you hand to brokers and shippers, which matters as your customer list grows.",
+        ],
+      },
+      {
+        h: "The benefits of our ancillary services",
+        bullets: [
+          "We help apply for and obtain the documents needed to run your authority",
+          "Saves you time sitting in IRS queues",
+          "Names and addresses verified against your entity documents",
+          "Keeps you on task, organized and legally compliant",
+          "One point of contact through the whole start-up sequence",
+          "Free processing for Circle Network members",
+        ],
+      },
+    ],
+    benefits: [
+      "EIN obtained without an IRS phone queue",
+      "Confirmation letter delivered for your binder and bank",
+      "Legal name matched to your LLC formation records",
+      "Sequenced with formation and authority applications",
+      "Ready for factoring, insurance and broker onboarding",
+      "Free processing for Circle Network members",
+    ],
+    process: [
+      {
+        title: "Confirm entity details",
+        body: "We verify the legal name, address and responsible party from your formation documents before anything is submitted.",
+      },
+      {
+        title: "Submit to the IRS",
+        body: "The SS-4 application is prepared and filed, and we monitor it through to issuance.",
+      },
+      {
+        title: "EIN delivered",
+        body: "You receive the EIN confirmation to open your business bank account and complete your authority and factoring applications.",
+      },
+    ],
+    faqs: [
+      {
+        q: "How much does an EIN application cost at QP?",
+        a: "QP charges $100 for the EIN application for factoring or insurance clients, $200 on an ancillary-only basis, and nothing for Circle Network members. The IRS does not charge a fee for an EIN.",
+      },
+      {
+        q: "Do I need an EIN if I am a single-member LLC?",
+        a: "Yes, in practice. A single-member LLC can use the owner's Social Security number for some purposes, but brokers, insurers and factoring companies will ask for an EIN, and handing out your SSN to every customer is a risk worth avoiding.",
+      },
+      {
+        q: "How long does an EIN take?",
+        a: "Online applications are usually issued within minutes to a few business days, depending on IRS processing. We submit the application and track it until the confirmation is in your hands.",
+      },
+      {
+        q: "Can I get an EIN without an LLC?",
+        a: "Yes. A sole proprietor or partnership can also obtain an EIN. It is still the document banks and brokers will ask for, so the application applies either way.",
+      },
+      {
+        q: "Does the EIN have to match my USDOT name?",
+        a: "Yes. The legal name on your EIN, your state formation documents, your USDOT record, your insurance certificate and your BOC-3 should all be identical. QP checks that alignment before filing anything.",
+      },
+    ],
+    related: ["llc-formation", "new-authority", "boc-3", "insurance"],
+    keywords: [
+      "EIN application trucking",
+      "get an EIN for a trucking company",
+      "employer identification number carrier",
+      "SS-4 trucking business",
+      "EIN before DOT number",
+    ],
+    metaTitle: "EIN Application for Carriers — From $100",
+    metaDescription:
+      "Get your trucking company EIN for $100, free for Circle Network members. Name matched to your LLC and DOT records, with confirmation delivered for onboarding.",
   },
   {
     slug: "boc-3",
     name: "BOC-3 Filing Setup",
     short: "BOC-3 Filing",
     category: "Authority & Compliance",
-    eyebrow: "Authority · Step 02",
+    eyebrow: "Authority · Step 04",
     tagline:
       "Designation of process agents filed in every state you're authorized to operate — required before your authority activates.",
     answer:
-      "A BOC-3 filing (Designation of Agents for Service of Process) is a federal FMCSA filing that assigns a process agent to accept legal documents on behalf of your trucking company in each state where you are authorized to operate. QP completes the filing for $60, or $40 for factoring clients with a promo code.",
+      "A BOC-3 filing (Designation of Agents for Service of Process) is a federal FMCSA filing that assigns a process agent to accept legal documents on behalf of your trucking company in each state where you are authorized to operate. QP completes the filing for $99 for factoring or insurance clients, $198 on an ancillary-only basis, and free for Circle Network members.",
     heroVariant: "paperwork",
     heroImage: "/images/hero/compliance.jpg",
     accent: "blue",
-    price: {
-      summary: "$60 — or $40 for factoring clients with promo code",
-      tiers: [
-        { label: "BOC-3 filing", price: "$60" },
-        { label: "Factoring client rate", price: "$40", note: "With promo code" },
-      ],
-      fine: "Filed with a nationwide process agent network covering all 50 states.",
-    },
+    price: priceBlock("boc-3", "Filed with a nationwide process agent network covering all 50 states. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=boc-3",
     heroStats: [
       { label: "Deadline", value: "20 days" },
       { label: "Coverage", value: "50 states" },
-      { label: "Client rate", value: "$40" },
+      { label: "Client rate", value: "$99" },
     ],
     intro: [
       "A BOC-3 filing (Designation of Agents for Service of Process) is a federal filing in the United States that assigns a process agent to accept legal documents on behalf of a transportation or logistics company in each state in which the company is authorized to do business. You have 20 days to complete this step.",
@@ -557,7 +766,7 @@ export const services: Service[] = [
     ],
     benefits: [
       "Filing completed in about one business day",
-      "$40 pricing for QP factoring clients",
+      "$99 rate for QP factoring and insurance clients",
       "All 50 states covered through one process agent network",
       "Paired with insurance filing so your authority activates on schedule",
       "Update support when your name, address or phone number changes",
@@ -580,7 +789,7 @@ export const services: Service[] = [
     faqs: [
       {
         q: "How much does a BOC-3 filing cost?",
-        a: "QP charges $60 for a standard BOC-3 filing, or $40 for factoring clients using our promo code. The price includes submission and confirmation — no separate process agent invoice each month.",
+        a: "QP charges $99 for a BOC-3 filing for factoring or insurance clients, $198 on an ancillary-only basis, and there is no processing charge for Circle Network members. The price includes submission and confirmation — no separate process agent invoice each month.",
       },
       {
         q: "Do I really need a BOC-3 to get my authority?",
@@ -607,9 +816,9 @@ export const services: Service[] = [
       "FMCSA BOC-3 filing service",
       "process agent trucking",
     ],
-    metaTitle: "BOC-3 Filing Service — $60",
+    metaTitle: "BOC-3 Filing Service — From $99",
     metaDescription:
-      "Fast BOC-3 filing with process agents in all 50 states for $60, or $40 for factoring clients. Required before your authority activates.",
+      "Fast BOC-3 filing with process agents in all 50 states for $99, or free for Circle Network members. Required before your authority activates.",
   },
   {
     slug: "form-2290",
@@ -620,23 +829,16 @@ export const services: Service[] = [
     tagline:
       "Annual HVUT returns prepared and e-filed with your stamped Schedule 1 back in hand — quickly and accurately.",
     answer:
-      "Form 2290 is the annual Heavy Highway Vehicle Use Tax (HVUT) return required for vehicles with a taxable gross weight of 55,000 lbs or more. QP prepares and e-files your 2290 for $60 — $40 for factoring clients with a promo code — and returns your stamped Schedule 1, which you need before registering under IRP.",
+      "Form 2290 is the annual Heavy Highway Vehicle Use Tax (HVUT) return required for vehicles with a taxable gross weight of 55,000 lbs or more. QP prepares and e-files your 2290 for $150 for factoring or insurance clients, $300 on an ancillary-only basis, or free for Circle Network members — and returns your stamped Schedule 1, which you need before registering under IRP.",
     heroVariant: "fuel",
     heroImage: "/images/hero/fuel-tax.jpg",
     accent: "gold",
-    price: {
-      summary: "$60 — or $40 for factoring clients with promo code",
-      tiers: [
-        { label: "Form 2290 e-filing", price: "$60" },
-        { label: "Factoring client rate", price: "$40", note: "With promo code" },
-      ],
-      fine: "IRS HVUT tax itself is calculated separately based on taxable gross weight and is always disclosed first.",
-    },
+    price: priceBlock("form-2290", "The IRS HVUT tax itself is calculated separately based on taxable gross weight and is always disclosed first. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=form-2290",
     heroStats: [
       { label: "Threshold", value: "55,000 lbs" },
       { label: "Filing window", value: "Aug 1–Oct" },
-      { label: "Client rate", value: "$40" },
+      { label: "Client rate", value: "$150" },
     ],
     intro: [
       "Anyone who has registered, or is required to register, a heavy highway motor vehicle with a taxable gross weight of 55,000 pounds or more in their name — and who first uses it on public highways during the reporting period — must file Form 2290, the Heavy Highway Vehicle Use Tax Return.",
@@ -661,7 +863,7 @@ export const services: Service[] = [
           "Your stamped Schedule 1 delivered electronically so you can register immediately",
           "Guidance if you are filing multiple vehicles across several states",
           "Reminders before the next filing deadline so nothing lapses",
-          "$40 rate for QP factoring clients",
+          "$150 rate for QP factoring and insurance clients",
         ],
       },
       {
@@ -709,7 +911,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does the Heavy Vehicle Use Tax cost?",
-        a: "The IRS tax is annual and based on taxable gross weight, starting at 55,000 lbs and capping at 75,000 lbs and above. QP discloses the exact tax plus our $60 filing fee ($40 for factoring clients) before submitting anything.",
+        a: "The IRS tax is annual and based on taxable gross weight, starting at 55,000 lbs and capping at 75,000 lbs and above. QP discloses the exact tax plus our filing fee — $150 for factoring or insurance clients, $300 ancillary only, free for Circle Network members — before submitting anything.",
       },
       {
         q: "Do I need my 2290 before I can register with IRP?",
@@ -729,9 +931,9 @@ export const services: Service[] = [
       "2290 e-file cost",
       "IRP registration 2290",
     ],
-    metaTitle: "Form 2290 (HVUT) Filing — $60",
+    metaTitle: "Form 2290 (HVUT) Filing — From $150",
     metaDescription:
-      "E-file Form 2290 Heavy Highway Vehicle Use Tax for $60 ($40 for factoring clients). Get your stamped Schedule 1 fast and plate your trucks.",
+      "E-file Form 2290 Heavy Highway Vehicle Use Tax for $150, free for Circle Network members. Get your stamped Schedule 1 fast and plate your trucks.",
   },
   {
     slug: "irp",
@@ -742,15 +944,11 @@ export const services: Service[] = [
     tagline:
       "Apportioned plates and cab cards for fleets running in more than one jurisdiction — registered correctly the first time.",
     answer:
-      "The International Registration Plan (IRP) lets a commercial vehicle operate interstate under a single registration plate and cab card issued by your base state. QP handles IRP truck registration for $195, registering your fleet across every jurisdiction you operate in and reporting your mileage correctly.",
+      "The International Registration Plan (IRP) lets a commercial vehicle operate interstate under a single registration plate and cab card issued by your base state. QP handles IRP truck registration for $149 for factoring or insurance clients, $298 on an ancillary-only basis, or free for Circle Network members — registering your fleet across every jurisdiction you operate in and reporting your mileage correctly.",
     heroVariant: "plate",
     heroImage: "/images/hero/irp.jpg",
     accent: "blue",
-    price: {
-      summary: "$195 service — state apportioned registration fees billed separately at cost",
-      tiers: [{ label: "IRP registration service", price: "$195" }],
-      fine: "State fees vary by jurisdiction and mileage; we itemize them before you pay.",
-    },
+    price: priceBlock("irp", "State apportioned registration fees vary by jurisdiction and mileage and are billed separately at cost; we itemize them before you pay."),
     checkoutUrl: "/get-started?service=irp",
     heroStats: [
       { label: "Plate type", value: "Apportioned" },
@@ -821,7 +1019,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does IRP registration cost?",
-        a: "QP charges a $195 service fee. State apportioned registration fees are additional and depend on your fleet's weight and mileage split — we itemize the full amount before you pay anything.",
+        a: "QP charges $149 for factoring or insurance clients, $298 on an ancillary-only basis, and nothing for Circle Network members. State apportioned registration fees are additional and depend on your fleet's weight and mileage split — we itemize the full amount before you pay anything.",
       },
       {
         q: "What is the difference between IRP and IFTA?",
@@ -845,9 +1043,9 @@ export const services: Service[] = [
       "multi state truck registration",
       "IRP renewal service",
     ],
-    metaTitle: "IRP Truck Registration & Plates — $195",
+    metaTitle: "IRP Truck Registration & Plates — From $149",
     metaDescription:
-      "IRP apportioned registration for interstate fleets: base jurisdiction setup, plates and cab cards. $195 service fee, state fees itemized up front.",
+      "IRP apportioned registration for interstate fleets: base jurisdiction setup, plates and cab cards. $149 for QP clients, state fees itemized up front.",
   },
   {
     slug: "ifta",
@@ -858,28 +1056,20 @@ export const services: Service[] = [
     tagline:
       "New IFTA accounts, quarterly filings and annual renewals — prepared by people who do this every quarter.",
     answer:
-      "IFTA (the International Fuel Tax Agreement) is a fuel tax agreement among states and Canadian provinces that simplifies reporting fuel used by interstate motor carriers. QP sets up your IFTA account for $150 ($100 with promo code), files quarterly returns for $60 ($40 promo) and handles annual renewals for $100 ($70 promo).",
+      "IFTA (the International Fuel Tax Agreement) is a fuel tax agreement among states and Canadian provinces that simplifies reporting fuel used by interstate motor carriers. QP sets up and processes your IFTA account for $149 for factoring or insurance clients, $298 on an ancillary-only basis, or free for Circle Network members — plus $50 for each additional truck.",
     heroVariant: "fuel",
     heroImage: "/images/hero/fuel-tax.jpg",
     accent: "gold",
-    price: {
-      summary: "Registration $150 / Quarterly $60 / Annual renewal $100",
-      tiers: [
-        { label: "IFTA registration", price: "$150", note: "$100 with promo code" },
-        { label: "Quarterly filing", price: "$60", note: "$40 with promo code" },
-        { label: "Annual renewal", price: "$100", note: "$70 with promo code" },
-      ],
-      fine: "Fuel tax due is paid to the base jurisdiction and separate from our preparation fee.",
-    },
+    price: priceBlock("ifta", "Fuel tax due is paid to the base jurisdiction and is separate from our preparation fee. $50 for each additional truck applies to both paid tiers; there is no processing charge for Circle Network members."),
     checkoutUrl: "/get-started?service=ifta",
     heroStats: [
       { label: "Filing cycle", value: "Quarterly" },
       { label: "Renewal", value: "Annual" },
-      { label: "Quarterly fee", value: "$60" },
+      { label: "Client rate", value: "$149" },
     ],
     intro: [
       "The International Fuel Tax Agreement (IFTA) is a fuel consumption tax agreement among states and Canadian provinces to simplify the reporting of fuel used by interstate or inter-jurisdictional motor carriers. IFTA must be filed quarterly and has an annual renewal.",
-      "We help get your account set up, can help file it quarterly, and can handle your annual renewal — including the mileage and fuel purchase records the base jurisdiction requires.",
+      "We set up the account, prepare and file your quarterly returns and handle the annual renewal — all under one published processing fee — including the mileage and fuel purchase records the base jurisdiction requires.",
     ],
     sections: [
       {
@@ -894,7 +1084,8 @@ export const services: Service[] = [
         bullets: [
           "New IFTA account registration and license/decals for each qualified vehicle",
           "Quarterly mileage and fuel tax return preparation and electronic filing",
-          "Annual IFTA renewal to keep your license active without lapses",
+          "One processing fee covers account setup, quarterly filings and the annual renewal",
+          "Annual IFTA license renewal so there are no lapses",
           "Reconciliation of fuel card and ELD data so reported gallons match purchases",
           "Filing-deadline management so penalties never happen",
           "Assistance responding to jurisdiction audit requests",
@@ -941,7 +1132,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does IFTA registration cost?",
-        a: "QP charges $150 for new IFTA registration ($100 with promo code), $60 per quarterly filing ($40 with promo code) and $100 for the annual renewal ($70 with promo code). Factoring clients receive the discounted rates.",
+        a: "QP charges $149 for IFTA processing for factoring or insurance clients, $298 on an ancillary-only basis, and nothing for Circle Network members — plus $50 for each additional truck. The fuel tax itself is paid to your base jurisdiction and is separate from our processing fee.",
       },
       {
         q: "When are IFTA quarterly filings due?",
@@ -966,7 +1157,7 @@ export const services: Service[] = [
     ],
     metaTitle: "IFTA Registration & Quarterly Filing",
     metaDescription:
-      "IFTA account setup ($150), quarterly filings ($60) and annual renewals ($100). Accurate fuel tax reporting with deadline management.",
+      "IFTA account setup and processing for $149 ($298 ancillary only), free for Circle Network members plus $50 per extra truck. Quarterly deadlines tracked for you.",
   },
   {
     slug: "ucr",
@@ -977,15 +1168,15 @@ export const services: Service[] = [
     tagline:
       "Annual UCR registration completed on time with fees calculated from your actual fleet size — never guessed.",
     answer:
-      "Unified Carrier Registration (UCR) is an annual federal registration that verifies motor carriers have active insurance and authority in the states where they operate. Fees are based on fleet size and it renews every year. QP files your UCR for $60 — $40 for factoring clients with a promo code.",
+      "Unified Carrier Registration (UCR) is an annual federal registration that verifies motor carriers have active insurance and authority in the states where they operate. Fees are based on fleet size and it renews every year. QP files your UCR for $60 — $40 for QP factoring or insurance clients.",
     heroVariant: "paperwork",
     heroImage: "/images/hero/compliance.jpg",
     accent: "blue",
     price: {
-      summary: "$60 — or $40 for factoring clients with promo code",
+      summary: "$60 — or $40 for QP factoring or insurance clients",
       tiers: [
         { label: "UCR registration", price: "$60" },
-        { label: "Factoring client rate", price: "$40", note: "With promo code" },
+        { label: "Factoring or insurance client rate", price: "$40" },
       ],
       fine: "State UCR fees are set by fleet size and are itemized before filing.",
     },
@@ -1018,7 +1209,7 @@ export const services: Service[] = [
           "Pay the state fee immediately so your registration is active",
           "Return your UCR certificate for your compliance binder and broker files",
           "Renew on time the following year — we track the cycle for you",
-          "$40 pricing for factoring clients",
+          "$40 pricing for QP factoring and insurance clients",
         ],
       },
       {
@@ -1039,7 +1230,7 @@ export const services: Service[] = [
       "Renewal reminders so you never operate unregistered",
       "Fleet changes (adds and drops) reflected at renewal",
       "Bundled with authority and compliance services",
-      "$40 pricing for factoring clients",
+      "$40 pricing for QP factoring and insurance clients",
     ],
     process: [
       {
@@ -1062,7 +1253,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does UCR cost?",
-        a: "UCR fees are set by fleet-size bracket, ranging from the smallest carriers to fleets of 1,001 vehicles or more. QP charges a $60 service fee ($40 for factoring clients) and itemizes the state fee before filing.",
+        a: "UCR fees are set by fleet-size bracket, ranging from the smallest carriers to fleets of 1,001 vehicles or more. QP charges a $60 service fee ($40 for QP factoring or insurance clients) and itemizes the state fee before filing.",
       },
       {
         q: "When does UCR registration open and expire?",
@@ -1098,23 +1289,16 @@ export const services: Service[] = [
     tagline:
       "Keep your USDOT record current — biennial updates, mileage changes and fleet size corrections filed right.",
     answer:
-      "The MCS-150 (Motor Carrier Identification Report) is the FMCSA form used to obtain and update your USDOT number. It records your company details, carrier type, commodities hauled, annual mileage, drivers and power units. QP files new and updated MCS-150 reports for $60, or $40 for factoring clients with a promo code.",
+      "The MCS-150 (Motor Carrier Identification Report) is the FMCSA form used to obtain and update your USDOT number. It records your company details, carrier type, commodities hauled, annual mileage, drivers and power units. QP files new and updated MCS-150 reports for $99 for factoring or insurance clients, $198 on an ancillary-only basis, or free for Circle Network members.",
     heroVariant: "paperwork",
     heroImage: "/images/hero/compliance.jpg",
     accent: "blue",
-    price: {
-      summary: "$60 — or $40 for factoring clients with promo code",
-      tiers: [
-        { label: "MCS-150 filing or update", price: "$60" },
-        { label: "Factoring client rate", price: "$40", note: "With promo code" },
-      ],
-      fine: "Biennial updates and out-of-cycle changes both covered.",
-    },
+    price: priceBlock("mcs-150", "Biennial updates and out-of-cycle changes both covered. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=mcs-150",
     heroStats: [
       { label: "Update cycle", value: "Biennial" },
       { label: "Affects", value: "Safety score" },
-      { label: "Client rate", value: "$40" },
+      { label: "Client rate", value: "$99" },
     ],
     intro: [
       "The MCS-150, or Motor Carrier Identification Report, is the form filed to obtain and update your USDOT number. It contains the company information the FMCSA uses throughout the lifetime of your business.",
@@ -1140,7 +1324,7 @@ export const services: Service[] = [
           "Corrects outdated mileage, driver and power unit counts",
           "Explains how each change affects your safety rating and inspections",
           "Stores a copy for your compliance binder and broker packets",
-          "$40 rate for factoring clients",
+          "$99 rate for QP factoring and insurance clients",
         ],
       },
       {
@@ -1188,7 +1372,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does it cost to file an MCS-150 with QP?",
-        a: "QP charges $60 to file or update your MCS-150, or $40 for factoring clients with a promo code. There is no government fee for the filing itself — the FMCSA does not charge for MCS-150 updates.",
+        a: "QP charges $99 to file or update your MCS-150 for factoring or insurance clients, $198 ancillary only, and nothing for Circle Network members. There is no government fee for the filing itself — the FMCSA does not charge for MCS-150 updates.",
       },
       {
         q: "Will updating my mileage change my safety score?",
@@ -1207,9 +1391,9 @@ export const services: Service[] = [
       "update USDOT number",
       "MCS-150 filing service cost",
     ],
-    metaTitle: "MCS-150 Filing & USDOT Updates — $60",
+    metaTitle: "MCS-150 Filing & USDOT Updates — From $99",
     metaDescription:
-      "MCS-150 filing and biennial updates for motor carriers. Keep your USDOT active and your mileage and power units correct. $60 ($40 for clients).",
+      "MCS-150 filing and biennial updates for motor carriers. Keep your USDOT active and your mileage and power units correct. $99, free for Circle Network.",
   },
   {
     slug: "scac",
@@ -1220,23 +1404,16 @@ export const services: Service[] = [
     tagline:
       "Your Standard Carrier Alpha Code — the key that unlocks intermodal, government and direct-shipper freight.",
     answer:
-      "A SCAC (Standard Carrier Alpha Code) is a unique two-to-four-letter code issued by the National Motor Freight Traffic Association that identifies your trucking company on intermodal and government freight. QP obtains your SCAC code for $60, or $40 for factoring clients with a promo code.",
+      "A SCAC (Standard Carrier Alpha Code) is a unique two-to-four-letter code issued by the National Motor Freight Traffic Association that identifies your trucking company on intermodal and government freight. QP obtains your SCAC code for $99 for factoring or insurance clients, $199 on an ancillary-only basis, or free for Circle Network members.",
     heroVariant: "counter",
     heroImage: "/images/hero/compliance.jpg",
     accent: "gold",
-    price: {
-      summary: "$60 — or $40 for factoring clients with promo code",
-      tiers: [
-        { label: "SCAC code registration", price: "$60" },
-        { label: "Factoring client rate", price: "$40", note: "With promo code" },
-      ],
-      fine: "Annual NMFTA code maintenance handled as part of the service.",
-    },
+    price: priceBlock("scac", "Annual NMFTA code maintenance handled as part of the service. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=scac",
     heroStats: [
       { label: "Format", value: "2–4 letters" },
       { label: "Issuer", value: "NMFTA" },
-      { label: "Client rate", value: "$40" },
+      { label: "Client rate", value: "$99" },
     ],
     intro: [
       "The SCAC — Standard Carrier Alpha Code — is used for intermodal and government loads. We can help obtain the SCAC number for you, creating access to more lucrative freight.",
@@ -1262,7 +1439,7 @@ export const services: Service[] = [
           "Guidance on how to give the code to brokers, ramps and shippers",
           "Coordination with UCR, IRP and authority filings",
           "Renewal/maintenance reminders so the code stays active",
-          "$40 pricing for factoring clients",
+          "$99 pricing for QP factoring and insurance clients",
         ],
       },
       {
@@ -1283,7 +1460,7 @@ export const services: Service[] = [
       "Support with EDI and shipper onboarding requirements",
       "Bundle with factoring so new customers are credit-checked immediately",
       "Ongoing maintenance so the code never lapses",
-      "$40 pricing for factoring clients",
+      "$99 pricing for QP factoring and insurance clients",
     ],
     process: [
       {
@@ -1306,7 +1483,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does it cost to get a SCAC code?",
-        a: "QP charges $60 for SCAC setup, or $40 for factoring clients with a promo code, which includes the application and code registration maintenance.",
+        a: "QP charges $99 for SCAC setup for factoring or insurance clients, $199 on an ancillary-only basis, and nothing for Circle Network members. The price includes the application and code registration maintenance.",
       },
       {
         q: "How long does it take to receive a SCAC code?",
@@ -1329,9 +1506,9 @@ export const services: Service[] = [
       "intermodal carrier setup",
       "government freight carrier code",
     ],
-    metaTitle: "SCAC Code Setup for Carriers — $60",
+    metaTitle: "SCAC Code Setup for Carriers — From $99",
     metaDescription:
-      "Get your Standard Carrier Alpha Code (SCAC) fast for $60 ($40 for factoring clients). Unlock intermodal, drayage and large-shipper freight.",
+      "Get your Standard Carrier Alpha Code (SCAC) fast for $99, free for Circle Network members. Unlock intermodal, drayage and large-shipper freight.",
   },
   {
     slug: "dot-binder",
@@ -1342,18 +1519,11 @@ export const services: Service[] = [
     tagline:
       "Every document a DOT officer, broker or auditor asks for — organized in one binder, PDF or printed.",
     answer:
-      "A DOT compliance binder collects the documents that keep your trucking company legal — authority, insurance, registrations, driver qualification files, drug and alcohol program records and inspection reports — in one place. QP prepares a digital PDF for $99 or a printed physical copy for $139.",
+      "A DOT compliance binder collects the documents that keep your trucking company legal — authority, insurance, registrations, driver qualification files, drug and alcohol program records and inspection reports — in one place. QP prepares it for $99 for factoring or insurance clients, $198 on an ancillary-only basis, or free for Circle Network members.",
     heroVariant: "binder",
     heroImage: "/images/hero/dot-binder.jpg",
     accent: "blue",
-    price: {
-      summary: "PDF $99 · Physical copy $139",
-      tiers: [
-        { label: "Digital PDF binder", price: "$99" },
-        { label: "Printed physical binder", price: "$139" },
-      ],
-      fine: "Tabbed sections, cover page and a document checklist included.",
-    },
+    price: priceBlock("dot-binder", "Tabbed sections, cover page and a document checklist included. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=dot-binder",
     heroStats: [
       { label: "Format", value: "PDF / Print" },
@@ -1378,10 +1548,10 @@ export const services: Service[] = [
         ],
       },
       {
-        h: "PDF or printed — which should you choose?",
+        h: "Digital and printed options",
         p: [
-          "The digital PDF is ideal for broker onboarding and for drivers who keep documents on a phone or tablet in the cab. It is also simple to keep current because we can update a single file.",
-          "The printed binder is what inspectors and auditors like to hold. It lives in the truck or the office, tabbed and labeled so anyone on your team can find a document in seconds.",
+          "The binder is available as a digital PDF — ideal for broker onboarding and for drivers who keep documents on a phone or tablet in the cab, and simple to keep current because we can update a single file.",
+          "It is also available as a printed, tabbed binder that lives in the truck or the office, labeled so anyone on your team can find a document in seconds. Both formats carry the same processing fee.",
         ],
       },
       {
@@ -1415,7 +1585,7 @@ export const services: Service[] = [
       },
       {
         title: "Binder delivered",
-        body: "Choose a digital PDF or a printed, tabbed binder shipped to your address — ready for inspection season.",
+        body: "Choose a digital PDF or a printed, tabbed binder shipped to your address — both ready for inspection season.",
       },
     ],
     faqs: [
@@ -1425,7 +1595,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does a QP DOT binder cost?",
-        a: "A digital PDF binder is $99, and a printed physical binder is $139. Both include tabbed sections, a cover page and a document checklist.",
+        a: "The DOT binder is $99 for factoring or insurance clients, $198 on an ancillary-only basis, and free for Circle Network members. Both the digital PDF and the printed format include tabbed sections, a cover page and a document checklist.",
       },
       {
         q: "Is a binder required by the FMCSA?",
@@ -1450,7 +1620,7 @@ export const services: Service[] = [
     ],
     metaTitle: "DOT Compliance Binder — From $99",
     metaDescription:
-      "Inspection-ready DOT compliance binder with authority, insurance, registration and driver documents in tabbed sections. PDF $99 or printed $139.",
+      "Inspection-ready DOT compliance binder with authority, insurance, registration and driver documents in tabbed sections. $99, free for Circle Network.",
   },
   {
     slug: "drug-alcohol-consortium",
@@ -1461,23 +1631,16 @@ export const services: Service[] = [
     tagline:
       "Clearinghouse-compliant drug and alcohol program enrollment with testing, random pools and records handled.",
     answer:
-      "The FMCSA requires motor carriers to run a compliant drug and alcohol testing program, including pre-employment, random, post-accident and return-to-duty testing plus Clearinghouse queries. QP enrolls your company in a consortium for $135 — $100 for factoring clients with a promo code.",
+      "The FMCSA requires motor carriers to run a compliant drug and alcohol testing program, including pre-employment, random, post-accident and return-to-duty testing plus Clearinghouse queries. QP enrolls your company in a consortium for $199 for factoring or insurance clients, $398 on an ancillary-only basis, or free for Circle Network members.",
     heroVariant: "safety",
     heroImage: "/images/hero/drug-alcohol.jpg",
     accent: "gold",
-    price: {
-      summary: "$135 — or $100 for factoring clients with promo code",
-      tiers: [
-        { label: "Consortium enrollment", price: "$135" },
-        { label: "Factoring client rate", price: "$100", note: "With promo code" },
-      ],
-      fine: "Testing fees at collection sites are billed per test by the consortium.",
-    },
+    price: priceBlock("drug-alcohol-consortium", "Testing fees at collection sites are billed per test by the consortium. Government fees and taxes are additional."),
     checkoutUrl: "/get-started?service=drug-alcohol-consortium",
     heroStats: [
       { label: "Program", value: "FMCSA" },
       { label: "Random pool", value: "Managed" },
-      { label: "Client rate", value: "$100" },
+      { label: "Client rate", value: "$199" },
     ],
     intro: [
       "All truck drivers must be enrolled with a drug and alcohol testing program before they can get on the road. The FMCSA and USDOT require that drivers have a negative pre-employment drug screen before driving for a carrier — including owner-operators driving their own truck under their own authority.",
@@ -1520,7 +1683,7 @@ export const services: Service[] = [
       "Clearinghouse query support and documentation",
       "Written policy and audit-ready record keeping",
       "New-hire onboarding and testing scheduling help",
-      "$100 pricing for factoring clients",
+      "$199 pricing for QP factoring and insurance clients",
     ],
     process: [
       {
@@ -1543,7 +1706,7 @@ export const services: Service[] = [
       },
       {
         q: "How much does drug and alcohol consortium enrollment cost?",
-        a: "QP charges $135 for consortium enrollment, or $100 for factoring clients with a promo code. Individual test collection fees are billed by the consortium when testing occurs.",
+        a: "QP charges $199 for consortium enrollment for factoring or insurance clients, $398 on an ancillary-only basis, and nothing for Circle Network members. Individual test collection fees are billed by the consortium when testing occurs.",
       },
       {
         q: "What is the FMCSA Drug and Alcohol Clearinghouse?",
@@ -1566,9 +1729,9 @@ export const services: Service[] = [
       "random drug testing pool carrier",
       "DOT drug consortium enrollment",
     ],
-    metaTitle: "Drug & Alcohol Consortium — $135",
+    metaTitle: "Drug & Alcohol Consortium — From $199",
     metaDescription:
-      "FMCSA-compliant drug and alcohol consortium enrollment: random pooling, pre-employment testing and Clearinghouse queries. $135 ($100 for clients).",
+      "FMCSA-compliant drug and alcohol consortium enrollment: random pooling, pre-employment testing and Clearinghouse queries. $199, free for Circle Network.",
   },
   {
     slug: "eld-dashcam",

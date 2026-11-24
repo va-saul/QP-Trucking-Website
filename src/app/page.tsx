@@ -103,7 +103,7 @@ const programCards = [
   {
     eyebrow: "Premium member tier",
     title: "Circle Network",
-    blurb: "0% factoring fees, free fuel card setup, complimentary IFTA & IRP processing and a 40+ broker directory for new authorities.",
+    blurb: "0% factoring fees, free fuel card setup, every ancillary service processed free and a 40+ broker directory for new authorities.",
     stat: "$2,000+ in annual value",
     href: "/programs/circle-network",
   },

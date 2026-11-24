@@ -40,7 +40,7 @@ export const metadata = buildMetadata({
 const faqs: Faq[] = [
   {
     q: "What does it cost to get a new trucking company compliant?",
-    a: "At QP, the compliance stack starts at $200 for New Authority Set-Up and $60 each for BOC-3, Form 2290, UCR, MCS-150 and SCAC — and factoring clients pay $40 per item with a promo code. Government fees such as the FMCSA $300 authority fee are separate and disclosed up front.",
+    a: "At QP, the published price list has three tiers. Circle Network members pay no processing fee at all. Factoring or insurance clients pay $150 for an authority application, LLC formation or Form 2290, $99 for BOC-3, the DOT binder or MCS-150, and $149 for IRP or IFTA. Ancillary-only carriers pay $300, $198 and $298 accordingly. Government fees such as the FMCSA authority fee are separate and disclosed up front.",
   },
   {
     q: "How fast can you file everything I need?",
@@ -48,7 +48,7 @@ const faqs: Faq[] = [
   },
   {
     q: "Do I have to be a factoring client to use these services?",
-    a: "No. Every QP service is available to any carrier. Factoring clients simply receive discounted pricing on most ancillary services and typically get faster coordination because we already hold your documents.",
+    a: "No. Every QP service is available to any carrier. Circle Network members have every listed service processed free, factoring and insurance clients receive the discounted tier, and ancillary-only carriers pay the published full rate while still getting the same filing work and document handling.",
   },
   {
     q: "Can QP handle renewals so nothing expires?",
@@ -99,7 +99,7 @@ export default function ServicesHubPage() {
           { label: "Carriers served", value: "1,000+" },
           { label: "Typical filing", value: "1 business day" },
           { label: "Renewal tracking", value: "Included" },
-          { label: "Client pricing", value: "$40 / item" },
+          { label: "Circle Network", value: "FREE" },
         ]}
         primaryHref="/get-started?service=new-authority"
         primaryLabel="Start my setup"
@@ -181,7 +181,8 @@ export default function ServicesHubPage() {
                 <p className="eyebrow text-brand-500">Ordering several?</p>
                 <p className="mt-2 max-w-2xl text-[0.95rem] leading-relaxed text-steel-600">
                   Most new authorities take the full start-to-finish package. Call and we will bundle the sequence —
-                  factoring clients save $20 on each ancillary service with a promo code.
+                  Circle Network members pay no processing fee on any ancillary service, and factoring or
+                  insurance clients pay the discounted tier.
                 </p>
               </div>
               <Btn href="/store" variant="primary" withArrow className="shrink-0">
@@ -208,7 +209,7 @@ export default function ServicesHubPage() {
                 "Accuracy checked before filing",
                 "Electronic submissions",
                 "Fees disclosed up front",
-                "$40 client rates",
+                "Free for Circle Network",
                 "Renewal reminders",
                 "Documents stored for audits",
               ]}
@@ -233,7 +234,7 @@ export default function ServicesHubPage() {
       <CtaBand
         eyebrow="Authority & compliance · next step"
         title="Get compliant this week, not next month"
-        body="Send us your details and we will tell you exactly which filings you still need — then handle them. Factoring clients save $20 on every ancillary service."
+        body="Send us your details and we will tell you exactly which filings you still need — then handle them. Circle Network members pay no processing fee on any listed ancillary service."
         serviceId="new-authority"
         primaryLabel="Start my setup"
       />

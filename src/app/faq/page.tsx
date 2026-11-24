@@ -71,11 +71,11 @@ const clusters: { id: string; title: string; intro: string; serviceSlug?: string
   {
     id: "pricing",
     title: "Pricing & getting started",
-    intro: "What things cost, which items are discounted for factoring clients, and what happens on your first call.",
+    intro: "What things cost in each of the three client tiers, and what happens on your first call.",
     faqs: [
       {
         q: "What does it cost to get set up with QP?",
-        a: "Applying is free. Factoring is priced as a flat, disclosed fee based on your volume and customer credit, New Authority Set-Up is $200 and most ancillary filings are $60 — all reduced for factoring clients with a promo code.",
+        a: "Applying is free. Factoring is priced as a flat, disclosed fee based on your volume and customer credit. Ancillary services follow the published price list: $150 for an authority application, LLC formation or Form 2290 and $99 for BOC-3, the DOT binder or MCS-150 for factoring or insurance clients, $298 and $198 on an ancillary-only basis, and no processing fee at all for Circle Network members.",
       },
       {
         q: "Are there hidden fees in factoring?",

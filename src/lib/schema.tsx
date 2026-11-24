@@ -1,6 +1,16 @@
 import { SITE_URL, org, trust } from "@/content/site";
 import type { Faq, Service } from "@/lib/types";
 import { servicePath } from "@/content/services";
+import { PRICE_TIER_LABELS, PRICING_DISCLAIMER, priceTiers, priceBySlug } from "@/content/pricing";
+
+/** The published paid tiers for a service, if it appears on the price list. */
+const publishedTiers = (slug: string) =>
+  priceBySlug[slug]
+    ? [
+        { label: PRICE_TIER_LABELS.paid.long, price: priceTiers(slug)![0].price },
+        { label: PRICE_TIER_LABELS.ancillary.long, price: priceTiers(slug)![1].price },
+      ]
+    : undefined;
 
 /** Local/entity graph — powers knowledge panels, Maps and AI citations. */
 export function organizationSchema() {
@@ -91,16 +101,29 @@ export function serviceSchema(service: Service) {
     audience: { "@type": "BusinessAudience", name: "Trucking companies, owner-operators and fleets" },
     ...(service.price
       ? {
-          offers: {
-            "@type": "Offer",
-            priceCurrency: "USD",
-            ...(service.price.tiers?.[0]
-              ? { price: service.price.tiers[0].price.replace(/[^0-9.]/g, "") }
-              : {}),
-            description: service.price.summary,
-            availability: "https://schema.org/InStock",
-            url: `${SITE_URL}${path}`,
-          },
+          // Published services carry one Offer per client tier so the structured
+          // data matches the price list exactly. Quote-based programs keep a
+          // single Offer without a price.
+          offers: publishedTiers(service.slug)
+            ? publishedTiers(service.slug)!.map((tier) => ({
+                "@type": "Offer",
+                name: tier.label,
+                priceCurrency: "USD",
+                price: tier.price.replace(/[^0-9.]/g, ""),
+                description: `${tier.label} — ${service.name}. ${PRICING_DISCLAIMER}`,
+                availability: "https://schema.org/InStock",
+                url: `${SITE_URL}${path}`,
+              }))
+            : {
+                "@type": "Offer",
+                priceCurrency: "USD",
+                ...(service.price.tiers?.[0]
+                  ? { price: service.price.tiers[0].price.replace(/[^0-9.]/g, "") }
+                  : {}),
+                description: service.price.summary,
+                availability: "https://schema.org/InStock",
+                url: `${SITE_URL}${path}`,
+              },
         }
       : {}),
     hasOfferCatalog: {

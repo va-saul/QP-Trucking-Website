@@ -53,7 +53,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     rows: [
       { k: "Processing", v: "1 business day" },
       { k: "Coverage", v: "All 50 states" },
-      { k: "Client rate", v: "$40 with code" },
+      { k: "Client rate", v: "$99 · free in Circle" },
     ],
     accent: "blue",
   },
@@ -76,7 +76,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     meter: 0.78,
     rows: [
       { k: "Period", v: "Q3 · all states" },
-      { k: "Filing fee", v: "$60 · $40 client" },
+      { k: "Filing fee", v: "$150 · free in Circle" },
       { k: "Deadline", v: "Tracked for you" },
     ],
     accent: "gold",
@@ -89,7 +89,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     rows: [
       { k: "Plate type", v: "IRP apportioned" },
       { k: "Cab card", v: "Per power unit" },
-      { k: "Service fee", v: "$195" },
+      { k: "Service fee", v: "$149 · free in Circle" },
     ],
     accent: "blue",
   },
@@ -101,7 +101,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     rows: [
       { k: "Random pool", v: "Managed" },
       { k: "Clearinghouse", v: "Queries handled" },
-      { k: "Enrollment", v: "$135 · $100 client" },
+      { k: "Enrollment", v: "$199 · free in Circle" },
     ],
     accent: "gold",
   },
@@ -113,7 +113,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     rows: [
       { k: "Sections", v: "Tabbed & indexed" },
       { k: "Format", v: "PDF · Printed" },
-      { k: "Price", v: "$99 · $139" },
+      { k: "Price", v: "$99 · free in Circle" },
     ],
     accent: "blue",
   },
@@ -137,7 +137,7 @@ export const HERO_ART: Record<HeroVariant, ArtConfig> = {
     rows: [
       { k: "Issuer", v: "NMFTA registered" },
       { k: "Format", v: "2–4 letters" },
-      { k: "Client rate", v: "$40 with code" },
+      { k: "Client rate", v: "$99 · free in Circle" },
     ],
     accent: "gold",
   },

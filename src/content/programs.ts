@@ -113,21 +113,27 @@ export const ambassadorProgram = {
     fallbackPhone: org.salesPhone,
     fallbackPhoneDisplay: org.salesPhoneDisplay,
   },
+  /**
+   * Factoring-or-insurance tier from the published ancillary price list
+   * (src/content/pricing.ts) — the rate that applies to an ambassador's
+   * referred client when they become a QP factoring or insurance client.
+   */
   authorityPricing: [
-    { category: "Setup", service: "New Authority", price: "$100" },
-    { category: "Filing", service: "IFTA Quarterly", price: "$40" },
-    { category: "Compliance", service: "BOC-3", price: "$40" },
-    { category: "Safety", service: "Drug Consortium", price: "$100" },
+    { category: "Setup", service: "Authority Application", price: "$150" },
+    { category: "Corporate", service: "LLC Formation", price: "$150" },
+    { category: "Tax", service: "EIN Application", price: "$100" },
+    { category: "Compliance", service: "BOC-3", price: "$99" },
+    { category: "Compliance", service: "SCAC Code", price: "$99" },
+    { category: "Tax", service: "Form 2290", price: "$150" },
+    { category: "Registration", service: "IRP", price: "$149" },
+    { category: "Registration", service: "IFTA", price: "$149" },
+    { category: "Compliance", service: "DOT Binder", price: "$99" },
+    { category: "Safety", service: "Drug & Alcohol", price: "$199" },
+    { category: "Filing", service: "MCS-150", price: "$99" },
     { category: "Registration", service: "UCR", price: "$40" },
-    { category: "Filing", service: "MCS-150", price: "$40" },
-    { category: "Tax", service: "2290 Heavy Vehicle Tax", price: "$40" },
-    { category: "Compliance", service: "SCAC Code", price: "$40" },
-    { category: "Registration", service: "IRP App", price: "$195" },
-    { category: "Corporate", service: "LLC Setup", price: "$100" },
-    { category: "Registration", service: "IFTA Initial", price: "$100" },
-    { category: "Tax", service: "EIN App", price: "$100" },
   ],
-  authorityPricingNote: "All listed prices require an annual factoring contract with QP Capital.",
+  authorityPricingNote:
+    "Prices shown are the factoring or insurance client tier from the published QP ancillary price list. Circle Network members pay no processing fee; ancillary-only clients pay the full published rate. Government fees and taxes are additional.",
   applicationUrl: org.applicationUrl,
   proTip:
     "Your referral can also complete the factoring application directly and list your company name in the referral box on the application — attribution is captured automatically.",
@@ -198,7 +204,7 @@ export const circleNetworkProgram = {
     { label: "Member benefits", value: "6 included" },
   ],
   answer:
-    "The Circle Network is QP Trucking Solutions' premium member tier: $2,000+ in annual value with no-fee factoring, free fuel card setup, complimentary IFTA & IRP processing, a safety & wellness kit, a Circle swag bundle, and 50% down-payment assistance for semi-truck insurance — plus a directory of 40+ brokers that onboard brand-new authorities.",
+    "The Circle Network is QP Trucking Solutions' premium member tier: $2,000+ in annual value with no-fee factoring, free fuel card setup, every service on the ancillary price list processed free — authority application, LLC formation, EIN, BOC-3, SCAC, Form 2290, IRP, DOT binder, IFTA, drug and alcohol consortium and MCS-150 — a safety & wellness kit, a Circle swag bundle, and 50% down-payment assistance for semi-truck insurance, plus a directory of 40+ brokers that onboard brand-new authorities.",
   intro: [
     "The Circle Network is QP's premium support tier for carriers. Every member automatically receives the full benefit stack — financial support that shows up on your statement every month, and a broker network that keeps brand-new authorities moving while everyone else tells them to call back in ninety days.",
   ],
@@ -264,7 +270,7 @@ export const circleNetworkProgram = {
     },
     {
       title: "Activate your membership",
-      body: "Once interested, the enrollment team completes the final consultation and activates your Circle benefits — no-fee factoring, waived IFTA & IRP processing and the rest.",
+      body: "Once interested, the enrollment team completes the final consultation and activates your Circle benefits — no-fee factoring, no processing charge on any ancillary service, and the rest.",
     },
     {
       title: "Run the circle",
@@ -274,7 +280,7 @@ export const circleNetworkProgram = {
   faqs: [
     {
       q: "What is the Circle Network?",
-      a: "The Circle Network is QP Trucking Solutions' premium member tier. Every Circle member automatically receives no-fee factoring, free fuel card setup, complimentary IFTA & IRP processing, a safety & wellness kit, a Circle swag bundle and 50% down-payment assistance for semi-truck insurance — $2,000+ in annual value.",
+      a: "The Circle Network is QP Trucking Solutions' premium member tier. Every Circle member automatically receives no-fee factoring, free fuel card setup, every service on the ancillary price list processed free, a safety & wellness kit, a Circle swag bundle and 50% down-payment assistance for semi-truck insurance — $2,000+ in annual value.",
     },
     {
       q: "What does no-fee factoring mean for Circle members?",
@@ -295,7 +301,7 @@ export const circleNetworkProgram = {
   ] as Faq[],
   metaTitle: "Circle Network Premium Membership",
   metaDescription:
-    "QP's premium member tier: 0% factoring fees, free fuel card setup, free IFTA & IRP processing, insurance down-payment help and a broker directory.",
+    "QP's premium member tier: 0% factoring fees, free fuel card setup, every ancillary service processed free, insurance down-payment help and a broker directory.",
   keywords: [
     "Circle Network trucking",
     "no fee factoring",

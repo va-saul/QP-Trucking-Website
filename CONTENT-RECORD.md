@@ -39,16 +39,16 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | `/contact-us/` | `/contact` | Address, hours, both phones, email, message form (rebuilt) |
 | `/contact-privacy-policy/` | `/contact` + `/privacy-policy` | Contact form → `/contact`; full privacy notice restructured into 14 sections at `/privacy-policy` |
 | `/privacy-policy/` | `/privacy-policy` | Termly notice summarised section-for-section (collection, processing, sharing, cookies, retention, security, minors, rights, DNT, California, Virginia, updates, contact, review) |
-| `/new-authority/` | `/services/new-authority` (308) | Copy retained incl. "$200 / $100 for factoring clients with promo code" and the ancillary-benefits list |
+| `/new-authority/` | `/services/new-authority` (308) | Copy retained and repriced to the 2027 list: $150 factoring/insurance, $300 ancillary only, FREE Circle Network. LLC Formation (`/services/llc-formation`) and EIN Application (`/services/ein-application`) split out as their own pages |
 | `/boc-3/` | `/services/boc-3` (308) | Copy retained: process agent definition, 20-day deadline, insurance requirement, name/address update warning |
 | `/2290-2/` | `/services/form-2290` (308) | Copy retained: 55,000 lb threshold, HVUT explanation, IRP ordering note, the "third-party factoring company" paragraph |
 | `/oil-and-gas-factoring/` | `/services/irp` (308) | Copy retained: IRP definition, single plate/cab card, mileage reporting — the URL itself was a legacy mislabel for the IRP page |
-| `/ifta/` | `/services/ifta` (308) | Copy + all three prices retained: registration $150 ($100), quarterly $60 ($40), annual $100 ($70) |
-| `/dot-binder/` | `/services/dot-binder` (308) | Copy retained: PDF $99 / physical $139, "no scattered paperwork all around your rig" |
-| `/drug-and-alcohol-consortium/` | `/services/drug-alcohol-consortium` (308) | Copy retained: $135 / $100 client rate, FMCSA & USDOT pre-employment testing requirement |
+| `/ifta/` | `/services/ifta` (308) | Copy retained; the three legacy prices (registration/quarterly/annual) are replaced by the single 2027 list price — $149 ($298 ancillary only) plus $50 per additional truck |
+| `/dot-binder/` | `/services/dot-binder` (308) | Copy retained; single published price of $99 ($198 ancillary only) covers both the digital PDF and printed formats |
+| `/drug-and-alcohol-consortium/` | `/services/drug-alcohol-consortium` (308) | Copy retained, repriced to $199 ($398 ancillary only), FMCSA & USDOT pre-employment testing requirement |
 | `/ucr/` | `/services/ucr` (308) | Copy retained: $60 / $40, annual renewal, MC + USDOT numbers to apply |
-| `/mcs-150/` | `/services/mcs-150` (308) | Copy retained: $60 / $40, full description of what the form contains |
-| `/scac-2/` | `/services/scac` (308) | Copy retained: $60 / $40, intermodal and government loads |
+| `/mcs-150/` | `/services/mcs-150` (308) | Copy retained, repriced to $99 ($198 ancillary only), full description of what the form contains |
+| `/scac-2/` | `/services/scac` (308) | Copy retained, repriced to $99 ($199 ancillary only), intermodal and government loads |
 | `/elddashcam-savings-program/` | `/services/eld-dashcam` (308) | Rebuilt as a member-pricing program page (original had no long-form copy) |
 | `/store/*` (16 WooCommerce duplicates) | canonical service pages (308) | Consolidated to remove duplicate content; `/store` itself became the pricing catalog |
 | `/a-bout-invoice-factoring/` | `/factoring` (308) | Factoring overview content |
@@ -62,33 +62,44 @@ Source content harvested from the live site (pages, `page-sitemap.xml`, `ec_stor
 | `/a-sleeper-cab-with-a-jacuzzi/` | `/insights/a-sleeper-cab-with-a-jacuzzi` (308) | Reconstructed from sitemap title + industry context |
 | `/bottom-line-blogging/` | `/insights` (308) | Blog index |
 | `/programs/ambassador` | `/programs/ambassador` | Ambassador Referral Program: $500–$700 factoring, up to $250 insurance, $100 fuel/dispatch, $20/service authority |
-| `/programs/circle-network` | `/programs/circle-network` | Circle Network premium tier: 0% factoring fees, free fuel card setup, complimentary IFTA & IRP, $2,000+ value, 40+ broker directory |
+| `/programs/circle-network` | `/programs/circle-network` | Circle Network premium tier: 0% factoring fees, free fuel card setup, every ancillary service processed free, $2,000+ value, 40+ broker directory |
 | `/programs/fuel-card` | `/programs/fuel-card` | QP Fuel Card: 48¢/gal partner savings, 9,000+ stations, $0 POS fees, save $1,000+/mo per truck |
 | `/programs/equipment-finance` | `/programs/equipment-finance` | Equipment Finance: Tractors, trailers and rolling iron, online credit application |
 
 ---
 
-## 3. Published pricing (carried over exactly)
+## 3. Published pricing
 
-| Service | Standard | Factoring client (promo code) | Notes |
+Source of truth: **`src/content/pricing.ts`**, transcribed from *QP Trucking Solutions — Ancillary Services, Service Price List | October 2026*. Every price rendered on the site (catalog, service pages, FAQs, metadata and JSON-LD offers) reads from that file.
+
+### 3a. Ancillary services price list (October 2026)
+
+| Service | Circle Network | Factoring or Insurance | Ancillary only |
 | --- | --- | --- | --- |
-| New Authority Set-Up | $200 | $100 | Government fees separate |
-| BOC-3 Filing | $60 | $40 | All 50 states via process agent network |
-| Form 2290 (HVUT) | $60 | $40 | IRS tax itself is separate |
-| IRP Registration | $195 | — | State apportioned fees separate |
-| IFTA Registration | $150 | $100 | |
-| IFTA Quarterly Filing | $60 | $40 | |
-| IFTA Annual Renewal | $100 | $70 | |
+| Authority application | FREE | $150 | $300 |
+| LLC formation | FREE | $150 | $300 |
+| EIN application | FREE | $100 | $200 |
+| BOC-3 | FREE | $99 | $198 |
+| SCAC code | FREE | $99 | $199 |
+| Form 2290 | FREE | $150 | $300 |
+| IRP | FREE | $149 | $298 |
+| DOT binder | FREE | $99 | $198 |
+| IFTA | FREE | $149 | $298 |
+| Drug & Alcohol Consortium | FREE | $199 | $398 |
+| MCS-150 | FREE | $99 | $198 |
+
+Footnotes as published: IFTA is **$50 for each additional truck**, applies to both paid tiers, and has no processing charge for Circle Network. All services are processed free for Circle Network members, who remain responsible for government fees and taxes. **All prices are QP processing fees only** — government fees and taxes are additional.
+
+### 3b. Services outside the published list (unchanged)
+
+| Service | Standard | Client | Notes |
+| --- | --- | --- | --- |
 | UCR Registration | $60 | $40 | State fee by fleet size separate |
-| MCS-150 Filing/Update | $60 | $40 | No government fee |
-| SCAC Code | $60 | $40 | NMFTA issued |
-| DOT Compliance Binder | $99 PDF / $139 printed | — | |
-| Drug & Alcohol Consortium | $135 | $100 | Testing fees by consortium |
 | ELD & Dashcam Program | Member pricing | — | Quoted by fleet size |
 | Trucking Insurance | Free to quote | — | Premium varies by operation |
 | Factoring | Flat, disclosed fee | — | No application fee, no minimums, no long-term contract |
 | Ambassador Program | $500–$700 factoring, up to $250 insurance, $100 fuel/dispatch, $20/service | Direct payout per qualified referral |
-| Circle Network | $2,000+ annual member value | 0% factoring fee, free fuel card setup, free IFTA/IRP processing |
+| Circle Network | $2,000+ annual member value | 0% factoring fee, free fuel card setup, every ancillary service processed free |
 | QP Fuel Card | 48¢/gal avg partner savings, $0 POS fees | Universal Mastercard acceptance, 9,000+ stations |
 | Equipment Finance | Tractor & trailer financing | Paired with factoring & insurance |
 

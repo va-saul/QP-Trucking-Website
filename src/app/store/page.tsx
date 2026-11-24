@@ -7,13 +7,22 @@ import { JsonLd, breadcrumbSchema, faqSchema } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { services, servicePath, complianceServices, factoringServices } from "@/content/services";
 import { ambassadorProgram, circleNetworkProgram, fuelCardProgram, equipmentFinanceProgram } from "@/content/programs";
+import {
+  ancillaryPrices,
+  catalogRows,
+  CIRCLE_NETWORK_FOOTNOTE,
+  IFTA_FOOTNOTE,
+  PRICE_LIST_EFFECTIVE,
+  PRICING_DISCLAIMER,
+  priceBySlug,
+} from "@/content/pricing";
 import type { Faq } from "@/lib/types";
 import { SITE_URL } from "@/content/site";
 
 export const metadata = buildMetadata({
   title: "Trucking Service Catalog & Published Pricing",
   description:
-    "Every QP Trucking Solutions service with published pricing: new authority $200, BOC-3 $60, Form 2290 $60, IRP $195 and more. Client rates available.",
+    "Every QP service with published pricing: authority $150, BOC-3 $99, Form 2290 $150, IRP $149 and more — free for Circle Network members.",
   path: "/store",
   keywords: [
     "trucking compliance service pricing",
@@ -37,8 +46,12 @@ const faqs: Faq[] = [
     a: "Call 502-398-6333 or 833-762-3464, or submit the get-started form and a specialist will confirm pricing, collect any documents we still need and file your order — usually the same business day.",
   },
   {
-    q: "Where do the factoring client promo codes come from?",
-    a: "Every active QP factoring client receives a promo code that reduces ancillary service pricing — for example BOC-3 drops from $60 to $40, Form 2290 from $60 to $40 and drug consortium enrollment from $135 to $100.",
+    q: "How does the three-tier pricing work?",
+    a: "The published price list has three tiers. Circle Network members have every listed service processed free and only pay applicable government fees and taxes. Factoring or insurance clients pay the discounted middle rate — for example BOC-3 at $99, Form 2290 at $150 and drug and alcohol consortium enrollment at $199. Carriers using ancillary services only pay the full rate: $198, $300 and $398 respectively.",
+  },
+  {
+    q: "Is Circle Network processing really free?",
+    a: "Yes. All services on the published price list are processed free for Circle Network members — there is no processing charge on authority applications, LLC formation, EIN, BOC-3, SCAC, Form 2290, IRP, the DOT binder, IFTA, drug and alcohol consortium enrollment or MCS-150. Members remain responsible for applicable government fees and taxes, which are additional.",
   },
   {
     q: "Are government fees included in these prices?",
@@ -54,68 +67,18 @@ const faqs: Faq[] = [
   },
 ];
 
-const catalogPricing: Record<
+/**
+ * Services that are NOT on the published ancillary price list keep their own
+ * copy — these are quote-based or program-priced, not fixed processing fees.
+ * Every listed ancillary service reads its number from src/content/pricing.ts.
+ */
+const quotedPricing: Record<
   string,
   {
     standard: { label?: string; price: string }[];
     client: { label?: string; price: string }[];
   }
 > = {
-  "new-authority": {
-    standard: [{ label: "Standard setup", price: "$200" }],
-    client: [{ label: "With promo code", price: "$100" }],
-  },
-  "boc-3": {
-    standard: [{ label: "Standard filing", price: "$60" }],
-    client: [{ label: "With promo code", price: "$40" }],
-  },
-  "form-2290": {
-    standard: [{ label: "IRS HVUT e-filing", price: "$60" }],
-    client: [{ label: "With promo code", price: "$40" }],
-  },
-  irp: {
-    standard: [{ label: "Registration service", price: "$195" }],
-    client: [{ label: "State fees separate", price: "Call for rate" }],
-  },
-  ifta: {
-    standard: [
-      { label: "Registration", price: "$150" },
-      { label: "Quarterly filing", price: "$60" },
-      { label: "Annual renewal", price: "$100" },
-    ],
-    client: [
-      { label: "Registration", price: "$100" },
-      { label: "Quarterly filing", price: "$40" },
-      { label: "Annual renewal", price: "$70" },
-    ],
-  },
-  ucr: {
-    standard: [{ label: "Annual registration", price: "$60" }],
-    client: [{ label: "With promo code", price: "$40" }],
-  },
-  "mcs-150": {
-    standard: [{ label: "Filing or update", price: "$60" }],
-    client: [{ label: "With promo code", price: "$40" }],
-  },
-  scac: {
-    standard: [{ label: "NMFTA code registration", price: "$60" }],
-    client: [{ label: "With promo code", price: "$40" }],
-  },
-  "dot-binder": {
-    standard: [
-      { label: "Digital PDF binder", price: "$99" },
-      { label: "Printed physical binder", price: "$139" },
-    ],
-    client: [{ label: "Bundle rate available", price: "Call for rate" }],
-  },
-  "drug-alcohol-consortium": {
-    standard: [{ label: "Consortium enrollment", price: "$135" }],
-    client: [{ label: "With promo code", price: "$100" }],
-  },
-  "eld-dashcam": {
-    standard: [{ label: "FMCSA-registered devices", price: "Member pricing" }],
-    client: [{ label: "Discounts by fleet size", price: "Preferred rates" }],
-  },
   "trucking-factoring": {
     standard: [{ label: "Recourse & non-recourse", price: "Flat, disclosed fee" }],
     client: [{ label: "With Circle Network", price: "0% factoring fees" }],
@@ -128,23 +91,56 @@ const catalogPricing: Record<
     standard: [{ label: "Liability, cargo, physical damage", price: "Free to quote" }],
     client: [{ label: "With Circle Network", price: "50% down assistance" }],
   },
+  ucr: {
+    standard: [{ label: "Annual registration", price: "$60" }],
+    client: [{ label: "Factoring or insurance client rate", price: "$40" }],
+  },
+  "eld-dashcam": {
+    standard: [{ label: "FMCSA-registered devices", price: "Member pricing" }],
+    client: [{ label: "Discounts by fleet size", price: "Preferred rates" }],
+  },
 };
 
 export default function StorePage() {
-  const rows = services.map((s) => {
-    const custom = catalogPricing[s.slug];
-    const standard = custom?.standard ?? (s.price?.tiers?.length ? [s.price.tiers[0]] : [{ label: s.price?.summary ?? "Disclosed fee", price: "" }]);
-    const client = custom?.client ?? (s.price?.tiers && s.price.tiers.length > 1 ? [s.price.tiers[1]] : [{ label: "Call for client rate", price: "" }]);
-
+  /**
+   * Rows for the published ancillary price list, in the PDF's order, with all
+   * three client tiers. `priceBySlug` is the single source of truth.
+   */
+  const listedRows = ancillaryPrices.map((p) => {
+    const service = complianceServices.find((s) => s.slug === p.slug);
     return {
-      name: s.name,
-      short: s.short,
-      href: servicePath(s),
-      category: s.category,
-      standard,
-      client,
+      slug: p.slug,
+      name: service?.name ?? p.label,
+      short: service?.short ?? p.label,
+      href: service ? servicePath(service) : "/store",
+      circle: p.circle,
+      paid: p.paid,
+      ancillary: p.ancillary,
+      note: p.note,
     };
   });
+
+  /** Quote-based and program-priced services, shown separately below the list. */
+  const quotedRows = services
+    .filter((s) => !priceBySlug[s.slug])
+    .map((s) => {
+      const custom = quotedPricing[s.slug];
+      const standard =
+        custom?.standard ??
+        (s.price?.tiers?.length ? [s.price.tiers[0]] : [{ label: s.price?.summary ?? "Disclosed fee", price: "" }]);
+      const client =
+        custom?.client ??
+        (s.price?.tiers && s.price.tiers.length > 1 ? [s.price.tiers[1]] : [{ label: "Call for client rate", price: "" }]);
+
+      return {
+        name: s.name,
+        short: s.short,
+        href: servicePath(s),
+        category: s.category,
+        standard,
+        client,
+      };
+    });
 
   return (
     <>
@@ -182,10 +178,10 @@ export default function StorePage() {
           { label: "Services & pricing", href: "/store" },
         ]}
         stats={[
-          { label: "Services", value: `${services.length}` },
-          { label: "Client discount", value: "Up to $35" },
+          { label: "Listed services", value: `${ancillaryPrices.length}` },
+          { label: "Circle Network", value: "FREE" },
           { label: "Typical filing", value: "1 day" },
-          { label: "Bundling", value: "Available" },
+          { label: "Price list", value: PRICE_LIST_EFFECTIVE },
         ]}
         primaryHref="/get-started"
         primaryLabel="Order a service"
@@ -196,23 +192,29 @@ export default function StorePage() {
         <Container>
           <AnswerBox
             question="What does QP charge for trucking compliance services?"
-            answer="New Authority Set-Up is $200 ($100 for factoring clients), BOC-3, Form 2290, UCR, MCS-150 and SCAC are $60 each ($40 for clients), IRP registration is $195, IFTA is $150 for registration, $60 per quarterly filing and $100 annually ($100/$40/$70 for clients), the DOT binder is $99 as a PDF or $139 printed, and drug and alcohol consortium enrollment is $135 ($100 for clients)."
+            answer="QP publishes three client tiers. Circle Network members pay no processing fee on any listed service. Factoring or insurance clients pay $150 for an authority application, LLC formation and Form 2290, $99 for BOC-3, the DOT binder and MCS-150, $199 for SCAC, $149 for IRP and IFTA, and $199 for drug and alcohol consortium enrollment. Ancillary-only clients pay roughly double those rates: $300, $198, $199, $298 and $398. Government fees and taxes are additional in every tier."
           />
 
           <Reveal className="mt-10 overflow-hidden rounded-[1.2rem] border border-steel-200">
             <div className="overflow-x-auto scroller">
-              <table className="w-full min-w-[760px] border-collapse text-left">
-                <caption className="sr-only">QP Trucking Solutions services with standard and factoring client pricing</caption>
+              <table className="w-full min-w-[900px] border-collapse text-left">
+                <caption className="sr-only">
+                  QP Trucking Solutions ancillary services price list, {PRICE_LIST_EFFECTIVE}, with Circle Network,
+                  factoring or insurance, and ancillary-only pricing
+                </caption>
                 <thead className="bg-navy-900 text-white">
                   <tr>
                     <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
                       Service
                     </th>
-                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
-                      Standard price
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-gold-400">
+                      Circle Network
                     </th>
                     <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
-                      Factoring clients
+                      Factoring or Insurance
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
+                      Ancillary only
                     </th>
                     <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
                       Order
@@ -220,10 +222,83 @@ export default function StorePage() {
                   </tr>
                 </thead>
                 <tbody className="bg-paper">
-                  {rows.map((r) => (
+                  {listedRows.map((r) => (
+                    <tr key={r.slug} className="border-b border-steel-100 last:border-0">
+                      <th scope="row" className="px-5 py-4 align-top">
+                        {r.href !== "/store" ? (
+                          <Link
+                            href={r.href}
+                            className="font-display text-[1rem] font-bold text-navy-900 hover:text-brand-500"
+                          >
+                            {r.name}
+                          </Link>
+                        ) : (
+                          <span className="font-display text-[1rem] font-bold text-navy-900">{r.name}</span>
+                        )}
+                        {r.note ? (
+                          <p className="mt-1 max-w-[16rem] font-mono text-[0.62rem] uppercase leading-relaxed tracking-[0.12em] text-steel-400">
+                            {r.note}
+                          </p>
+                        ) : null}
+                      </th>
+                      <td className="px-5 py-4 align-top">
+                        <span className="font-display text-[0.95rem] font-extrabold text-teal-600">{r.circle}</span>
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        <span className="font-display text-[0.95rem] font-extrabold text-navy-900">{r.paid}</span>
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        <span className="text-[0.95rem] font-semibold text-steel-600">{r.ancillary}</span>
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        <Btn href={`/get-started?service=${r.slug}`} variant="outlineDark" size="sm">
+                          Start order
+                        </Btn>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
+
+          <Reveal className="mt-5 grid gap-3 rounded-[1.1rem] border border-steel-200 bg-bone p-5">
+            <p className="text-[0.9rem] leading-relaxed text-steel-600">
+              {CIRCLE_NETWORK_FOOTNOTE} {IFTA_FOOTNOTE}
+            </p>
+            <p className="text-[0.8rem] leading-relaxed text-steel-400">{PRICING_DISCLAIMER}</p>
+          </Reveal>
+
+          <Reveal className="mt-8 overflow-hidden rounded-[1.2rem] border border-steel-200">
+            <div className="overflow-x-auto scroller">
+              <table className="w-full min-w-[760px] border-collapse text-left">
+                <caption className="sr-only">
+                  Quote-based QP programs outside the published ancillary price list
+                </caption>
+                <thead className="bg-steel-100 text-navy-900">
+                  <tr>
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
+                      Program
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
+                      Standard
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
+                      QP clients
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-mono text-[0.64rem] uppercase tracking-[0.16em]">
+                      Order
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-paper">
+                  {quotedRows.map((r) => (
                     <tr key={r.name} className="border-b border-steel-100 last:border-0">
                       <th scope="row" className="px-5 py-4 align-top">
-                        <Link href={r.href} className="font-display text-[1rem] font-bold text-navy-900 hover:text-brand-500">
+                        <Link
+                          href={r.href}
+                          className="font-display text-[1rem] font-bold text-navy-900 hover:text-brand-500"
+                        >
                           {r.name}
                         </Link>
                         <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-steel-400">
@@ -306,8 +381,8 @@ export default function StorePage() {
             <div className="rounded-[1.1rem] border border-steel-200 bg-bone p-5">
               <p className="eyebrow text-brand-500">Circle Network</p>
               <p className="mt-2 text-[0.95rem] leading-relaxed text-steel-700">
-                The premium member tier: 0% factoring fees, free fuel card setup, complimentary IFTA &amp; IRP
-                processing and $2,000+ in annual value.
+                The premium member tier: 0% factoring fees, free fuel card setup, every ancillary service
+                processed free — IFTA and IRP included — and $2,000+ in annual value.
               </p>
               <Btn href="/programs/circle-network" variant="outlineDark" size="sm" className="mt-4">
                 Circle Network
@@ -466,7 +541,7 @@ export default function StorePage() {
           <SectionHead
             eyebrow="Why the prices are published"
             title="Trucking is expensive enough without mystery invoices"
-            intro="Ancillary services are where carriers get overcharged — a $60 BOC-3 becomes a $300 'compliance package' somewhere else. We publish the number, then do the work."
+            intro="Ancillary services are where carriers get overcharged — a $99 BOC-3 becomes a $300 'compliance package' somewhere else. We publish the number, tier by tier, then do the work."
           />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {complianceServices.slice(0, 6).map((s, i) => (
@@ -475,8 +550,9 @@ export default function StorePage() {
                   <h3 className="font-display text-[1.05rem] font-bold text-navy-900">{s.short}</h3>
                   <p className="mt-2 line-clamp-2 text-[0.9rem] leading-relaxed text-steel-600">{s.tagline}</p>
                   <p className="mt-4 font-mono text-[0.8rem] font-medium text-brand-500">
-                    {s.price?.tiers?.[0]?.price}
-                    {s.price?.tiers?.[1] ? ` · ${s.price.tiers[1].price} clients` : ""}
+                    {priceBySlug[s.slug]
+                      ? `${priceBySlug[s.slug].paid} · ${priceBySlug[s.slug].ancillary} · free in Circle`
+                      : s.price?.tiers?.[0]?.price}
                   </p>
                 </Link>
               </Reveal>
@@ -501,7 +577,7 @@ export default function StorePage() {
       <CtaBand
         eyebrow="Order a service"
         title="Tell us what you need filed and we will take it from here"
-        body="Send your company details and the service you want, or call and speak to a specialist now. Factoring clients receive discounted pricing on every ancillary service."
+        body="Send your company details and the service you want, or call and speak to a specialist now. Circle Network members pay no processing fee on any ancillary service; factoring and insurance clients receive the discounted tier."
         primaryLabel="Start my order"
       />
     </>
